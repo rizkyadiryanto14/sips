@@ -8,6 +8,23 @@ class Seminar_model extends CI_Model
 
     public function index($input)
     {
+        // Ambil id_periode dari tabel periode dengan status = 1
+        $periode_aktif = $this->db->select('id')
+            ->from('periode')
+            ->where('status', 1)
+            ->get()
+            ->row_array();
+
+        if (empty($periode_aktif)) {
+            return [
+                'error' => true,
+                'message' => 'Tidak ada periode aktif yang ditemukan',
+                'data' => []
+            ];
+        }
+
+        $id_periode = $periode_aktif['id'];
+
         // Pilih kolom yang akan diambil dari tabel seminar dan proposal_mahasiswa_v
         $this->db->select('
         seminar.id AS id,
@@ -55,6 +72,9 @@ class Seminar_model extends CI_Model
             $this->db->where('proposal_mahasiswa_v.mahasiswa_id', $input['mahasiswa_id']);
         }
 
+        // Filter data berdasarkan id_periode yang aktif
+        $this->db->where('proposal_mahasiswa_v.id_periode', $id_periode);
+
         // Eksekusi query dan ambil hasilnya
         $seminar = $this->db->get()->result_array();
 
@@ -67,6 +87,7 @@ class Seminar_model extends CI_Model
 
         return $hasil;
     }
+
 
 
     public function create($input)

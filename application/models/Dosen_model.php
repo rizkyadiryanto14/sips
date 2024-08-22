@@ -37,8 +37,12 @@ class Dosen_model extends CI_Model
             'signature' => $post['ttd']
         ];
 
+        // Update tanda tangan
         $this->db->where('id', $post['id']);
         $this->db->update($table, $params);
+
+        // Generate QR code setelah tanda tangan diperbarui
+        $this->generate_qr_code_for_signature($post['id']);
     }
 
     public function getSignature($where = null)
@@ -50,6 +54,39 @@ class Dosen_model extends CI_Model
         }
         return $this->db->get()->row_array();
     }
+
+    public function generate_qr_code_for_signature($id)
+    {
+        $this->load->library('ciqrcode');
+
+        include_once APPPATH . 'third_party/phpqrcode/qrlib.php';
+
+        // URL yang akan diembed ke dalam QR code
+        $qr_url = base_url('dosen/detail_signature/' . $id);
+
+        // Nama file QR code
+        $file_name = 'dosen_' . $id . '.png';
+        $file_path = FCPATH . 'cdn/vendor/qrcodes/' . $file_name;
+
+        // Parameter untuk QR code
+        $qr_params = [
+            'data' => $qr_url,
+            'level' => 'H',
+            'size' => 10,
+            'savename' => $file_path
+        ];
+
+        // Generate QR code
+        QRcode::png($qr_params['data'], $qr_params['savename'], $qr_params['level'], $qr_params['size']);
+
+        // Update tabel dosen dengan nama file QR code
+        $this->db->where('id', $id);
+        $this->db->update($this->table, ['qr_code' => $file_name]);
+
+        // Mengembalikan nama file QR code
+        return $file_name;
+    }
+
 
 
     /**
@@ -186,7 +223,7 @@ class Dosen_model extends CI_Model
             'id' => $id
         ];
 
-        $dosen = $this->db->get_where($this->table, ['id' => $id])->row_array();
+        $dosen = $this->db->get_where($this->table, $kondisi)->row_array();
 
         return [
             'error' => ($dosen) ? false : true,

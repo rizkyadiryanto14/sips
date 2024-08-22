@@ -47,6 +47,12 @@
                 <span class="nav-link-text">Website</span>
               </a>
             </li>
+              <li class="nav-item">
+                  <a class="nav-link" href="<?= base_url() ?>admin/daftar_judul">
+                      <i class="fa fa-book text-indigo"></i>
+                      <span class="nav-link-text">Daftar Judul</span>
+                  </a>
+              </li>
             <li class="nav-item">
               <a class="nav-link" href="<?= base_url() ?>admin/fakultas">
                 <i class="fa fa-building text-primary"></i>
@@ -125,6 +131,12 @@
                 <span class="nav-link-text">Pengaturan</span>
               </a>
             </li>
+              <li class="nav-item">
+                  <a class="nav-link" href="<?= base_url() ?>admin/periode">
+                      <i class="fa fa-cog text-success"></i>
+                      <span class="nav-link-text">Periode</span>
+                  </a>
+              </li>
           </ul>
         </div>
       </div>
@@ -176,7 +188,7 @@
                     <img alt="Image placeholder" src="<?= base_url() ?>cdn/img/mahasiswa/default.png">
                   </span>
                   <div class="media-body  ml-2  d-none d-lg-block">
-                    <span class="mb-0 text-sm  font-weight-bold">Superadmin</span>
+                    <span class="mb-0 text-sm  font-weight-bold"><?= $this->session->userdata('nama') ?></span>
                   </div>
                 </div>
               </a>

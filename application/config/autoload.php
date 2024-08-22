@@ -58,7 +58,7 @@ $autoload['packages'] = array();
 |
 |	$autoload['libraries'] = array('user_agent' => 'ua');
 */
-$autoload['libraries'] = array('database', 'session', 'app_lib' => 'app');
+$autoload['libraries'] = array('database', 'session', 'app_lib' => 'app', 'form_validation', 'text_preprocessing');
 
 /*
 | -------------------------------------------------------------------
@@ -103,7 +103,7 @@ $autoload['helper'] = array('url', 'helperku', 'form', 'download');
 | config files.  Otherwise, leave it blank.
 |
 */
-$autoload['config'] = 'vendor/autoload';
+$autoload['config'] = 'vendor/autoload.php';
 
 /*
 | -------------------------------------------------------------------

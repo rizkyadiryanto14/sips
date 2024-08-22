@@ -49,10 +49,11 @@
                         <th>Dosen Pembimbing</th>
                         <th>Dosen Penguji</th>
                         <th>Jadwal Skripsi</th>
-                        <th>Persetujuan</th>
+                        <th>Tempat</th>
+                        <th>Syarat Skripsi</th>
                         <th>File Skripsi</th>
-                        <th>SK Tim</th>
-                        <th>Bukti Konsultasi</th>
+                        <th>Surat Permohonan</th>
+                        <th>Kartu Bimbingan</th>
                     </tr>
                 </thead>
                 <tbody></tbody>
@@ -74,12 +75,16 @@
                 </div>
                 <div class="modal-footer">
                     <button class="btn btn-default" type="button" data-dismiss="modal">Batal</button>
-                    <button type="submit" class="btn btn-primary">Konfirmasi</button>
+                    <button type="submit" class="btn btn-primary btn-act">Konfirmasi</button>
                 </div>
             </form>
         </div>
     </div>
 </div>
+
+    <div id="loading-overlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:9999; text-align:center; color:#fff; font-size:20px; line-height:100vh;">
+        Loading...
+    </div>
 <?php $this->app->endSection('content') ?>
 
 <?php $this->app->section() ?>
@@ -113,13 +118,13 @@
                             if (data.dosen_id == '<?= $this->session->userdata('id') ?>' || data.dosen_penguji_id == '<?= $this->session->userdata('id') ?>') {
                             if (data.status == '1') {
                                 status = '\
-                            <button class="btn btn-sm btn-setuju btn-success" type="button" data-id="' + data.id + '" data-judul_skripsi="' + data.judul_skripsi + '" data-status="' + data.status + '" data-toggle="modal" data-target="#setujui">\
+                            <button class="btn btn-sm btn-setuju btn-success" type="button" data-id="' + data.id_skripsi + '" data-judul_skripsi="' + data.judul_skripsi + '" data-status="' + data.status + '" data-toggle="modal" data-target="#setujui">\
                                 <i class="fa fa-check"></i>\
                             </button>\
                             ';
                             } else {
                                 status = '\
-                            <button class="btn btn-sm btn-setuju btn-danger" type="button" data-id="' + data.id + '" data-judul_skripsi="' + data.judul_skripsi + '" data-status="' + data.status + '" data-toggle="modal" data-target="#setujui">\
+                            <button class="btn btn-sm btn-setuju btn-danger" type="button" data-id="' + data.id_skripsi + '" data-judul_skripsi="' + data.judul_skripsi + '" data-status="' + data.status + '" data-toggle="modal" data-target="#setujui">\
                                 <i class="fa fa-times"></i>\
                             </button>\
                             ';
@@ -151,13 +156,30 @@
                         data: "judul_skripsi"
                     },
                     {
-                        data: "nama_pembimbing"
+                        data: null,
+                        render: function(data) {
+                            return '1. ' + data.nama_pembimbing1 + '<br>2. ' + data.nama_pembimbing2;
+                        }
                     },
                     {
-                        data: "nama_penguji"
+                        data: null,
+                        render: function(data) {
+                            // Menampilkan nama dosen penguji
+                            return '1. ' + (data.nama_penguji1 || 'Belum ada data') + '<br>2. ' + (data.nama_penguji2 || 'Belum ada data');
+                        }
                     },
                     {
-                        data: "jadwal_skripsi"
+                        data: "jadwal_skripsi",
+                        render: function (data){
+                            return data || 'Belum ada data';
+                        }
+                    },
+                    {
+                        data: "tempat",
+                        render: function(data) {
+                            // Menampilkan tempat, jika tidak ada data tampilkan 'Belum ada data'
+                            return data || 'Belum ada data';
+                        }
                     },
                     {
                         data: "persetujuan",
@@ -209,7 +231,7 @@
     }
 
     function disableBtn() {
-        $(".btn-act").attr('disabled', true).html('Loading ...')
+        $(".btn-act").attr('disabled', true).html('Loading ...');
     }
 
     $(document).on('click', 'button.btn-setuju', function() {
@@ -217,12 +239,23 @@
         $('form#setujui input.status').val($(this).data('status'));
         $('form#setujui span.status').html(($(this).data('status') == '1') ? 'batal menyetujui' : 'menyetujui');
         $('form#setujui .judul').html($(this).data('judul_skripsi'));
-    })
+    });
 
     $(document).on('submit', 'form#setujui', function(e) {
         e.preventDefault();
+
+        // Tampilkan overlay loading dan nonaktifkan tombol
+        $('#loading-overlay').show();
+        disableBtn();
+
         const id = $('form#setujui .id').val();
-        call('api/skripsi/' + (($('form#setujui .status').val() == '1') ? 'disagree' : 'agree') + '/' + id).done(function(req) {
+        const status = $('form#setujui .status').val();
+        const url = 'api/skripsi/' + (status == '1' ? 'disagree' : 'agree') + '/' + id;
+
+        call(url).done(function(req) {
+            // Sembunyikan overlay loading setelah proses selesai
+            $('#loading-overlay').hide();
+
             if (req.error == true) {
                 notif(req.message, 'error', true);
             } else {
@@ -230,8 +263,12 @@
                 $('div#setujui').modal('hide');
                 show();
             }
-        })
-    })
+        }).always(function() {
+            // Aktifkan kembali tombol setelah proses selesai
+            $(".btn-act").attr('disabled', false).html('Submit');
+        });
+    });
+
 </script>
 <?php $this->app->endSection('script') ?>
 

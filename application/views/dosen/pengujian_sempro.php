@@ -70,10 +70,10 @@
                             </ol>
                         </td>
                         <td class="text-center">
-                            <?php if ($item->pengujian && $item->pengujian['status'] == 1) { ?>
+                            <?php if ($item->status_pengujian == 1) { ?>
                                 <p>Berhasil memberikan nilai</p>
-                                <a href="<?= site_url('unduh/berita_acara/' . $item->pengujian['id_pengujian']) ?>" class="btn btn-sm btn-success">Unduh Berita Acara</a>
-                            <?php } elseif (!$item->pengujian || $item->pengujian['status'] == 0) { ?>
+                                <a href="<?= site_url('berita_acara/cetak_pdf/' . $item->seminar_id) ?>" class="btn btn-sm btn-success">Unduh Berita Acara</a>
+                            <?php } else { ?>
                                 <form id="tambah">
                                     <input type="hidden" name="id_sempro" id="id_sempro" value="<?= $item->seminar_id ?>">
                                     <input type="hidden" name="id_dosen" id="id_dosen" value="<?= $this->session->userdata('id') ?>">
@@ -124,7 +124,7 @@
                         // Bersihkan semua input di dalam form
                         $('form#tambah')[0].reset();
 
-                        // Sembunyikan modal jika ada
+                        // Sembunyikan modal
                         $('div#tambah').modal('hide');
 
                         // Refresh halaman
@@ -132,7 +132,6 @@
                     }
                 });
             });
-
         })
     </script>
 

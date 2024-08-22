@@ -15,7 +15,22 @@ class Mahasiswa_model extends CI_Model
 
     public function get($input)
     {
+        // Mendapatkan periode yang aktif
+        $this->db->select('id');
+        $this->db->from('periode');
+        $this->db->where('status', 1);
+        $periode_aktif = $this->db->get()->row_array();
+
+        if (!$periode_aktif) {
+            $hasil['error'] = true;
+            $hasil['message'] = "Tidak ada periode aktif";
+            $hasil['data'] = [];
+            return $hasil;
+        }
+
         $this->db->select("*");
+        // Tambahkan filter untuk hanya mengambil data mahasiswa di periode aktif
+        $this->db->where('id_periode', $periode_aktif['id']);
         $mahasiswa = $this->db->get($this->table)->result_array();
 
         $hasil['error'] = false;
@@ -34,11 +49,11 @@ class Mahasiswa_model extends CI_Model
             }
             $hasil['data'][$key]['hk3'] = $this->db->get_where('hasil_kegiatan', ['hasil_kegiatan.mahasiswa_id' => $item['id']])->num_rows();
             $hasil['data'][$key]['skripsi'] = $this->db->get_where('skripsi', ['skripsi.mahasiswa_id' => $item['id']])->num_rows();
-
         }
 
         return $hasil;
     }
+
 
     public function create($input)
     {
@@ -361,6 +376,10 @@ class Mahasiswa_model extends CI_Model
 
             if ($validation === true) {
                 if (password_verify($input['password'], $mahasiswa['password'])) {
+                    $mahasiswasession = [
+                        'mahasiswa_id'  => $mahasiswa['id']
+                    ];
+                    $this->session->set_userdata($mahasiswasession);
                     $hasil = [
                         'error' => false,
                         'message' => "berhasil login",

@@ -42,10 +42,11 @@
                         <th>Dosen Pembimbing</th>
                         <th>Dosen Penguji</th>
                         <th>Jadwal Skripsi</th>
-                        <th>Persetujuan</th>
+                        <th>Tempat</th>
+                        <th>Syarat Skripsi</th>
                         <th>File Skripsi</th>
-                        <th>SK Tim</th>
-                        <th>Bukti Konsultasi</th>
+                        <th>Surat Permohonan</th>
+                        <th>Kartu Bimbingan</th>
                         <th>Aksi</th>
                     </tr>
                 </thead>
@@ -67,22 +68,6 @@
                     <div class="form-group">
                         <label>Judul Skripsi</label>
                         <input type="text" class="form-control" name="judul_skripsi" placeholder="Masukkan Judul Skripsi">
-                    </div>
-                    <div class="form-group">
-                        <label>Pembimbing</label>
-                        <select name="dosen_id" class="form-control">
-                            <option value="">- Pilih Pembimbing -</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>Penguji</label>
-                        <select name="dosen_penguji_id" class="form-control">
-                            <option value="">- Pilih Penguji -</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>Jadwal Skripsi</label>
-                        <input name="jadwal_skripsi" type="text" class="form-control dateTime" placeholder="Pilih Jadwal Skripsi" readonly>
                     </div>
                     <div class="form-group">
                         <label>Persetujuan</label>
@@ -156,6 +141,47 @@
         </div>
     </div>
 </div>
+
+    <script src="<?= base_url() ?>cdn/plugins/sweetalert2/sweetalert2.min.js"></script>
+    <script>
+        // Fungsi notif
+        async function notif(message, type, mixin) {
+            if (mixin) {
+                const Toast = Swal.mixin({
+                    position: 'top-end',
+                    toast: true,
+                    showConfirmButton: false,
+                    showCloseButton: true,
+                    timer: 3000
+                });
+                await Toast.fire({
+                    title: message,
+                    icon: type
+                });
+            } else {
+                await Swal.fire({
+                    title: type[0].toUpperCase() + type.slice(1),
+                    text: message,
+                    icon: type
+                }).then(s => {
+                    setTimeout(() => {
+                        document.body.style.paddingRight = '0';
+                    }, 400);
+                });
+            }
+        }
+
+        // Cek dan tampilkan notifikasi jika ada
+        <?php if ($this->session->flashdata('success')) { ?>
+        let successMessage = "<?= $this->session->flashdata('success'); ?>";
+        notif(successMessage, 'success', true);
+        <?php } ?>
+
+        <?php if ($this->session->flashdata('error')) { ?>
+        let errorMessage = "<?= $this->session->flashdata('error'); ?>";
+        notif(errorMessage, 'error', true);
+        <?php } ?>
+    </script>
 <?php $this->app->endSection('content') ?>
 
 <?php $this->app->section() ?>
@@ -173,7 +199,6 @@
                 })
             }
             $('[name=dosen_id]').html(dosen);
-            $('[name=dosen_penguji_id]').html(dosen);
         })
 
         show = () => {
@@ -199,13 +224,13 @@
                         render: function(data) {
                             if (data.status == '1') {
                                 status = '\
-                            <button class="btn btn-sm btn-setuju btn-success" type="button" data-id="' + data.id + '" data-judul_skripsi="' + data.judul_skripsi + '" data-status="' + data.status + '" data-toggle="modal" data-target="#setujui">\
+                            <button class="btn btn-sm btn-setuju btn-success" type="button" data-id="' + data.id_skripsi + '" data-judul_skripsi="' + data.judul_skripsi + '" data-status="' + data.status + '" data-toggle="modal" data-target="#setujui">\
                                 <i class="fa fa-check"></i>\
                             </button>\
                             ';
                             } else {
                                 status = '\
-                            <button class="btn btn-sm btn-setuju btn-danger" type="button" data-id="' + data.id + '" data-judul_skripsi="' + data.judul_skripsi + '" data-status="' + data.status + '" data-toggle="modal" data-target="#setujui">\
+                            <button class="btn btn-sm btn-setuju btn-danger" type="button" data-id="' + data.id_skripsi + '" data-judul_skripsi="' + data.judul_skripsi + '" data-status="' + data.status + '" data-toggle="modal" data-target="#setujui">\
                                 <i class="fa fa-times"></i>\
                             </button>\
                             ';
@@ -216,16 +241,33 @@
                         }
                     },
                     {
-                        data: "judul_skripsi"
+                            data: "judul_skripsi"
                     },
                     {
-                        data: "nama_pembimbing"
+                        data: null,
+                        render: function(data) {
+                            return '1. ' + data.nama_pembimbing1 + '<br>2. ' + data.nama_pembimbing2;
+                        }
                     },
                     {
-                        data: "nama_penguji"
+                        data: null,
+                        render: function(data) {
+                            // Menampilkan nama dosen penguji
+                            return '1. ' + (data.nama_penguji1 || 'Belum ada data') + '<br>2. ' + (data.nama_penguji2 || 'Belum ada data');
+                        }
                     },
                     {
-                        data: "jadwal_skripsi"
+                        data: "jadwal_skripsi",
+                        render: function (data){
+                            return data || 'Belum ada data';
+                        }
+                    },
+                    {
+                        data: "tempat",
+                        render: function(data) {
+                            // Menampilkan tempat, jika tidak ada data tampilkan 'Belum ada data'
+                            return data || 'Belum ada data';
+                        }
                     },
                     {
                         data: "persetujuan",
@@ -254,14 +296,16 @@
                     {
                         data: null,
                         render: function(data) {
-                            return '<div class="text-center">\
-                            <button class="btn btn-sm btn-info btn-edit" type="button" data-toggle="modal" data-target="#edit" data-id="' + data.id + '" data-mahasiswa_id="' + data.mahasiswa_id + '" data-judul_skripsi="' + data.judul_skripsi + '" data-jadwal_skripsi="' + data.jadwal_skripsi + '" data-dosen_id="' + data.dosen_id + '" data-dosen_penguji_id="' + data.dosen_penguji_id + '" data-file_skripsi="' + data.file_skripsi + '" data-sk_tim="' + data.sk_tim + '" data-persetujuan="' + data.persetujuan + '" data-bukti_konsultasi="' + data.bukti_konsultasi + '">\
-                                <i class="fa fa-pen"></i>\
-                            </button>\
-    						<button class="btn btn-danger btn-sm btn-hapus" type="button" data-toggle="modal" data-target="#hapus" data-id="' + data.id + '">\
-    							<i class="fa fa-trash"></i>\
-    						</button>\
-    					</div>'
+                            return `
+                        <div class="text-center">
+                            <a href="` + base_url + `admin/skripsi/detail/` + data.id_skripsi + `" class="btn btn-sm btn-success">
+                                <i class="fa fa-calendar"></i>
+                            </a>
+                            <button class="btn btn-danger btn-hapus btn-sm" type="button" data-toggle="modal" data-target="#hapus" data-id="` + data.id + `">
+                                <i class="fa fa-trash"></i>
+                            </button>
+                        </div>
+                        `;
                         }
                     }
                 ],
@@ -354,9 +398,6 @@
         $('form#edit .id').val($(this).data('id'));
         $('form#edit [name=mahasiswa_id]').val($(this).data('mahasiswa_id'));
         $('form#edit [name=judul_skripsi]').val($(this).data('judul_skripsi'));
-        $('form#edit [name=dosen_id]').val($(this).data('dosen_id'));
-        $('form#edit [name=dosen_penguji_id]').val($(this).data('dosen_penguji_id'));
-        $('form#edit [name=jadwal_skripsi]').val($(this).data('jadwal_skripsi'));
         $('form#edit [name=def_file_skripsi]').val($(this).data('file_skripsi'));
         $('form#edit [name=def_sk_tim]').val($(this).data('sk_tim'));
         $('form#edit [name=def_persetujuan]').val($(this).data('persetujuan'));

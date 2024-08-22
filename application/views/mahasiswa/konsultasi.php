@@ -15,6 +15,7 @@
     </div>
     <div class="card-body">
         <div class="table-responsive">
+            <?= $this->session->userdata('mahasiswa_id') ?>
             <table class="table table-hover" id="data-konsultasi">
                 <thead>
                     <tr>

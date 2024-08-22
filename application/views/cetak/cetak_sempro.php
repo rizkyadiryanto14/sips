@@ -14,9 +14,7 @@
 
         #tabel-header {
             background-color: #808080;
-            /* Replace with any gray color you like */
             color: #ffffff;
-            /* This is to set the text color to white. Adjust as needed. */
         }
 
         #customers {
@@ -42,9 +40,8 @@
         #customers th {
             padding-top: 12px;
             padding-bottom: 12px;
-            text-align: left;
+            text-align: center;
             background-color: #808080;
-            /* Replace with any gray color you like */
             color: #ffffff;
         }
     </style>
@@ -61,101 +58,89 @@
     <table class="table table-hover" style="margin-left: 40px;">
         <tr>
             <td>Nama</td>
-            <td>: <?= $showData[0]['nama_mahasiswa']; ?>
-            </td>
+            <td>: <?= $showData['nama_mahasiswa']; ?></td>
         </tr>
         <tr>
             <td>Nim</td>
-            <td>: <?= $showData[0]['nim']; ?></td>
+            <td>: <?= $showData['nim']; ?></td>
         </tr>
         <tr>
             <td>Judul</td>
-            <td>: <?= $showData[0]['proposal_mahasiswa_judul']; ?></td>
+            <td>: <?= $showData['proposal_mahasiswa_judul']; ?></td>
         </tr>
         <tr>
             <td>Hari, Tanggal</td>
-            <td>: <?= hariIndo(getDay($showData[0]['tanggal'])) . ', ' . tgl_indo($showData[0]['tanggal']); ?></td>
+            <td>: <?= hariIndo(getDay($showData['tanggal'])) . ', ' . tgl_indo($showData['tanggal']); ?></td>
         </tr>
     </table>
 </section>
+
 <br>
+
 <section class="isi">
     <table id="customers">
         <tr>
-            <th>ASPEK YANG DI NILAI</th>
+            <th>ASPEK YANG DINILAI</th>
             <th>KETERANGAN</th>
             <th>Nilai (0-100)</th>
         </tr>
+
+        <!-- Nilai dari Penguji 1 -->
         <tr>
-            <td>
-                1. Presentasi
-            </td>
-            <td>
-                Komunikatif, Ketepatan Waktu, Kejelasan dan Kerunutan dalam penyampaian materi
-            </td>
-            <td>
-                <?= $showData[0]['penguji1_presentasi'] ?>
-            </td>
+            <td>1. Presentasi</td>
+            <td>Komunikatif, Ketepatan Waktu, Kejelasan dan Kerunutan dalam penyampaian materi</td>
+            <td><?= $showData['penguji1_presentasi']; ?></td>
         </tr>
         <tr>
             <td>2. Alat Bantu Presentasi</td>
             <td>Kejelasan dan tampilan dari powerpoint</td>
-            <td>
-                <?= $showData[0]['penguji1_alat_bantu'] ?>
-            </td>
+            <td><?= $showData['penguji1_alat_bantu']; ?></td>
         </tr>
         <tr>
             <td>3. Penampilan</td>
             <td>Cara berpakaian, etika, sopan santun</td>
-            <td>
-                <?= $showData[0]['penguji1_penampilan'] ?>
-            </td>
+            <td><?= $showData['penguji1_penampilan']; ?></td>
         </tr>
         <tr>
             <td>4. Penguasaan Materi</td>
-            <td>Cara merespons pertanyaan dan kualitas jawaban </td>
-            <td>
-                <?= $showData[0]['penguji1_penguasaan_materi'] ?>
-            </td>
+            <td>Cara merespons pertanyaan dan kualitas jawaban</td>
+            <td><?= $showData['penguji1_penguasaan_materi']; ?></td>
         </tr>
         <tr>
             <td>5. Kelayakan Proposal</td>
             <td>Ide penelitian, tinjauan pustaka, bahan dan metode penelitian</td>
-            <td>
-                <?= $showData[0]['penguji1_kelayakan_proposal'] ?>
-            </td>
+            <td><?= $showData['penguji1_kelayakan_proposal']; ?></td>
         </tr>
         <tr>
-            <td>
-
-            </td>
-            <td> <strong> jumlah Rata-Rata <br><br>Rata - Rata Nilai </strong></td>
-            <td>
-
-            </td>
+            <td></td>
+            <td><strong>Jumlah Rata-Rata</strong></td>
+            <td><?= $showData['penguji1_jumlah_rata_nilai'] ?></td>
+        </tr>
+        <tr>
+            <td></td>
+            <td><strong>Rata-Rata Nilai</strong></td>
+            <td><?= $showData['penguji1_rata_nilai'] ?></td>
         </tr>
     </table>
 
     <section class="tanda_tangan">
-        <table class="table table-hover" style="width:100%; margin-left:500px;margin-top:150px;">
+        <table class="table table-hover" style="width:100%; margin-left:500px; margin-top:150px;">
             <tr class="font-weight">
                 <td style="font-weight: bold">
-                    Menyetujui
-                    Penguji 1
+                    Menyetujui<br>Penguji I
                 </td>
             </tr>
             <tr class="font-weight">
                 <td style="font-weight: bold">
-                    <img src="<?= base_url($showData[0]['penguji1_barcode']) ?>" width="20%" alt="">
+                    <img src="<?= base_url('cdn/vendor/qrcodes/' . $showData['penguji1_barcode']); ?>" width="20%" alt="">
                     <br><br><br><br>
-                    (<?= $showData[0]['penguji_nama']; ?>)
+                    (<?= $showData['penguji1_nama']; ?>)
                     <br>
-                    NIDN.<?= $showData[0]['penguji_nip']; ?>
+                    NIDN. <?= $showData['penguji1_nip']; ?>
                 </td>
             </tr>
         </table>
     </section>
-
 </section>
 
 <br><br><br><br><br><br><br><br><br><br><br><br><br><br>
@@ -170,103 +155,92 @@
     <table class="table table-hover" style="margin-left: 40px;">
         <tr>
             <td>Nama</td>
-            <td>: <?= $showData[0]['nama_mahasiswa']; ?>
-            </td>
+            <td>: <?= $showData['nama_mahasiswa']; ?></td>
         </tr>
         <tr>
             <td>Nim</td>
-            <td>: <?= $showData[0]['nim']; ?></td>
+            <td>: <?= $showData['nim']; ?></td>
         </tr>
         <tr>
             <td>Judul</td>
-            <td>: <?= $showData[0]['proposal_mahasiswa_judul']; ?></td>
+            <td>: <?= $showData['proposal_mahasiswa_judul']; ?></td>
         </tr>
         <tr>
             <td>Hari, Tanggal</td>
-            <td>: <?= hariIndo(getDay($showData[0]['tanggal'])) . ', ' . tgl_indo($showData[0]['tanggal']); ?></td>
+            <td>: <?= hariIndo(getDay($showData['tanggal'])) . ', ' . tgl_indo($showData['tanggal']); ?></td>
         </tr>
     </table>
 </section>
+
 <br>
+
 <section class="isi">
     <table id="customers">
         <tr>
-            <th>ASPEK YANG DI NILAI</th>
+            <th>ASPEK YANG DINILAI</th>
             <th>KETERANGAN</th>
             <th>Nilai (0-100)</th>
         </tr>
+
+        <!-- Nilai dari Penguji 2 -->
         <tr>
-            <td>
-                1. Presentasi
-            </td>
-            <td>
-                Komunikatif, Ketepatan Waktu, Kejelasan dan Kerunutan dalam penyampaian materi
-            </td>
-            <td>
-                <?= $showData[0]['penguji2_presentasi'] ?>
-            </td>
+            <td>1. Presentasi</td>
+            <td>Komunikatif, Ketepatan Waktu, Kejelasan dan Kerunutan dalam penyampaian materi</td>
+            <td><?= $showData['penguji2_presentasi']; ?></td>
         </tr>
         <tr>
             <td>2. Alat Bantu Presentasi</td>
             <td>Kejelasan dan tampilan dari powerpoint</td>
-            <td>
-                <?= $showData[0]['penguji2_alat_bantu'] ?>
-            </td>
+            <td><?= $showData['penguji2_alat_bantu']; ?></td>
         </tr>
         <tr>
             <td>3. Penampilan</td>
             <td>Cara berpakaian, etika, sopan santun</td>
-            <td>
-                <?= $showData[0]['penguji2_penampilan'] ?>
-            </td>
+            <td><?= $showData['penguji2_penampilan']; ?></td>
         </tr>
         <tr>
             <td>4. Penguasaan Materi</td>
-            <td>Cara merespons pertanyaan dan kualitas jawaban </td>
-            <td>
-                <?= $showData[0]['penguji2_penguasaan_materi'] ?>
-            </td>
+            <td>Cara merespons pertanyaan dan kualitas jawaban</td>
+            <td><?= $showData['penguji2_penguasaan_materi']; ?></td>
         </tr>
         <tr>
             <td>5. Kelayakan Proposal</td>
             <td>Ide penelitian, tinjauan pustaka, bahan dan metode penelitian</td>
-            <td>
-                <?= $showData[0]['penguji2_kelayakan_proposal'] ?>
-            </td>
+            <td><?= $showData['penguji2_kelayakan_proposal']; ?></td>
         </tr>
         <tr>
-            <td>
-
-            </td>
-            <td> <strong> jumlah Rata-Rata <br><br>Rata - Rata Nilai </strong></td>
-            <td>
-
-            </td>
+            <td></td>
+            <td><strong>Jumlah Rata-Rata</strong></td>
+            <td><?= $showData['penguji2_jumlah_rata_nilai'] ?></td>
+        </tr>
+        <tr>
+            <td></td>
+            <td><strong>Rata-Rata Nilai</strong></td>
+            <td><?= $showData['penguji2_rata_nilai'] ?></td>
         </tr>
     </table>
 
     <section class="tanda_tangan">
-        <table class="table table-hover" style="width:100%; margin-left:500px;margin-top:150px;">
+        <table class="table table-hover" style="width:100%; margin-left:500px; margin-top:150px;">
             <tr class="font-weight">
                 <td style="font-weight: bold">
-                    Menyetujui
-                    Penguji 2
+                    Menyetujui<br>Penguji II
                 </td>
             </tr>
             <tr class="font-weight">
                 <td style="font-weight: bold">
-                    <img src="<?= base_url($showData[0]['penguji2_barcode']) ?>" width="20%" alt="">
+                    <img src="<?= base_url('cdn/vendor/qrcodes/' . $showData['penguji2_barcode']); ?>" width="20%" alt="">
                     <br><br><br>
-                    (<?= $showData[0]['penguji2_nama']; ?>)
+                    (<?= $showData['penguji2_nama']; ?>)
                     <br>
-                    NIDN.<?= $showData[0]['penguji2_nip']; ?>
+                    NIDN. <?= $showData['penguji2_nip']; ?>
                 </td>
             </tr>
         </table>
     </section>
 </section>
 
-<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
+<br><br><br><br><br><br><br><br><br><br><br><br><br><br>
 
 <section class="header">
     <div style="text-align:center;" class="header font-weight-300">
@@ -278,101 +252,89 @@
     <table class="table table-hover" style="margin-left: 40px;">
         <tr>
             <td>Nama</td>
-            <td>: <?= $showData[0]['nama_mahasiswa']; ?>
-            </td>
+            <td>: <?= $showData['nama_mahasiswa']; ?></td>
         </tr>
         <tr>
             <td>Nim</td>
-            <td>: <?= $showData[0]['nim']; ?></td>
+            <td>: <?= $showData['nim']; ?></td>
         </tr>
         <tr>
             <td>Judul</td>
-            <td>: <?= $showData[0]['proposal_mahasiswa_judul']; ?></td>
+            <td>: <?= $showData['proposal_mahasiswa_judul']; ?></td>
         </tr>
         <tr>
             <td>Hari, Tanggal</td>
-            <td>: <?= hariIndo(getDay($showData[0]['tanggal'])) . ', ' . tgl_indo($showData[0]['tanggal']); ?></td>
+            <td>: <?= hariIndo(getDay($showData['tanggal'])) . ', ' . tgl_indo($showData['tanggal']); ?></td>
         </tr>
     </table>
 </section>
+
 <br>
+
 <section class="isi">
     <table id="customers">
         <tr>
-            <th>ASPEK YANG DI NILAI</th>
+            <th>ASPEK YANG DINILAI</th>
             <th>KETERANGAN</th>
             <th>Nilai (0-100)</th>
         </tr>
+
+        <!-- Nilai dari Pembimbing -->
         <tr>
-            <td>
-                1. Presentasi
-            </td>
-            <td>
-                Komunikatif, Ketepatan Waktu, Kejelasan dan Kerunutan dalam penyampaian materi
-            </td>
-            <td>
-                <?= $showData[0]['pembimbing_presentasi'] ?>
-            </td>
+            <td>1. Presentasi</td>
+            <td>Komunikatif, Ketepatan Waktu, Kejelasan dan Kerunutan dalam penyampaian materi</td>
+            <td><?= $showData['pembimbing_presentasi']; ?></td>
         </tr>
         <tr>
             <td>2. Alat Bantu Presentasi</td>
             <td>Kejelasan dan tampilan dari powerpoint</td>
-            <td>
-                <?= $showData[0]['pembimbing_alat_bantu'] ?>
-            </td>
+            <td><?= $showData['pembimbing_alat_bantu']; ?></td>
         </tr>
         <tr>
             <td>3. Penampilan</td>
             <td>Cara berpakaian, etika, sopan santun</td>
-            <td>
-                <?= $showData[0]['pembimbing_penampilan'] ?>
-            </td>
+            <td><?= $showData['pembimbing_penampilan']; ?></td>
         </tr>
         <tr>
             <td>4. Penguasaan Materi</td>
-            <td>Cara merespons pertanyaan dan kualitas jawaban </td>
-            <td>
-                <?= $showData[0]['pembimbing_penguasaan_materi'] ?>
-            </td>
+            <td>Cara merespons pertanyaan dan kualitas jawaban</td>
+            <td><?= $showData['pembimbing_penguasaan_materi']; ?></td>
         </tr>
         <tr>
             <td>5. Kelayakan Proposal</td>
             <td>Ide penelitian, tinjauan pustaka, bahan dan metode penelitian</td>
-            <td>
-                <?= $showData[0]['pembimbing_kelayakan_proposal'] ?>
-            </td>
+            <td><?= $showData['pembimbing_kelayakan_proposal']; ?></td>
         </tr>
         <tr>
-            <td>
-
-            </td>
-            <td> <strong> jumlah Rata-Rata <br><br>Rata - Rata Nilai </strong></td>
-            <td>
-
-            </td>
+            <td></td>
+            <td><strong>Jumlah Rata-Rata</strong></td>
+            <td><?= $showData['pembimbing_jumlah_rata_nilai'] ?></td>
+        </tr>
+        <tr>
+            <td></td>
+            <td><strong>Rata-Rata Nilai</strong></td>
+            <td><?= $showData['pembimbing_rata_nilai'] ?></td>
         </tr>
     </table>
 
     <section class="tanda_tangan">
-        <table class="table table-hover" style="width:100%; margin-left:500px;margin-top:150px;">
+        <table class="table table-hover" style="width:100%; margin-left:500px; margin-top:150px;">
             <tr class="font-weight">
                 <td style="font-weight: bold">
-                    Menyetujui
-                    Pembimbing Utama
+                    Mengetahui<br>Pembimbing Utama
                 </td>
             </tr>
             <tr class="font-weight">
                 <td style="font-weight: bold">
-                    <img src="<?= base_url($showData[0]['pembimbing_barcode']) ?>" width="20%" alt="">
-                    <br><br><br><br>
-                    (<?= $showData[0]['pembimbing_nama']; ?>)
+                    <img src="<?= base_url('cdn/vendor/qrcodes/' . $showData['pembimbing_barcode']); ?>" width="20%" alt="">
+                    <br><br><br>
+                    (<?= $showData['pembimbing_nama']; ?>)
                     <br>
-                    NIDN. <?= $showData[0]['pembimbing_nip']; ?>
+                    NIDN. <?= $showData['pembimbing_nip']; ?>
                 </td>
             </tr>
         </table>
     </section>
-
 </section>
 
 <div style="text-align:center; margin-top:520px;" class="header font-weight-300">
@@ -385,61 +347,59 @@
     <table class="table table-hover" style="margin-left: 40px;">
         <tr>
             <td>Hari, Tanggal</td>
-            <td>: <?= hariIndo(getDay($showData[0]['tanggal'])) . ', ' . tgl_indo($showData[0]['tanggal']); ?></td>
+            <td>: <?= hariIndo(getDay($showData['tanggal'])) . ', ' . tgl_indo($showData['tanggal']); ?></td>
         </tr>
         <tr>
             <td>Jam</td>
-            <td>: <?= $showData[0]['jam']; ?> (WITA)</td>
+            <td>: <?= $showData['jam_mulai']; ?> - <?= $showData['jam_selesai'] ?> (WITA)</td>
         </tr>
         <tr>
             <td>Tempat</td>
-            <td>: <?= $showData[0]['tempat']; ?></td>
+            <td>: <?= $showData['tempat']; ?></td>
         </tr>
     </table>
 </section>
+
 <section class="isi">
     <p>Telah Dilaksanakan Seminar Proposal</p>
     <table class="table table-hover" style="margin-left: 40px;">
         <tr>
             <td>Judul</td>
-            <td>: <?= $showData[0]['proposal_mahasiswa_judul']; ?>
-            </td>
+            <td>: <?= $showData['proposal_mahasiswa_judul']; ?></td>
         </tr>
         <tr>
             <td>Oleh</td>
-            <td>: <?= $showData[0]['nama_mahasiswa']; ?></td>
+            <td>: <?= $showData['nama_mahasiswa']; ?></td>
         </tr>
         <tr>
             <td>Nim</td>
-            <td>: <?= $showData[0]['nim']; ?></td>
+            <td>: <?= $showData['nim']; ?></td>
         </tr>
         <tr>
             <td>Program Studi</td>
-            <td>: <?= $showData[0]['nama_prodi']; ?></td>
+            <td>: <?= $showData['nama_prodi']; ?></td>
         </tr>
     </table>
 </section>
+
 <section>
     <h3 style="text-align: center;">MEMUTUSKAN</h3>
     <table class="table table-hover" style="margin-left: 40px;">
         <tr>
             <td>Menetapkan Nama/Nim</td>
-            <td>: <?= $showData[0]['nama_mahasiswa'] . ' / ' . $showData[0]['nim']; ?></td>
+            <td>: <?= $showData['nama_mahasiswa'] . '/' . $showData['nim']; ?></td>
         </tr>
         <tr>
             <td>Tempat/Tanggal Lahir</td>
-            <td>: <?= $showData[0]['tempat_lahir'] . ', ' . tgl_indo($showData[0]['tanggal_lahir']); ?></td>
+            <td>: <?= $showData['tempat_lahir'] . ', ' . tgl_indo($showData['tanggal_lahir']); ?></td>
         </tr>
         <tr>
             <td>Judul Skripsi</td>
-            <td>: <?= $showData[0]['proposal_mahasiswa_judul']; ?>
-            </td>
+            <td>: <?= $showData['proposal_mahasiswa_judul']; ?></td>
         </tr>
         <tr>
             <td>Dinyatakan</td>
-            <td>: DITERIMA / TIDAK DITERIMA untuk
-                meneruskan penelitian dengan proposal
-                Skripsi tersebut diatas</td>
+            <td>: DITERIMA / TIDAK DITERIMA untuk meneruskan penelitian dengan proposal Skripsi tersebut diatas</td>
         </tr>
         <tr>
             <td>Dengan Nilai</td>
@@ -450,72 +410,53 @@
             <td>: .............</td>
         </tr>
     </table>
+
     <table class="table table-hover" style="margin-left: 40px;width:100%;">
         <tr class="font-weight">
-            <td style="font-weight: bold">
-                Menyetujui
-                Penguji 1
-            </td>
-            <td style="font-weight: bold">
-                Penguji 2
-            </td>
-            <td style="font-weight: bold">
-                Pembimbing Utama
-            </td>
+            <td style="font-weight: bold">Menyetujui<br>Penguji 1</td>
+            <td style="font-weight: bold">Penguji 2</td>
+            <td style="font-weight: bold">Pembimbing Utama</td>
         </tr>
         <tr class="font-weight">
             <td style="height: 150px;">
-                <img src="<?= base_url($showData[0]['penguji1_barcode']) ?>" width="10%" alt="">
+                <img src="<?= base_url('cdn/vendor/qrcodes/' . $showData['penguji1_barcode']); ?>" width="40%" alt="">
             </td>
             <td style="height: 150px;">
-                <img src="<?= base_url($showData[0]['penguji2_barcode']) ?>" width="10%" alt="">
+                <img src="<?= base_url('cdn/vendor/qrcodes/' . $showData['penguji2_barcode']); ?>" width="40%" alt="">
             </td>
             <td style="height: 150px;">
-                <img src="<?= base_url($showData[0]['pembimbing_barcode']) ?>" width="10%" alt="">
+                <img src="<?= base_url('cdn/vendor/qrcodes/' . $showData['pembimbing_barcode']); ?>" width="40%" alt="">
             </td>
-        <tr>
+        </tr>
         <tr class="font-weight">
             <td style="font-weight: bold">
-                (<?= $showData[0]['penguji_nama']; ?>)
+                (<?= $showData['penguji1_nama']; ?>)
                 <br>
-                NIDN. <?= $showData[0]['penguji_nip']; ?>
+                NIDN. <?= $showData['penguji1_nip']; ?>
             </td>
             <td style="font-weight: bold">
-                (<?= $showData[0]['penguji2_nama']; ?>)
+                (<?= $showData['penguji2_nama']; ?>)
                 <br>
-                NIDN.<?= $showData[0]['penguji2_nip']; ?>
+                NIDN. <?= $showData['penguji2_nip']; ?>
             </td>
             <td style="font-weight: bold">
-                (<?= $showData[0]['pembimbing_nama']; ?>)
+                (<?= $showData['pembimbing_nama']; ?>)
                 <br>
-                NIDN <?= $showData[0]['pembimbing_nip']; ?>
+                NIDN. <?= $showData['pembimbing_nip']; ?>
             </td>
         </tr>
         <tr>
-            <br>
-            <td style="font-weight: bold">
-                Mengetahui Ketua Program Studi <?= $showData[0]['nama_prodi']; ?>
+            <td class="left-item" style="font-weight: bold">
+                Mengetahui<br>Ketua Program Studi <?= $showData['nama_prodi']; ?>
             </td>
-            <td style="font-weight: bold">
-            </td>
-            <td style="font-weight: bold">
-            </td>
+            <td style="font-weight: bold"></td>
+            <td style="font-weight: bold"></td>
         </tr>
         <tr>
-            <th style="height: 90px;">
-                <br />
-            </th>
+            <th style="height: 90px;"><br /></th>
         </tr>
         <tr>
-            <td style="font-weight: bold">
-                (Rodianto, M.Kom)
-                <br>
-                NIDN 0808078101
-            </td>
-            <td style="font-weight: bold">
-            </td>
-            <td style="font-weight: bold">
-            </td>
+            <td style="font-weight: bold">(Rodianto, M.Kom)<br>NIDN. 0808078101</td>
         </tr>
     </table>
 </section>

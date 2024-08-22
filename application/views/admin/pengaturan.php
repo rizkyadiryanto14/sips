@@ -80,17 +80,214 @@
 		</div>
 	</form>
 <?php } ?>
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <div class="text-left">
+                  <div class="head-title pb-2">Setingan</div>
+                </div>
+                <button class="btn btn-primary" data-toggle="modal" type="button" data-target="#tambah">Tambah</button>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover" id="data-komponen">
+                        <thead>
+                        <tr>
+                            <th>No</th>
+                            <th>Action</th>
+                            <th>Komponen</th>
+                            <th>Keterangan</th>
+                        </tr>
+                        </thead>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <div class="text-left">
+                    <div class="head-title pb-2">Setingan Bobot</div>
+                </div>
+                <button class="btn btn-primary" data-toggle="modal" type="button" data-target="#tambahbobot">Tambah</button>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover" id="data-bobot">
+                        <thead>
+                        <tr>
+                            <th>No</th>
+                            <th>Action</th>
+                            <th>Bobot</th>
+                            <th>Keterangan</th>
+                        </tr>
+                        </thead>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+    <div class="modal fade" id="tambah">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                    <div class="modal-header">
+                        <div class="modal-title">Tambah Komponen</div>
+                    </div>
+                <form id="tambah">
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label>Komponen Penilaian</label><input type="text" class="form-control" name="komponen_penilaian" placeholder="Masukkan Komponen Penilaian" autocomplete="off">
+                        </div>
+                        <div class="form-group">
+                            <label>Keterangan</label><input type="text" class="form-control" name="keterangan" placeholder="Masukkan Keterangan" autocomplete="off">
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-default" type="button" data-dismiss="modal">Batal</button>
+                        <button type="submit" class="btn btn-primary">Simpan</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="tambahbobot">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div class="modal-title">Tambah Bobot</div>
+                </div>
+                <form id="tambahbobot">
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label>Bobot Penilaian</label><input type="text" class="form-control" name="bobot_penilaian" placeholder="Masukkan Bobot Penilaian" autocomplete="off">
+                        </div>
+                        <div class="form-group">
+                            <label>Keterangan</label><input type="text" class="form-control" name="keterangan" placeholder="Masukkan Keterangan" autocomplete="off">
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-default" type="button" data-dismiss="modal">Batal</button>
+                        <button type="submit" class="btn btn-primary">Simpan</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="editbobot">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form id="editbobot">
+                    <div class="modal-header">
+                        <div class="modal-title">Edit Bobot Penilaian</div>
+                    </div>
+                    <div class="modal-body">
+                        <input type="hidden" class="id">
+                        <div class="form-group">
+                            <label>Bobot Penilaian</label><input type="text" class="form-control" name="bobot_penilaian" placeholder="Masukkan Bobot" autocomplete="off">
+                        </div>
+                        <div class="form-group">
+                            <label>Keterangan</label><input type="text" class="form-control" name="keterangan" placeholder="Masukkan Keterangan" autocomplete="off">
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-default" type="button" data-dismiss="modal">Batal</button>
+                        <button type="submit" class="btn btn-primary">Simpan</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="modal fade" id="editkomponen">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form id="editkomponen">
+                    <div class="modal-header">
+                        <div class="modal-title">Edit Komponen Penilaian</div>
+                    </div>
+                    <div class="modal-body">
+                        <input type="hidden" class="id">
+                        <div class="form-group">
+                            <label>Komponen Penilaian</label><input type="text" class="form-control" name="komponen_penilaian" placeholder="Masukkan Nama Komponen" autocomplete="off">
+                        </div>
+                        <div class="form-group">
+                            <label>Keterangan</label><input type="text" class="form-control" name="keterangan" placeholder="Masukkan Keterangan" autocomplete="off">
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-default" type="button" data-dismiss="modal">Batal</button>
+                        <button type="submit" class="btn btn-primary">Simpan</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="hapus">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form id="hapus">
+                    <div class="modal-header">
+                        <div class="modal-title">Hapus Komponen Penilaian</div>
+                    </div>
+                    <div class="modal-body">
+                        <input type="hidden" class="id">
+                        <p>Anda yakin menghapus komponen penilaian <strong class="komponen_penilaian">Komponen Penilaian</strong> ?</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-default" type="button" data-dismiss="modal">Batal</button>
+                        <button type="submit" class="btn btn-danger">Hapus</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="modal fade" id="hapusbobot">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form id="hapusbobot">
+                    <div class="modal-header">
+                        <div class="modal-title">Hapus Bobot Penilaian</div>
+                    </div>
+                    <div class="modal-body">
+                        <input type="hidden" class="id">
+                        <p>Anda yakin menghapus bobot penilaian <strong class="bobot_penilaian">Bobot Penilaian</strong> ?</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-default" type="button" data-dismiss="modal">Batal</button>
+                        <button type="submit" class="btn btn-danger">Hapus</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+
 <?php $this->app->endSection('content') ?>
 
 <?php $this->app->section() ?>
-<link rel="stylesheet" href="<?= base_url() ?>cdn/plugins/summernote/summernote-lite.min.css">
-<script src="<?= base_url() ?>cdn/plugins/summernote/summernote-lite.min.js"></script>
-<script src="<?= base_url() ?>cdn/plugins/canvas-resize/jquery.canvasResize.js"></script>
-<script src="<?= base_url() ?>cdn/plugins/canvas-resize/jquery.exif.js"></script>
-<script src="<?= base_url() ?>cdn/plugins/canvas-resize/canvasResize.js"></script>
-<script src="<?= base_url() ?>cdn/plugins/canvas-resize/exif.js"></script>
-<script src="<?= base_url() ?>cdn/plugins/canvas-resize/binaryajax.js"></script>
-<script src="<?= base_url() ?>cdn/plugins/canvas-resize/zepto.min.js"></script>
+    <link rel="stylesheet" href="<?= base_url() ?>cdn/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css">
+    <script src="<?= base_url() ?>cdn/plugins/datatables/jquery.dataTables.min.js"></script>
+    <script src="<?= base_url() ?>cdn/plugins/datatables-bs4/js/dataTables.bootstrap4.min.js"></script>
+
+    <link rel="stylesheet" href="<?= base_url() ?>cdn/plugins/summernote/summernote-lite.min.css">
+    <script src="<?= base_url() ?>cdn/plugins/summernote/summernote-lite.min.js"></script>
+    <script src="<?= base_url() ?>cdn/plugins/canvas-resize/jquery.canvasResize.js"></script>
+    <script src="<?= base_url() ?>cdn/plugins/canvas-resize/jquery.exif.js"></script>
+    <script src="<?= base_url() ?>cdn/plugins/canvas-resize/canvasResize.js"></script>
+    <script src="<?= base_url() ?>cdn/plugins/canvas-resize/exif.js"></script>
+    <script src="<?= base_url() ?>cdn/plugins/canvas-resize/binaryajax.js"></script>
+    <script src="<?= base_url() ?>cdn/plugins/canvas-resize/zepto.min.js"></script>
 <script>
 	$(document).ready(function() {
 
@@ -98,7 +295,147 @@
 			height: 200
 		})
 
-		function show() {
+        function showkomponen() {
+            $('#data-komponen').DataTable().destroy();
+            $('#data-komponen').DataTable({
+                "deferRender": true,
+                "ajax": {
+                    "url": base_url + "api/komponen",
+                    "method": "POST",
+                    "dataSrc": "data"
+                },
+                "columns": [{
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        return meta.row + meta.settings._iDisplayStart + 1;
+                    }
+                },
+                    {
+                        data: null,
+                        render: function(data) {
+                            return `
+							<div class="">
+								<button
+									class="btn btn-editkomponen btn-info btn-sm"
+									type="button"
+									data-toggle="modal"
+									data-target="#editkomponen"
+									data-id="` + data.id + `"
+									data-komponen_penilaian="` + data.komponen_penilaian + `"
+									data-keterangan="` + data.keterangan + `"
+								>
+									<i class="fa fa-pen"></i>
+								</button>
+								<button
+									class="btn btn-hapus btn-danger btn-sm"
+									type="button"
+									data-toggle="modal"
+									data-target="#hapus"
+									data-id="` + data.id + `"
+									data-komponen_penilaian="` + data.komponen_penilaian + `">
+									<i class="fa fa-trash"></i>
+								</button>
+							</div>
+							`;
+                        }
+                    },
+                    {
+                        data: "komponen_penilaian"
+                    },
+                    {
+                        data :"keterangan"
+                    }
+                ]
+            })
+        }
+
+        function showBobot() {
+            $('#data-bobot').DataTable().destroy();
+            $('#data-bobot').DataTable({
+                "deferRender": true,
+                "ajax": {
+                    "url": base_url + "api/bobot_penilaian",
+                    "method": "POST",
+                    "dataSrc": "data"
+                },
+                "columns": [{
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        return meta.row + meta.settings._iDisplayStart + 1;
+                    }
+                },
+                    {
+                        data: null,
+                        render: function(data) {
+                            return `
+							<div class="">
+								<button
+									class="btn btn-editbobot btn-info btn-sm"
+									type="button"
+									data-toggle="modal"
+									data-target="#editbobot"
+									data-id="` + data.id + `"
+									data-bobot_penilaian="` + data.bobot_penilaian + `"
+									data-keterangan="` + data.keterangan + `"
+								>
+									<i class="fa fa-pen"></i>
+								</button>
+								<button
+									class="btn btn-hapusbobot btn-danger btn-sm"
+									type="button"
+									data-toggle="modal"
+									data-target="#hapusbobot"
+									data-id="` + data.id + `"
+									data-bobot_penilaian="` + data.bobot_penilaian + `">
+									<i class="fa fa-trash"></i>
+								</button>
+							</div>
+							`;
+                        }
+                    },
+                    {
+                        data: "bobot_penilaian"
+                    },
+                    {
+                        data :"keterangan"
+                    }
+                ]
+            })
+        }
+
+        showBobot()
+        showkomponen();
+
+        $(document).on('submit', 'form#tambah', function(e) {
+            e.preventDefault();
+            call('api/komponen/create', $(this).serialize()).done(function(req) {
+                if (req.error == true) {
+                    notif(req.message, 'error', true);
+                } else {
+                    notif(req.message, 'success');
+                    $('form#tambah [name]').val('');
+                    $('div#tambah').modal('hide');
+                    showkomponen();
+                }
+            })
+        })
+
+        $(document).on('submit', 'form#tambahbobot', function(e) {
+            e.preventDefault();
+            call('api/bobot_penilaian/create', $(this).serialize()).done(function(req) {
+                if (req.error == true) {
+                    notif(req.message, 'error', true);
+                } else {
+                    notif(req.message, 'success');
+                    $('form#tambahbobot [name]').val('');
+                    $('div#tambahbobot').modal('hide');
+                    showBobot();
+                }
+            })
+        })
+
+
+        function show() {
 			call('api/pengaturan').done(function(res) {
 				if (res.error == true) {
 					notif(res.message, 'warning').then(function() {
@@ -130,7 +467,56 @@
 			})
 		})
 
-		$(document).on('submit', 'form#edit', function(e) {
+
+        // section untuk edit komponen
+        $(document).on('click', 'button.btn-editkomponen', function() {
+            $('form#editkomponen .id').val($(this).data('id'));
+            $('form#editkomponen [name=komponen_penilaian]').val($(this).data('komponen_penilaian'));
+            $('form#editkomponen [name=keterangan]').val($(this).data('keterangan'));
+        })
+
+        $(document).on('submit', 'form#editkomponen', function(e) {
+            e.preventDefault();
+            const id = $('form#editkomponen .id').val();
+            call('api/komponen/update/'+ id, $(this).serialize()).done(function(req) {
+                if (req.error == true) {
+                    notif(req.message, 'error', true);
+                } else {
+                    notif(req.message, 'success');
+                    $('form#editkomponen [name]').val('');
+                    $('div#editkomponen').modal('hide');
+                    showkomponen();
+                }
+            })
+        })
+
+        // end untuk section edit komponen
+
+
+        // section untuk edit bobot
+        $(document).on('click', 'button.btn-editbobot', function() {
+            $('form#editbobot .id').val($(this).data('id'));
+            $('form#editbobot [name=bobot_penilaian]').val($(this).data('bobot_penilaian'));
+            $('form#editbobot [name=keterangan]').val($(this).data('keterangan'));
+        })
+
+        $(document).on('submit', 'form#editbobot', function(e) {
+            e.preventDefault();
+            const id = $('form#editbobot .id').val();
+            call('api/bobot_penilaian/update/'+ id, $(this).serialize()).done(function(req) {
+                if (req.error == true) {
+                    notif(req.message, 'error', true);
+                } else {
+                    notif(req.message, 'success');
+                    $('form#editbobot [name]').val('');
+                    $('div#editbobot').modal('hide');
+                    showBobot();
+                }
+            })
+        })
+        // end untuk section edit bobot
+
+        $(document).on('submit', 'form#edit', function(e) {
 			e.preventDefault();
 			const data = {
 				nama: $('[name=nama]').val(),
@@ -149,7 +535,47 @@
 			})
 		})
 
-	})
+
+        $(document).on('click', 'button.btn-hapus', function() {
+            $('form#hapus .id').val($(this).data('id'));
+            $('form#hapus .komponen_penilaian').html($(this).data('komponen_penilaian'));
+        })
+
+        $(document).on('submit', 'form#hapus', function(e) {
+            e.preventDefault();
+            const id = $('form#hapus .id').val();
+            call('api/komponen/destroy/'+ id).done(function(req) {
+                if (req.error == true) {
+                    notif(req.message, 'error', true);
+                } else {
+                    notif(req.message, 'success');
+                    $('div#hapus').modal('hide');
+                    showkomponen();
+                }
+            })
+        })
+
+
+        $(document).on('click', 'button.btn-hapusbobot', function() {
+            $('form#hapusbobot .id').val($(this).data('id'));
+            $('form#hapusbobot .bobot_penilaian').html($(this).data('bobot_penilaian'));
+        })
+
+        $(document).on('submit', 'form#hapusbobot', function(e) {
+            e.preventDefault();
+            const id = $('form#hapusbobot .id').val();
+            call('api/bobot_penilaian/destroy/'+ id).done(function(req) {
+                if (req.error == true) {
+                    notif(req.message, 'error', true);
+                } else {
+                    notif(req.message, 'success');
+                    $('div#hapusbobot').modal('hide');
+                    showBobot();
+                }
+            })
+        })
+
+    })
 </script>
 <?php $this->app->endSection('script') ?>
 

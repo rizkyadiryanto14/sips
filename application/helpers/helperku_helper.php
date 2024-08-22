@@ -2,7 +2,7 @@
 
 function set_zone()
 {
-    return date_default_timezone_set("Asia/Jakarta");
+    return date_default_timezone_set("Asia/Makassar");
 }
 
 // 2021-08-01

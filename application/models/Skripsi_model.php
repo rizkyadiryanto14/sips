@@ -13,32 +13,74 @@ class Skripsi_model extends CI_Model
     public function index($input)
     {
         $kondisi = [];
-        if ($input['mahasiswa_id']) {
+
+        // Ambil id_periode dari tabel periode dengan status = 1
+        $periode_aktif = $this->db->select('id')
+            ->from('periode')
+            ->where('status', 1)
+            ->get()
+            ->row_array();
+
+        if (empty($periode_aktif)) {
+            return [
+                'error' => true,
+                'message' => 'Tidak ada periode aktif yang ditemukan',
+                'data' => []
+            ];
+        }
+
+        // Simpan id_periode dari periode aktif ke dalam kondisi
+        $kondisi['skripsi_vl.id_periode'] = $periode_aktif['id'];
+
+        // Tambahkan kondisi untuk mahasiswa_id jika diberikan
+        if (!empty($input['mahasiswa_id'])) {
             $kondisi['skripsi_vl.mahasiswa_id'] = $input['mahasiswa_id'];
         }
 
-        if ($kondisi) {
-            $this->db->where($kondisi);
-        }
+        // Terapkan kondisi untuk query
+        $this->db->where($kondisi);
 
+        // Eksekusi query dan ambil hasilnya
         $skripsi = $this->db->get('skripsi_vl')->result_array();
 
+        // Format hasil untuk output
         $hasil = [
             'error' => false,
-            'message' => ($skripsi) ? "data berhasil ditemukan" : "data tidak tersedia",
+            'message' => ($skripsi) ? "data berhasil ditemukan" : "Data tidak tersedia",
             'data' => $skripsi,
         ];
 
         return $hasil;
     }
 
+
     public function admin_index($input)
     {
+        // Ambil id_periode dari tabel periode dengan status = 1
+        $periode_aktif = $this->db->select('id')
+            ->from('periode')
+            ->where('status', 1)
+            ->get()
+            ->row_array();
+
+        if (empty($periode_aktif)) {
+            return [
+                'error' => true,
+                'message' => 'Tidak ada periode aktif yang ditemukan',
+                'data' => []
+            ];
+        }
+
+        // Terapkan filter berdasarkan id_periode dari periode yang aktif
+        $this->db->where('skripsi_vl.id_periode', $periode_aktif['id']);
+
+        // Eksekusi query dan ambil hasilnya
         $skripsi = $this->db->get('skripsi_vl')->result_array();
 
+        // Format hasil untuk output
         $hasil = [
             'error' => false,
-            'message' => ($skripsi) ? "data berhasil ditemukan" : "data tidak tersedia",
+            'message' => ($skripsi) ? "Data berhasil ditemukan" : "Data tidak tersedia",
             'data' => $skripsi,
         ];
 
@@ -50,9 +92,6 @@ class Skripsi_model extends CI_Model
     {
         $data = [
             'judul_skripsi' => $input['judul_skripsi'],
-            'jadwal_skripsi' => $input['jadwal_skripsi'],
-            'dosen_id' => $input['dosen_id'],
-            'dosen_penguji_id' => $input['dosen_penguji_id'],
             'mahasiswa_id' => $input['mahasiswa_id'],
             'persetujuan' => $input['persetujuan'],
             'file_skripsi' => $input['file_skripsi'],
@@ -106,9 +145,6 @@ class Skripsi_model extends CI_Model
         $data = [
             'mahasiswa_id' => $input['mahasiswa_id'],
             'judul_skripsi' => $input['judul_skripsi'],
-            'jadwal_skripsi' => $input['jadwal_skripsi'],
-            'dosen_id' => $input['dosen_id'],
-            'dosen_penguji_id' => $input['dosen_penguji_id']
         ];
 
         $kondisi = ['skripsi.id' => $id];

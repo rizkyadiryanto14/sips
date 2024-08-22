@@ -1,13 +1,18 @@
 <?php
 defined('BASEPATH') or exit('No direct script access allowed');
 
+/**
+ * @property $db
+ * @property $session
+ */
+
 class Auth_model extends CI_Model
 {
 
     public function login($input)
     {
         $email = $input['email'];
-        $nip = $input['nip'];
+        $password = $input['password'];
 
         if (empty($email)) {
             $hasil = [
@@ -16,7 +21,7 @@ class Auth_model extends CI_Model
             ];
             goto output;
         }
-        if (empty($nip)) {
+        if (empty($password)) {
             $hasil = [
                 'error' => true,
                 'message' => "Password harus diisi"
@@ -28,12 +33,16 @@ class Auth_model extends CI_Model
 
         if ($dosen->num_rows() > 0) {
             foreach ($dosen->result_array() as $key => $item) {
-                if ($item['nip'] == $nip) {
+                if (password_verify($password, $item['password'])) {
                     $hasil = [
                         'error' => false,
                         'message' => "berhasil login",
                         'data' => $item
                     ];
+                    $usersession = [
+                        'nama'  => $item['nama'],
+                    ];
+                    $this->session->set_userdata($usersession);
                     goto output;
                 }
             }
@@ -53,6 +62,7 @@ class Auth_model extends CI_Model
         output:
         return $hasil;
     }
+
 }
 
 /* End of file Auth_model.php */

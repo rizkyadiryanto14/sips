@@ -51,4 +51,4 @@ class Jabatan extends REST_Controller
     }
 }
 
-/* End of file Dosen.php */
+/* End of file Jabatan.php */

@@ -32,6 +32,7 @@
                         <th>Dosen Pembimbing</th>
                         <th>Dosen Penguji</th>
                         <th>Jadwal Skripsi</th>
+                        <th>Tempat</th>
                         <th>Persetujuan</th>
                         <th>File Skripsi</th>
                         <th>SK Tim</th>
@@ -44,6 +45,7 @@
         </div>
     </div>
 </div>
+
 <div class="modal fade" id="edit">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -55,24 +57,10 @@
                     <input type="hidden" class="id">
                     <input type="hidden" name="mahasiswa_id" value="<?= $this->session->userdata('id') ?>">
                     <div class="form-group">
-                        <label>Judul Skripsi</label>
-                        <input type="text" class="form-control" name="judul_skripsi" placeholder="Masukkan Judul Skripsi">
-                    </div>
-                    <div class="form-group">
-                        <label>Pembimbing</label>
-                        <select name="dosen_id" class="form-control">
-                            <option value="">- Pilih Pembimbing -</option>
+                        <label>Proposal</label>
+                        <select name="judul_skripsi" class="form-control">
+                            <option value="">- Pilih Proposal -</option>
                         </select>
-                    </div>
-                    <div class="form-group">
-                        <label>Penguji</label>
-                        <select name="dosen_penguji_id" class="form-control">
-                            <option value="">- Pilih Penguji -</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>Jadwal Skripsi</label>
-                        <input name="jadwal_skripsi" type="text" class="form-control dateTime" placeholder="Pilih Jadwal Skripsi" readonly>
                     </div>
                     <div class="form-group">
                         <label>Persetujuan</label>
@@ -107,6 +95,7 @@
         </div>
     </div>
 </div>
+
 <div class="modal fade" id="tambah">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -117,27 +106,13 @@
                 <div class="modal-body">
                     <input type="hidden" name="mahasiswa_id" value="<?= $this->session->userdata('id'); ?>">
                     <div class="form-group">
-                        <label>Judul Skripsi</label>
-                        <input type="text" class="form-control" name="judul_skripsi" placeholder="Masukkan Judul Skripsi">
-                    </div>
-                    <div class="form-group">
-                        <label>Pembimbing</label>
-                        <select name="dosen_id" class="form-control">
-                            <option value="">- Pilih Pembimbing -</option>
+                        <label>Proposal</label>
+                        <select name="judul_skripsi" class="form-control">
+                            <option value="">- Pilih Proposal -</option>
                         </select>
                     </div>
                     <div class="form-group">
-                        <label>Penguji</label>
-                        <select name="dosen_penguji_id" class="form-control">
-                            <option value="">- Pilih Penguji -</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>Jadwal Skripsi</label>
-                        <input name="jadwal_skripsi" type="text" class="form-control dateTime" placeholder="Pilih Jadwal Skripsi" readonly>
-                    </div>
-                    <div class="form-group">
-                        <label>Persetujuan</label>
+                        <label>Syarat Seminar</label>
                         <input type="file" class="form-control" name="pilih-persetujuan" accept="application/pdf">
                         <input type="hidden" name="persetujuan">
                     </div>
@@ -147,12 +122,12 @@
                         <input type="hidden" name="file_skripsi">
                     </div>
                     <div class="form-group">
-                        <label>SK Tim</label>
+                        <label>Surat Permohonan</label>
                         <input type="file" class="form-control" name="pilih-sk_tim" accept="application/pdf">
                         <input type="hidden" name="sk_tim">
                     </div>
                     <div class="form-group">
-                        <label>Bukti Konsultasi</label>
+                        <label>Kartu Bimbingan</label>
                         <input type="file" class="form-control" name="pilih-bukti_konsultasi" accept="application/pdf">
                         <input type="hidden" name="bukti_konsultasi">
                     </div>
@@ -192,15 +167,23 @@
 <script src="<?= base_url() ?>cdn/plugins/datatables-bs4/js/dataTables.bootstrap4.min.js"></script>
 <script>
     $(document).ready(function() {
-        call('api/dosen').done(function(res) {
-            dosen = `<option value="">- Pilih Dosen -</option>`;
-            if (res.data) {
-                res.data.forEach(obj => {
-                    dosen += `<option value="` + obj.id + `">` + obj.nama + `</option>`;
+
+        $.ajax({
+            url: base_url + 'getData/proposal_mahasiswa',
+            type: 'post',
+            data: {
+                mahasiswa_id: <?= $this->session->userdata('id') ?>
+            },
+            dataType: 'json',
+            success: function(res) {
+                proposal = `<option value="">- Pilih Proposal -</option>`;
+                $.each(res, function(i, item) {
+                    if (item.status == '1') {
+                        proposal += `<option value="` + item.judul + `">` + item.judul + `</option>`;
+                    }
                 })
+                $('[name=judul_skripsi]').html(proposal);
             }
-            $('[name=dosen_id]').html(dosen);
-            $('[name=dosen_penguji_id]').html(dosen);
         })
 
         show = () => {
@@ -241,13 +224,30 @@
                         data: "judul_skripsi"
                     },
                     {
-                        data: "nama_pembimbing"
+                        data: null,
+                        render: function(data) {
+                            return '1. ' + data.nama_pembimbing1 + '<br>2. ' + data.nama_pembimbing2;
+                        }
                     },
                     {
-                        data: "nama_penguji"
+                        data: null,
+                        render: function(data) {
+                            // Menampilkan nama dosen penguji
+                            return '1. ' + (data.nama_penguji1 || 'Belum ada data') + '<br>2. ' + (data.nama_penguji2 || 'Belum ada data');
+                        }
                     },
                     {
-                        data: "jadwal_skripsi"
+                        data: "jadwal_skripsi",
+                        render: function (data){
+                            return data || 'Belum ada data';
+                        }
+                    },
+                    {
+                        data: "tempat",
+                        render: function(data) {
+                            // Menampilkan tempat, jika tidak ada data tampilkan 'Belum ada data'
+                            return data || 'Belum ada data';
+                        }
                     },
                     {
                         data: "persetujuan",

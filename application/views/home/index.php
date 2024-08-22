@@ -187,7 +187,7 @@
                 <div class="row">
                     <div class="col-md-12">
                         <div class="site-info float-left">
-                            <p>Copyright &copy; 2022 Imamdev, All rights reserved</p>
+                            <p>Copyright &copy; <?= date('Y') ?> RizkyDev, All rights reserved</p>
                         </div>
                     </div>
                 </div>
