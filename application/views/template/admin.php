@@ -133,7 +133,7 @@
             </li>
               <li class="nav-item">
                   <a class="nav-link" href="<?= base_url() ?>admin/periode">
-                      <i class="fa fa-cog text-success"></i>
+                      <i class="fa fa-calendar text-info"></i>
                       <span class="nav-link-text">Periode</span>
                   </a>
               </li>

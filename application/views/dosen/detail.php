@@ -79,10 +79,10 @@
                     <div class="card-body">
                         <h5 class="card-title">Informasi Dosen</h5>
                         <p class="card-text">
-                            <strong>NIP: </strong><span class="nip"></span><br>
-                            <strong>Nama: </strong><span class="nama"></span><br>
-                            <strong>Email: </strong><span class="email"></span><br>
-                            <strong>Nomor Telepon: </strong><span class="nomor_telepon"></span><br>
+                            <strong>NIP: </strong><span class="nip"><?= $dosen['nip'] ?></span><br>
+                            <strong>Nama: </strong><span class="nama"><?= $dosen['nama'] ?></span><br>
+                            <strong>Email: </strong><span class="email"><?= $dosen['email'] ?></span><br>
+                            <strong>Nomor Telepon: </strong><span class="nomor_telepon"><?= $dosen['nomor_telepon'] ?></span><br>
                             <!-- Anda bisa menambahkan field lainnya di sini sesuai kebutuhan -->
                         </p>
                     </div>
@@ -140,7 +140,7 @@
             <div class="row">
                 <div class="col-md-12">
                     <div class="site-info float-left">
-                        <p>Copyright &copy; 2022 Imamdev, All rights reserved</p>
+                        <p>Copyright &copy; 2024 RizyDev, All rights reserved</p>
                     </div>
                 </div>
             </div>
