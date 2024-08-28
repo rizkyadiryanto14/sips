@@ -1,61 +1,126 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Berita Acara Sempro</title>
     <style>
-        .left-item {
-            position: absolute;
-            left: auto;
+        @page {
+            margin: 2cm;
         }
 
-        #tabel-header {
-            background-color: #808080;
-            color: #ffffff;
-        }
-
-        #customers {
+        body {
             font-family: Arial, Helvetica, sans-serif;
-            border-collapse: collapse;
-            width: 100%;
+            font-size: 10pt;
+            line-height: 1.5;
+            margin: 0;
+            padding: 0;
         }
 
-        #customers td,
-        #customers th {
-            border: 1px solid #ddd;
-            padding: 8px;
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
         }
 
-        #customers tr:nth-child(even) {
-            background-color: #f2f2f2;
+        .header img {
+            width: 150px;
+            height: auto;
         }
 
-        #customers tr:hover {
-            background-color: #ddd;
+        .header-address {
+            text-align: right;
+            font-size: 10pt;
+            line-height: 1.3;
+            margin-top: -40px;
         }
 
-        #customers th {
-            padding-top: 12px;
-            padding-bottom: 12px;
+        .title {
             text-align: center;
-            background-color: #808080;
-            color: #ffffff;
+            font-size: 12pt;
+            font-weight: bold;
+            margin: 20px 0;
         }
+
+        .content {
+            margin-bottom: 10px;
+        }
+
+        .content-table {
+            width: 100%;
+            font-size: 10pt;
+        }
+
+        .content-table td {
+            padding: 4px;
+        }
+
+        .content-table td:first-child {
+            width: 120px;
+        }
+
+        .isi table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+            font-size: 10pt;
+        }
+
+        .isi th,
+        .isi td {
+            border: 1px solid #ddd;
+            padding: 6px;
+            text-align: left;
+        }
+
+        .isi th {
+            background-color: #808080;
+            color: white;
+        }
+
+        .signature-section {
+            margin-top: 5px;
+        }
+
+        .signature-table {
+            width: 100%;
+            text-align: center;
+            margin-top: 5px;
+        }
+
+        .signature-table td {
+            padding-top: 10px;
+        }
+
+        .signature-name {
+            font-weight: bold;
+            text-decoration: underline;
+        }
+
+        .page-break {
+            page-break-before: always;
+        }
+
     </style>
 </head>
 
 <body>
-<section class="header">
-    <div style="text-align:center;" class="header font-weight-300">
-        <h3>Form Penilaian Seminar Proposal Skripsi</h3>
+
+<div class="header">
+    <img src="<?= base_url('cdn/img/informatika.png'); ?>" alt="Logo">
+    <div class="header-address">
+        Jalan Olat Maras, Batu Alang, Kec. Moyo Hulu<br>
+        Kab. Sumbawa, Nusa Tenggara Barat, 84371<br>
+        Telp. (0371) 2629009<br>
+        www.uts.ac.id
     </div>
-</section>
+</div>
+
+<div class="title">Form Penilaian Seminar Proposal Skripsi</div>
 
 <section class="content">
-    <table class="table table-hover" style="margin-left: 40px;">
+    <table class="content-table">
         <tr>
             <td>Nama</td>
             <td>: <?= $showData['nama_mahasiswa']; ?></td>
@@ -122,37 +187,44 @@
             <td><?= $showData['penguji1_rata_nilai'] ?></td>
         </tr>
     </table>
-
-    <section class="tanda_tangan">
-        <table class="table table-hover" style="width:100%; margin-left:500px; margin-top:150px;">
-            <tr class="font-weight">
-                <td style="font-weight: bold">
-                    Menyetujui<br>Penguji I
-                </td>
-            </tr>
-            <tr class="font-weight">
-                <td style="font-weight: bold">
-                    <img src="<?= base_url('cdn/vendor/qrcodes/' . $showData['penguji1_barcode']); ?>" width="20%" alt="">
-                    <br><br><br><br>
-                    (<?= $showData['penguji1_nama']; ?>)
-                    <br>
-                    NIDN. <?= $showData['penguji1_nip']; ?>
-                </td>
-            </tr>
-        </table>
-    </section>
 </section>
 
-<br><br><br><br><br><br><br><br><br><br><br><br><br><br>
+<section class="signature-section">
+    <table class="signature-table">
+        <tr>
+            <td>
+                Menyetujui<br>Penguji I
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <img src="<?= base_url('cdn/vendor/qrcodes/' . $showData['penguji1_barcode']); ?>" width="20%" alt="">
+                <br><br><br>
+                <span class="signature-name"><?= $showData['penguji1_nama']; ?></span>
+                <br>
+                NIDN. <?= $showData['penguji1_nip']; ?>
+            </td>
+        </tr>
+    </table>
+</section>
 
-<section class="header">
-    <div style="text-align:center;" class="header font-weight-300">
-        <h3>Form Penilaian Seminar Proposal Skripsi</h3>
+<div class="page-break"></div>
+
+<!-- Header Baru untuk Penguji 2 -->
+<div class="header">
+    <img src="<?= base_url('cdn/img/informatika.png'); ?>" alt="Logo">
+    <div class="header-address">
+        Jalan Olat Maras, Batu Alang, Kec. Moyo Hulu<br>
+        Kab. Sumbawa, Nusa Tenggara Barat, 84371<br>
+        Telp. (0371) 2629009<br>
+        www.uts.ac.id
     </div>
-</section>
+</div>
+
+<div class="title">Form Penilaian Seminar Proposal Skripsi</div>
 
 <section class="content">
-    <table class="table table-hover" style="margin-left: 40px;">
+    <table class="content-table">
         <tr>
             <td>Nama</td>
             <td>: <?= $showData['nama_mahasiswa']; ?></td>
@@ -219,37 +291,44 @@
             <td><?= $showData['penguji2_rata_nilai'] ?></td>
         </tr>
     </table>
-
-    <section class="tanda_tangan">
-        <table class="table table-hover" style="width:100%; margin-left:500px; margin-top:150px;">
-            <tr class="font-weight">
-                <td style="font-weight: bold">
-                    Menyetujui<br>Penguji II
-                </td>
-            </tr>
-            <tr class="font-weight">
-                <td style="font-weight: bold">
-                    <img src="<?= base_url('cdn/vendor/qrcodes/' . $showData['penguji2_barcode']); ?>" width="20%" alt="">
-                    <br><br><br>
-                    (<?= $showData['penguji2_nama']; ?>)
-                    <br>
-                    NIDN. <?= $showData['penguji2_nip']; ?>
-                </td>
-            </tr>
-        </table>
-    </section>
 </section>
 
-<br><br><br><br><br><br><br><br><br><br><br><br><br><br>
+<section class="signature-section">
+    <table class="signature-table">
+        <tr>
+            <td>
+                Menyetujui<br>Penguji II
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <img src="<?= base_url('cdn/vendor/qrcodes/' . $showData['penguji2_barcode']); ?>" width="20%" alt="">
+                <br><br><br>
+                <span class="signature-name"><?= $showData['penguji2_nama']; ?></span>
+                <br>
+                NIDN. <?= $showData['penguji2_nip']; ?>
+            </td>
+        </tr>
+    </table>
+</section>
 
-<section class="header">
-    <div style="text-align:center;" class="header font-weight-300">
-        <h3>Form Penilaian Seminar Proposal Skripsi</h3>
+<div class="page-break"></div>
+
+<!-- Header Baru untuk Pembimbing -->
+<div class="header">
+    <img src="<?= base_url('cdn/img/informatika.png'); ?>" alt="Logo">
+    <div class="header-address">
+        Jalan Olat Maras, Batu Alang, Kec. Moyo Hulu<br>
+        Kab. Sumbawa, Nusa Tenggara Barat, 84371<br>
+        Telp. (0371) 2629009<br>
+        www.uts.ac.id
     </div>
-</section>
+</div>
+
+<div class="title">Form Penilaian Seminar Proposal Skripsi</div>
 
 <section class="content">
-    <table class="table table-hover" style="margin-left: 40px;">
+    <table class="content-table">
         <tr>
             <td>Nama</td>
             <td>: <?= $showData['nama_mahasiswa']; ?></td>
@@ -316,35 +395,44 @@
             <td><?= $showData['pembimbing_rata_nilai'] ?></td>
         </tr>
     </table>
-
-    <section class="tanda_tangan">
-        <table class="table table-hover" style="width:100%; margin-left:500px; margin-top:150px;">
-            <tr class="font-weight">
-                <td style="font-weight: bold">
-                    Mengetahui<br>Pembimbing Utama
-                </td>
-            </tr>
-            <tr class="font-weight">
-                <td style="font-weight: bold">
-                    <img src="<?= base_url('cdn/vendor/qrcodes/' . $showData['pembimbing_barcode']); ?>" width="20%" alt="">
-                    <br><br><br>
-                    (<?= $showData['pembimbing_nama']; ?>)
-                    <br>
-                    NIDN. <?= $showData['pembimbing_nip']; ?>
-                </td>
-            </tr>
-        </table>
-    </section>
 </section>
 
-<div style="text-align:center; margin-top:520px;" class="header font-weight-300">
-    <h3>BERITA ACARA</h3>
-    <h3>SEMINAR PROPOSAL</h3>
+<section class="signature-section">
+    <table class="signature-table">
+        <tr>
+            <td>
+                Mengetahui<br>Pembimbing Utama
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <img src="<?= base_url('cdn/vendor/qrcodes/' . $showData['pembimbing_barcode']); ?>" width="20%" alt="">
+                <br><br><br>
+                <span class="signature-name"><?= $showData['pembimbing_nama']; ?></span>
+                <br>
+                NIDN. <?= $showData['pembimbing_nip']; ?>
+            </td>
+        </tr>
+    </table>
+</section>
+
+<div class="page-break"></div>
+
+<!-- Header Baru untuk Berita Acara -->
+<div class="header">
+    <img src="<?= base_url('cdn/img/informatika.png'); ?>" alt="Logo">
+    <div class="header-address">
+        Jalan Olat Maras, Batu Alang, Kec. Moyo Hulu<br>
+        Kab. Sumbawa, Nusa Tenggara Barat, 84371<br>
+        Telp. (0371) 2629009<br>
+        www.uts.ac.id
+    </div>
 </div>
 
+<div class="title">BERITA ACARA SEMINAR PROPOSAL</div>
+
 <section class="content">
-    <p>Pada</p>
-    <table class="table table-hover" style="margin-left: 40px;">
+    <table class="content-table">
         <tr>
             <td>Hari, Tanggal</td>
             <td>: <?= hariIndo(getDay($showData['tanggal'])) . ', ' . tgl_indo($showData['tanggal']); ?></td>
@@ -360,9 +448,9 @@
     </table>
 </section>
 
-<section class="isi">
-    <p>Telah Dilaksanakan Seminar Proposal</p>
-    <table class="table table-hover" style="margin-left: 40px;">
+<section class="content">
+    <p>Telah Dilaksanakan Seminar Proposal dengan judul:</p>
+    <table class="content-table">
         <tr>
             <td>Judul</td>
             <td>: <?= $showData['proposal_mahasiswa_judul']; ?></td>
@@ -383,8 +471,8 @@
 </section>
 
 <section>
-    <h3 style="text-align: center;">MEMUTUSKAN</h3>
-    <table class="table table-hover" style="margin-left: 40px;">
+    <div class="title">MEMUTUSKAN</div>
+    <table class="content-table">
         <tr>
             <td>Menetapkan Nama/Nim</td>
             <td>: <?= $showData['nama_mahasiswa'] . '/' . $showData['nim']; ?></td>
@@ -411,13 +499,26 @@
         </tr>
     </table>
 
-    <table class="table table-hover" style="margin-left: 40px;width:100%;">
-        <tr class="font-weight">
+    <div class="page-break"></div>
+
+    <!-- Header Baru untuk Berita Acara -->
+    <div class="header">
+        <img src="<?= base_url('cdn/img/informatika.png'); ?>" alt="Logo">
+        <div class="header-address">
+            Jalan Olat Maras, Batu Alang, Kec. Moyo Hulu<br>
+            Kab. Sumbawa, Nusa Tenggara Barat, 84371<br>
+            Telp. (0371) 2629009<br>
+            www.uts.ac.id
+        </div>
+    </div>
+
+    <table class="signature-table">
+        <tr>
             <td style="font-weight: bold">Menyetujui<br>Penguji 1</td>
             <td style="font-weight: bold">Penguji 2</td>
             <td style="font-weight: bold">Pembimbing Utama</td>
         </tr>
-        <tr class="font-weight">
+        <tr>
             <td style="height: 150px;">
                 <img src="<?= base_url('cdn/vendor/qrcodes/' . $showData['penguji1_barcode']); ?>" width="40%" alt="">
             </td>
@@ -428,7 +529,7 @@
                 <img src="<?= base_url('cdn/vendor/qrcodes/' . $showData['pembimbing_barcode']); ?>" width="40%" alt="">
             </td>
         </tr>
-        <tr class="font-weight">
+        <tr>
             <td style="font-weight: bold">
                 (<?= $showData['penguji1_nama']; ?>)
                 <br>

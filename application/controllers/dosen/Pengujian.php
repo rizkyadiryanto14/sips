@@ -84,12 +84,15 @@ class Pengujian extends MY_Controller
 
         // Set options untuk Dompdf
         $options = new Options();
-        $options->set('isRemoteEnabled', true); // Mengaktifkan pemuatan remote content (gambar dari URL)
+        $options->set('isRemoteEnabled', true);
+        $options->setIsHtml5ParserEnabled(true);
+        $options->setIsFontSubsettingEnabled(true);
 
         // Inisialisasi Dompdf dengan options
         $dompdf = new Dompdf($options);
         $dompdf->loadHtml($html);
         $dompdf->setPaper('A4', 'portrait');
+
 
         // Render PDF
         $dompdf->render();
