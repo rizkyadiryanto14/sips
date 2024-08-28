@@ -119,7 +119,7 @@
 
     $(document).ready(function() {
         $("#nim").keyup(function() {
-            if ($(this).val().length == 11) {
+            if ($(this).val().length <= 11) {
                 var inp = $(this).val();
                 if (/^[0-9]+$/.test(inp)) {  // Memastikan hanya angka yang dimasukkan
                     $(".btn-act").attr('disabled', false);

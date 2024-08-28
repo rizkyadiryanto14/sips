@@ -64,6 +64,24 @@ class PengujianSempro_model extends CI_Model
 
     public function create($input)
     {
+        // Ambil tahun sekarang
+        $tahun_sekarang = date('Y');
+
+        // Cari ID periode berdasarkan tahun sekarang
+        $this->db->select('id');
+        $this->db->from('periode');
+        $this->db->where('periode', $tahun_sekarang);
+        $this->db->where('status', 1); // Anda bisa mengubah ini sesuai kondisi status yang dibutuhkan
+        $periode = $this->db->get()->row();
+
+        if (!$periode) {
+            // Jika tidak ada data periode yang cocok, kembalikan error
+            return [
+                'error' => true,
+                'message' => 'Periode untuk tahun ' . $tahun_sekarang . ' tidak ditemukan atau belum aktif.'
+            ];
+        }
+
         $data = [
             'id_sempro' => $input['id_sempro'],
             'id_dosen'  => $input['id_dosen'],
@@ -72,7 +90,8 @@ class PengujianSempro_model extends CI_Model
             'penampilan' => $input['penampilan'],
             'penguasaan_materi' => $input['penguasaan_materi'],
             'kelayakan_proposal' => $input['kelayakan_proposal'],
-            'status'        => 1
+            'status'        => 1,
+            'id_periode'    => $periode->id
         ];
 
         $validate = $this->app->validate($data);

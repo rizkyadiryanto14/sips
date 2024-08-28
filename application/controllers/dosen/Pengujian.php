@@ -49,27 +49,26 @@ class Pengujian extends MY_Controller
     public function pengujian_skripsi()
     {
         $id_dosen = $this->session->userdata('id');
-        $listing_sempro = $this->PengujianSkripsi_model->listing_sempro($id_dosen);
+        $listing_skripsi = $this->PengujianSkripsi_model->listing_skripsi($id_dosen);
         $pengujian_data = $this->PengujianSkripsi_model->get();
 
-        // Menggabungkan data listing sempro dan pengujian
-        foreach ($listing_sempro['data'] as $key => $item) {
+        // Menggabungkan data listing skripsi dan pengujian
+        foreach ($listing_skripsi['data'] as $key => $item) {
             // Inisialisasi pengujian menjadi null untuk setiap item
-            $listing_sempro['data'][$key]->pengujian = null;
+            $listing_skripsi['data'][$key]->pengujian = null;
 
-            // Cek data pengujian berdasarkan id_dosen dan id_sempro yang sesuai
+            // Cek data pengujian berdasarkan id_dosen dan id_skripsi yang sesuai
             foreach ($pengujian_data['data'] as $pengujian) {
-                if ($pengujian['id_sempro'] == $item->seminar_id && $pengujian['id_dosen'] == $id_dosen) {
-                    $listing_sempro['data'][$key]->pengujian = $pengujian;
+                if ($pengujian['id_skripsi'] == $item->seminar_id && $pengujian['id_dosen'] == $id_dosen) {
+                    $listing_skripsi['data'][$key]->pengujian = $pengujian;
                     break;
                 }
             }
         }
 
-        $data['listing_sempro'] = $listing_sempro['data'];
-        return $this->load->view('dosen/pengujian_sempro', $data);
+        $data['listing_skripsi'] = $listing_skripsi['data'];
+        return $this->load->view('dosen/pengujian_skripsi', $data);
     }
-
 
     public function cetak_pdf($id_sempro)
     {
@@ -100,6 +99,38 @@ class Pengujian extends MY_Controller
         // Output PDF
         $dompdf->stream('berita_acara_' . $id_sempro . '.pdf', array("Attachment" => 1));
     }
+
+    public function cetak_pdf_skripsi($id_skripsi)
+    {
+        $data['showData'] = $this->PengujianSkripsi_model->get_berita_acara($id_skripsi);
+
+
+        if (empty($data['showData'])) {
+            $data['showData'] = [];
+        }
+
+        // Load view menjadi string
+        $html = $this->load->view('cetak/cetak_skripsi', $data, true);
+
+        // Set options untuk Dompdf
+        $options = new Options();
+        $options->set('isRemoteEnabled', true);
+        $options->setIsHtml5ParserEnabled(true);
+        $options->setIsFontSubsettingEnabled(true);
+
+        // Inisialisasi Dompdf dengan options
+        $dompdf = new Dompdf($options);
+        $dompdf->loadHtml($html);
+        $dompdf->setPaper('A4', 'portrait');
+
+
+        // Render PDF
+        $dompdf->render();
+
+        // Output PDF
+        $dompdf->stream('berita_acara_' . $id_skripsi . '.pdf', array("Attachment" => 1));
+    }
+
 
 
 

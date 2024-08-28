@@ -92,7 +92,7 @@
                           <i class="nav-item fa fa-book text-yellow"></i>
                           Sempro
                       </a>
-                      <a class="dropdown-item" href="<?= base_url() ?>dosen/skripsi">
+                      <a class="dropdown-item" href="<?= base_url() ?>dosen/pengujian/pengujian_skripsi">
                           <i class="nav-item fas fa-bookmark text-info"></i>
                           Skripsi
                       </a>

@@ -22,19 +22,19 @@
                     </tr>
                     <br>
                     <tr>
-                        <td>Pembimbing 1</td>
+                        <td>Pembimbing I</td>
                         <td>: <?= $item->nama_dosen_pembimbing_1 ?></td>
                     </tr>
                     <tr>
-                        <td>Pembimbing 2</td>
+                        <td>Pembimbing II</td>
                         <td>: <?= $item->nama_dosen_pembimbing_2 ?></td>
                     </tr>
                     <tr>
-                        <td>Penguji 1</td>
+                        <td>Penguji I</td>
                         <td>: <?= $item->nama_dosen_penguji_1 ?></td>
                     </tr>
                     <tr>
-                        <td>Penguji 2</td>
+                        <td>Penguji II</td>
                         <td>: <?= $item->nama_dosen_penguji_2 ?></td>
                     </tr>
                     </thead>

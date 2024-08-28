@@ -93,6 +93,24 @@ class Proposal_mahasiswa_model extends CI_Model
     {
         $this->load->library('FileUpload');
 
+        // Ambil tahun sekarang
+        $tahun_sekarang = date('Y');
+
+        // Cari ID periode berdasarkan tahun sekarang
+        $this->db->select('id');
+        $this->db->from('periode');
+        $this->db->where('periode', $tahun_sekarang);
+        $this->db->where('status', 1); // Anda bisa mengubah ini sesuai kondisi status yang dibutuhkan
+        $periode = $this->db->get()->row();
+
+        if (!$periode) {
+            // Jika tidak ada data periode yang cocok, kembalikan error
+            return [
+                'error' => true,
+                'message' => 'Periode untuk tahun ' . $tahun_sekarang . ' tidak ditemukan atau belum aktif.'
+            ];
+        }
+
         $data = [
             'mahasiswa_id' => $input['mahasiswa_id'],
             'judul' => $input['judul'],
@@ -103,6 +121,7 @@ class Proposal_mahasiswa_model extends CI_Model
             'outline' => $input['outline'],
             'lulus_metopen' => $input['lulus_metopen'],
             'lulus_mkwajib' => $input['lulus_mkwajib'],
+            'id_periode' => $periode->id,
         ];
 
         $validate = $this->app->validate($data);

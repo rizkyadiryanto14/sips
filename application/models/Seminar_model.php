@@ -92,12 +92,31 @@ class Seminar_model extends CI_Model
 
     public function create($input)
 	{
+        // Ambil tahun sekarang
+        $tahun_sekarang = date('Y');
+
+        // Cari ID periode berdasarkan tahun sekarang
+        $this->db->select('id');
+        $this->db->from('periode');
+        $this->db->where('periode', $tahun_sekarang);
+        $this->db->where('status', 1); // Anda bisa mengubah ini sesuai kondisi status yang dibutuhkan
+        $periode = $this->db->get()->row();
+
+        if (!$periode) {
+            // Jika tidak ada data periode yang cocok, kembalikan error
+            return [
+                'error' => true,
+                'message' => 'Periode untuk tahun ' . $tahun_sekarang . ' tidak ditemukan atau belum aktif.'
+            ];
+        }
+
 		$data = [
 			'proposal_mahasiswa_id' => $input['proposal_mahasiswa_id'],
 			'file_proposal' => $input['file_proposal'],
 			'sk_tim' => $input['sk_tim'],
 			'persetujuan' => $input['persetujuan'],
 			'bukti_konsultasi' => $input['bukti_konsultasi'],
+            'id_periode'    => $periode->id
 		];
 
 		$validation = $this->app->validate($data);

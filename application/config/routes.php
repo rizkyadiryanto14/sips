@@ -75,5 +75,6 @@ $route['translate_uri_dashes'] = FALSE;
 $route['dosen/update_signature'] = 'dosen/profil/update_signature';
 
 $route['berita_acara/cetak_pdf/(:num)']  = 'dosen/Pengujian/cetak_pdf/$1';
+$route['berita_acara/cetak_pdf_skripsi/(:num)']  = 'dosen/Pengujian/cetak_pdf_skripsi/$1';
 
 $route['dosen/detail_signature/(:num)']  = 'dosen/Dosen/detail/$1';

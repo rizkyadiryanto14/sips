@@ -105,6 +105,24 @@ class Dosen_model extends CI_Model
 
     public function create($input)
     {
+        // Ambil tahun sekarang
+        $tahun_sekarang = date('Y');
+
+        // Cari ID periode berdasarkan tahun sekarang
+        $this->db->select('id');
+        $this->db->from('periode');
+        $this->db->where('periode', $tahun_sekarang);
+        $this->db->where('status', 1); // Anda bisa mengubah ini sesuai kondisi status yang dibutuhkan
+        $periode = $this->db->get()->row();
+
+        if (!$periode) {
+            // Jika tidak ada data periode yang cocok, kembalikan error
+            return [
+                'error' => true,
+                'message' => 'Periode untuk tahun ' . $tahun_sekarang . ' tidak ditemukan atau belum aktif.'
+            ];
+        }
+
         $data = [
             'nip' => $input['nip'],
             'nama' => $input['nama'],
@@ -114,7 +132,8 @@ class Dosen_model extends CI_Model
             'no_japung'=> $input['no_japung'],
             'id_jabatan'    => $input['id_jabatan'],
             'tema_riset' => $input['tema_riset'],
-            'password'  => PASSWORD_HASH($input['password'], PASSWORD_DEFAULT)
+            'password'  => PASSWORD_HASH($input['password'], PASSWORD_DEFAULT),
+            'id_periode'    => $periode->id
         ];
 
         $validate = $this->app->validate($data);

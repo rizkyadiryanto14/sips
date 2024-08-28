@@ -129,8 +129,9 @@
             text-align: center;
         }
 
-        .footer-signature {
+        .footer-signature img {
             margin-top: 50px;
+            align-items: center;
         }
 
         .footer-signature p {
@@ -163,31 +164,31 @@
     <table class="content-table">
         <tr>
             <td>Hari, Tanggal</td>
-            <td>: Jumat, 5 Juli 2024</td>
+            <td>: <?= $showData['jadwal_skripsi']; ?></td>
         </tr>
         <tr>
             <td>Pukul</td>
-            <td>: 15:00 - 16:30 WITA</td>
+            <td>: <?= date('H:i', strtotime($showData['jadwal_skripsi'])); ?> WITA</td>
         </tr>
         <tr>
             <td>Tempat</td>
-            <td>: Ruang Seminar FRS</td>
+            <td>: <?= $showData['tempat_skripsi'] ?></td>
         </tr>
         <tr>
             <td>Judul</td>
-            <td>: Perancangan Sistem Informasi Manajemen Stok Berbasis Hybrid Untuk Mengoptimalkan Efisiensi Operasional Pada Pt Natura Cosmetika Internasional</td>
+            <td>: <?= $showData['judul_skripsi'] ?></td>
         </tr>
         <tr>
             <td>Oleh</td>
-            <td>: Salahuddin Daffa Azzami</td>
+            <td>: <?= $showData['nama_mahasiswa'] ?></td>
         </tr>
         <tr>
             <td>NIM</td>
-            <td>: 19.01.013.071</td>
+            <td>: <?= $showData['nim'] ?></td>
         </tr>
         <tr>
             <td>Program Studi</td>
-            <td>: Informatika</td>
+            <td>: <?= $showData['nama_prodi'] ?></td>
         </tr>
     </table>
 </div>
@@ -198,15 +199,15 @@
     <table class="content-table">
         <tr>
             <td>Nama</td>
-            <td>: Salahuddin Daffa Azzami</td>
+            <td>: <?= $showData['nama_mahasiswa'] ?></td>
         </tr>
         <tr>
             <td>NIM</td>
-            <td>: 19.01.013.071</td>
+            <td>: <?= $showData['nim'] ?></td>
         </tr>
         <tr>
             <td>Judul Skripsi</td>
-            <td>: Perancangan Sistem Informasi Manajemen Stok Berbasis Hybrid Untuk Mengoptimalkan Efisiensi Operasional Pada Pt Natura Cosmetika Internasional.</td>
+            <td>: <?= $showData['tempat_skripsi'] ?></td>
         </tr>
     </table>
     <p>Dinyatakan : LULUS/TIDAK LULUS dengan Nilai :</p>
@@ -224,20 +225,20 @@
         <td>
             <p>Menyetujui Tim Penguji,</p>
             <p><strong>Pembimbing Utama</strong></p>
-            <p class="signature-name">(Fahri Hamdani, M.pd)</p>
-            <p>NIDN. 0813118701</p>
+            <p class="signature-name">(<?= $showData['nama_penguji1'] ?>)</p>
+            <p>NIDN. <?= $showData['nip_penguji1'] ?></p>
         </td>
         <td>
             <p><strong>Sekretaris</strong></p>
-            <p class="signature-name">(M.Julkarnain, S.Si., M.Sc)</p>
-            <p>NIDN. 0806079202</p>
+            <p class="signature-name">(<?= $showData['nama_penguji2'] ?>)</p>
+            <p>NIDN. <?= $showData['nip_penguji2'] ?></p>
         </td>
     </tr>
     <tr>
         <td>
             <p><strong>Ketua Penguji</strong></p>
-            <p class="signature-name">(Nora Dery Sofya, M.M.Inov)</p>
-            <p>NIDN. 0816069501</p>
+            <p class="signature-name">(<?= $showData['nama_pembimbing1'] ?>)</p>
+            <p>NIDN. <?= $showData['nip_pembimbing1'] ?>></p>
         </td>
         <td>
             <p><strong>Mengetahui,</strong></p>
@@ -266,15 +267,15 @@
     <table class="content-table">
         <tr>
             <td>Nama Mahasiswa</td>
-            <td>: Salahuddin Daffa Azzami</td>
+            <td>: <?= $showData['nama_mahasiswa'] ?></td>
         </tr>
         <tr>
             <td>NIM</td>
-            <td>: 19.01.013.071</td>
+            <td>: <?= $showData['nim'] ?></td>
         </tr>
         <tr>
             <td>Program Studi</td>
-            <td>: Informatika</td>
+            <td>: <?= $showData['nama_prodi'] ?></td>
         </tr>
         <tr>
             <td>Fakultas</td>
@@ -282,7 +283,7 @@
         </tr>
         <tr>
             <td>Judul Skripsi</td>
-            <td>: Perancangan Sistem Informasi Manajemen Stok Berbasis Hybrid Untuk Mengoptimalkan Efisiensi Operasional Pada Pt Natura Cosmetika Internasional</td>
+            <td>: <?= $showData['judul_skripsi'] ?></td>
         </tr>
     </table>
 </div>
@@ -296,13 +297,13 @@
     </tr>
     <tr>
         <td>1</td>
-        <td>Nora Dery Sofya, M.M.Inov</td>
+        <td><?= $showData['nama_penguji1'] ?></td>
         <td></td>
         <td></td>
     </tr>
     <tr>
         <td>2</td>
-        <td>M.Julkarnain, S.Si., M.Sc</td>
+        <td><?= $showData['nama_penguji2'] ?></td>
         <td></td>
         <td></td>
     </tr>
@@ -329,7 +330,7 @@
     </tr>
     <tr>
         <td>1</td>
-        <td>Fahri Hamdani, M.pd</td>
+        <td><?= $showData['nama_pembimbing1'] ?></td>
         <td></td>
         <td></td>
     </tr>
@@ -381,15 +382,15 @@
     <table class="content-table">
         <tr>
             <td>Nama Mahasiswa</td>
-            <td>: Salahuddin Daffa Azzami</td>
+            <td>: <?= $showData['nama_mahasiswa'] ?></td>
         </tr>
         <tr>
             <td>NIM</td>
-            <td>: 19.01.013.071</td>
+            <td>: <?= $showData['nim'] ?></td>
         </tr>
         <tr>
             <td>Program Studi</td>
-            <td>: Informatika</td>
+            <td>: <?= $showData['nama_prodi'] ?></td>
         </tr>
         <tr>
             <td>Fakultas</td>
@@ -397,7 +398,7 @@
         </tr>
         <tr>
             <td>Judul Skripsi</td>
-            <td>: Perancangan Sistem Informasi Manajemen Stok Berbasis Hybrid Untuk Mengoptimalkan Efisiensi Operasional Pada Pt Natura Cosmetika Internasional</td>
+            <td>: <?= $showData['judul_skripsi'] ?></td>
         </tr>
     </table>
 </div>
@@ -417,42 +418,42 @@
         <td>1</td>
         <td>a. Pokok permasalahan</td>
         <td>1</td>
-        <td></td>
+        <td><?= $showData['penguji1_pokok_permasalahan'] ?></td>
         <td></td>
     </tr>
     <tr>
         <td>2</td>
         <td>b. Kerangka Pemikiran</td>
         <td>2</td>
-        <td></td>
+        <td><?= $showData['penguji1_kerangka_pemikiran'] ?></td>
         <td></td>
     </tr>
     <tr>
         <td>3</td>
         <td>c. Metode penelitian</td>
         <td>2</td>
-        <td></td>
+        <td><?= $showData['penguji1_metode_penelitian'] ?></td>
         <td></td>
     </tr>
     <tr>
         <td>4</td>
         <td>d. Hasil Penelitian</td>
         <td>2</td>
-        <td></td>
+        <td><?= $showData['penguji1_hasil_penelitian'] ?></td>
         <td></td>
     </tr>
     <tr>
         <td>5</td>
         <td>e. Bahasa</td>
         <td>2</td>
-        <td></td>
+        <td><?= $showData['penguji1_bahasa'] ?></td>
         <td></td>
     </tr>
     <tr>
         <td>6</td>
         <td>f. Teknik penulisan</td>
         <td>1</td>
-        <td></td>
+        <td><?= $showData['penguji1_teknik_penulisan'] ?></td>
         <td></td>
     </tr>
     <tr>
@@ -462,7 +463,7 @@
         <td>1</td>
         <td>Ujian Lisan</td>
         <td>2</td>
-        <td></td>
+        <td><?= $showData['penguji1_manfaat_akademis_praktis'] ?></td>
         <td></td>
     </tr>
     <tr>
@@ -472,21 +473,21 @@
         <td>1</td>
         <td>a. Penguasaan Materi</td>
         <td>2</td>
-        <td></td>
+        <td><?= $showData['penguji1_penguasaan_materi'] ?></td>
         <td></td>
     </tr>
     <tr>
         <td>2</td>
         <td>b. Penguasaan Metode</td>
         <td>2</td>
-        <td></td>
+        <td><?= $showData['penguji1_penguasaan_metode'] ?></td>
         <td></td>
     </tr>
     <tr>
         <td>3</td>
         <td>c. Kemampuan argumentasi</td>
         <td>2</td>
-        <td></td>
+        <td><?= $showData['penguji1_kemampuan_argumentasi'] ?></td>
         <td></td>
     </tr>
     <tr>
@@ -505,8 +506,8 @@
 </div>
 
 <div class="footer-signature">
-    <p class="signature-name">(Nora Dery Sofya, M.M.Inov)</p>
-    <p>NIDN. 0816069501</p>
+    <p class="signature-name">(<?= $showData['nama_penguji1'] ?>)</p>
+    <p>NIDN. <?= $showData['nip_penguji1'] ?></p>
 </div>
 
 <div class="page-break"></div>
@@ -527,15 +528,15 @@
     <table class="content-table">
         <tr>
             <td>Nama Mahasiswa</td>
-            <td>: Salahuddin Daffa Azzami</td>
+            <td>: <?= $showData['nama_mahasiswa'] ?></td>
         </tr>
         <tr>
             <td>NIM</td>
-            <td>: 19.01.013.071</td>
+            <td>: <?= $showData['nim'] ?></td>
         </tr>
         <tr>
             <td>Program Studi</td>
-            <td>: Informatika</td>
+            <td>: <?= $showData['nama_prodi'] ?></td>
         </tr>
         <tr>
             <td>Fakultas</td>
@@ -543,7 +544,7 @@
         </tr>
         <tr>
             <td>Judul Skripsi</td>
-            <td>: Perancangan Sistem Informasi Manajemen Stok Berbasis Hybrid Untuk Mengoptimalkan Efisiensi Operasional Pada Pt Natura Cosmetika Internasional</td>
+            <td>: <?= $showData['judul_skripsi'] ?></td>
         </tr>
     </table>
 </div>
@@ -651,8 +652,8 @@
 </div>
 
 <div class="footer-signature">
-    <p class="signature-name">(M.Julkarnain,S.Si.,M.Sc)</p>
-    <p>NIDN.0806079202</p>
+    <p class="signature-name">(<?= $showData['nama_penguji2'] ?>)</p>
+    <p>NIDN.<?= $showData['nip_penguji2'] ?></p>
 </div>
 
 <div class="page-break"></div>
@@ -674,15 +675,15 @@
     <table class="content-table">
         <tr>
             <td>Nama Mahasiswa</td>
-            <td>: Salahuddin Daffa Azzami</td>
+            <td>: <?= $showData['nama_mahasiswa'] ?></td>
         </tr>
         <tr>
             <td>NIM</td>
-            <td>: 19.01.013.071</td>
+            <td>: <?= $showData['nim'] ?></td>
         </tr>
         <tr>
             <td>Program Studi</td>
-            <td>: Informatika</td>
+            <td>: <?= $showData['nama_prodi'] ?></td>
         </tr>
         <tr>
             <td>Fakultas</td>
@@ -690,7 +691,7 @@
         </tr>
         <tr>
             <td>Judul Skripsi</td>
-            <td>: Perancangan Sistem Informasi Manajemen Stok Berbasis Hybrid Untuk Mengoptimalkan Efisiensi Operasional Pada Pt Natura Cosmetika Internasional</td>
+            <td>: <?= $showData['judul_skripsi'] ?></td>
         </tr>
     </table>
 </div>
@@ -710,42 +711,42 @@
         <td>1</td>
         <td>a. Pokok permasalahan</td>
         <td>1</td>
-        <td></td>
+        <td><?= $showData['pembimbing1_pokok_permasalahan'] ?></td>
         <td></td>
     </tr>
     <tr>
         <td>2</td>
         <td>b. Kerangka Pemikiran</td>
         <td>2</td>
-        <td></td>
+        <td><?= $showData['pembimbing1_kerangka_pemikiran'] ?></td>
         <td></td>
     </tr>
     <tr>
         <td>3</td>
         <td>c. Metode penelitian</td>
         <td>2</td>
-        <td></td>
+        <td><?= $showData['pembimbing1_metode_penelitian'] ?></td>
         <td></td>
     </tr>
     <tr>
         <td>4</td>
         <td>d. Hasil Penelitian</td>
         <td>2</td>
-        <td></td>
+        <td><?= $showData['pembimbing1_hasil_penelitian'] ?></td>
         <td></td>
     </tr>
     <tr>
         <td>5</td>
         <td>e. Bahasa</td>
         <td>2</td>
-        <td></td>
+        <td><?= $showData['pembimbing1_bahasa'] ?></td>
         <td></td>
     </tr>
     <tr>
         <td>6</td>
         <td>f. Teknik penulisan</td>
         <td>1</td>
-        <td></td>
+        <td><?= $showData['pembimbing1_teknik_penulisan'] ?></td>
         <td></td>
     </tr>
     <tr>
@@ -755,7 +756,7 @@
         <td>1</td>
         <td>Ujian Lisan</td>
         <td>2</td>
-        <td></td>
+        <td><?= $showData['pembimbing1_manfaat_akademis_praktis'] ?></td>
         <td></td>
     </tr>
     <tr>
@@ -765,21 +766,21 @@
         <td>1</td>
         <td>a. Penguasaan Materi</td>
         <td>2</td>
-        <td></td>
+        <td><?= $showData['pembimbing1_penguasaan_materi'] ?></td>
         <td></td>
     </tr>
     <tr>
         <td>2</td>
         <td>b. Penguasaan Metode</td>
         <td>2</td>
-        <td></td>
+        <td><?= $showData['pembimbing1_penguasaan_metode'] ?></td>
         <td></td>
     </tr>
     <tr>
         <td>3</td>
         <td>c. Kemampuan argumentasi</td>
         <td>2</td>
-        <td></td>
+        <td><?= $showData['pembimbing1_kemampuan_argumentasi'] ?></td>
         <td></td>
     </tr>
     <tr>
@@ -794,12 +795,13 @@
 
 <div class="footer-text">
     <p>Sumbawa, __________</p>
-    <p>Sekretaris Sidang</p>
+    <p><strong>Pembimbing Utama</strong></p>
 </div>
 
 <div class="footer-signature">
-    <p class="signature-name">(Fahri Hamdani, M.pd</p>
-    <p>NIDN.0813118701</p>
+    <img src="<?= base_url('cdn/vendor/qrcodes/' . $showData['barcode_pembimbing1']); ?>" width="20%" alt="" style="align-items: center">
+    <p class="signature-name">(<?= $showData['nama_pembimbing1'] ?>)</p>
+    <p>NIDN.<?= $showData['nip_pembimbing1']  ?></p>
 </div>
 </body>
 </html>
