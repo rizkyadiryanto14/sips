@@ -131,46 +131,49 @@
                     {
                         data: null,
                         render: function(data) {
-                            return '1. ' + data.pembimbing.nama + ' <br>2. ' + data.pembimbing2.nama
+                            var pembimbing1 = data && data.pembimbing ? '1. ' + data.pembimbing.nama : '1. Data belum diperbaharui';
+                            var pembimbing2 = data && data.pembimbing2 ? '2. ' + data.pembimbing2.nama : '2. Data belum diperbaharui';
+
+                            return pembimbing1 + '<br>' + pembimbing2;
                         }
                     },
                     {
                         data: null,
                         render: function(data) {
                             if (data.dosen_id == '<?= $this->session->userdata('id') ?>' || data.dosen2_id == '<?= $this->session->userdata('id') ?>') {
-                            if (data.status == '1') {
-                                status = '\
+                                if (data.status == '1') {
+                                    status = '\
                             <button class="btn btn-sm btn-setuju btn-success" type="button" data-id="' + data.id + '" data-judul="' + data.judul + '" data-status="' + data.status + '" data-toggle="modal" data-target="#setujui">\
                                 <i class="fa fa-check"></i>\
                             </button>\
                             ';
-                            } else {
-                                status = '\
+                                } else {
+                                    status = '\
                             <button class="btn btn-sm btn-setuju btn-danger" type="button" data-id="' + data.id + '" data-judul="' + data.judul + '" data-status="' + data.status + '" data-toggle="modal" data-target="#setujui">\
                                 <i class="fa fa-times"></i>\
                             </button>\
                             ';
-                            }
+                                }
 
-                            return '\
+                                return '\
                             <div class="text-center">' + status + '</div>\
                             ';
                             } else {
                                 if (data.status == '1') {
-                                status = '\
+                                    status = '\
                             <button class="btn btn-sm btn-setuju btn-success" type="button">\
                                 <i class="fa fa-check"></i>\
                             </button>\
                             ';
-                            } else {
-                                status = '\
+                                } else {
+                                    status = '\
                             <button class="btn btn-sm btn-setuju btn-danger" type="button">\
                                 <i class="fa fa-times"></i>\
                             </button>\
                             ';
-                            }
+                                }
 
-                            return '\
+                                return '\
                             <div class="text-center">' + status + '</div>\
                             ';
                             }
@@ -184,7 +187,7 @@
             });
         }
         show();
-    
+
 
         $(document).on('click', 'button.btn-setuju', function() {
             $('form#setujui .id').val($(this).data('id'));

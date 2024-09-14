@@ -18,7 +18,6 @@ class DaftarJudul_model extends CI_Model
 
     public function cekJudulSkripsi($judulInput)
     {
-        // Ambil semua judul skripsi dari database
         $this->db->select('nim, judul_skripsi, nama, tahun_lulus');
         $query = $this->db->get('daftar_judul');
         $daftarJudul = $query->result_array();
@@ -35,12 +34,10 @@ class DaftarJudul_model extends CI_Model
             }
         }
 
-        // Urutkan berdasarkan kemiripan tertinggi
         usort($hasil, function($a, $b) {
             return $b['kemiripan'] <=> $a['kemiripan'];
         });
 
-        // Batasi hasil maksimal 5 judul dengan kemiripan tertinggi
         return array_slice($hasil, 0, 5);
     }
 
@@ -50,7 +47,6 @@ class DaftarJudul_model extends CI_Model
     public function getById():array
     {
         $daftar_judul = $this->db->get_where($this->table, array('id' => $this->input->post('id')))->result();
-
         $hasil['error'] = false;
         $hasil['message'] = ($daftar_judul) ? "data berhasil ditemukan" : "data tidak tersedia";
         $hasil['data'] = $daftar_judul;

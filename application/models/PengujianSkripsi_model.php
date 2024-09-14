@@ -1,6 +1,8 @@
 <?php
 
-
+/**
+ * @property $db
+ */
 class PengujianSkripsi_model extends CI_Model
 {
     protected string $table = 'pengujian_skripsi';
@@ -144,7 +146,7 @@ class PengujianSkripsi_model extends CI_Model
         pengujian_pembimbing2.penguasaan_materi AS pembimbing2_penguasaan_materi,
         
         pengujian1.penguasaan_metode AS penguji1_penguasaan_metode,
-        pengujian2.penguasaan_metode AS penguji2_penguasa_metode,
+        pengujian2.penguasaan_metode AS penguji2_penguasaan_metode,
         pengujian_pembimbing1.penguasaan_metode AS pembimbing1_penguasaan_metode,
         pengujian_pembimbing2.penguasaan_metode AS pembimbing2_penguasaan_metode,
         
@@ -156,7 +158,12 @@ class PengujianSkripsi_model extends CI_Model
         pengujian1.nilai_rata_rata AS penguji1_nilai_rata_rata,
         pengujian2.nilai_rata_rata AS penguji2_nilai_rata_rata,
         pengujian_pembimbing1.nilai_rata_rata AS pembimbing1_nilai_rata_rata,
-        pengujian_pembimbing2.nilai_rata_rata AS pembimbing2_nilai_rata_rata
+        pengujian_pembimbing2.nilai_rata_rata AS pembimbing2_nilai_rata_rata,
+        
+        pengujian1.jumlah AS penguji1_jumlah,
+        pengujian2.jumlah AS penguji2_jumlah,
+        pengujian_pembimbing1.jumlah AS pembimbing1_jumlah,
+        pengujian_pembimbing2.jumlah AS pembimbing2_jumlah
     ');
 
         $this->db->from('pengujian_skripsi');
@@ -171,33 +178,55 @@ class PengujianSkripsi_model extends CI_Model
         $this->db->join('pengujian_skripsi AS pengujian_pembimbing2', 'pengujian_pembimbing2.id_skripsi = skripsi_v.id AND pengujian_pembimbing2.id_dosen = skripsi_v.dosen2_id', 'left');
         $this->db->where('pengujian_skripsi.id_skripsi', $id_skripsi);
 
-        return $this->db->get()->row_array();
+        $result = $this->db->get()->row_array();
+
+        // Perhitungan nilai
+        if ($result) {
+
+            $penguji1_rata_nilai = $result['penguji1_nilai_rata_rata'];
+            $penguji2_rata_nilai = $result['penguji2_nilai_rata_rata'];
+            $pembimbing1_rata_nilai = $result['pembimbing1_nilai_rata_rata'];
+            $pembimbing2_rata_nilai = $result['pembimbing2_nilai_rata_rata'];
+            $result['total_rata_rata'] = (($penguji1_rata_nilai + $penguji2_rata_nilai) / 2 + $pembimbing1_rata_nilai) / 2;
+
+            // Cari predikat
+            $this->db->select('nama_predikat, keterangan');
+            $this->db->from('predikat_penilaian');
+            $this->db->where('nilai_minimum <=', $result['total_rata_rata']);
+            $this->db->where('nilai_maximum >=', $result['total_rata_rata']);
+            $predikat = $this->db->get()->row_array();
+
+            if ($predikat) {
+                $result['nama_predikat'] = $predikat['nama_predikat'];
+                $result['keterangan'] = $predikat['keterangan'];
+            }
+        }
+
+        return $result;
     }
-
-
-
 
     public function create($input)
     {
         // Ambil tahun sekarang
         $tahun_sekarang = date('Y');
 
-        // Cari ID periode berdasarkan tahun sekarang
         $this->db->select('id');
         $this->db->from('periode');
         $this->db->where('periode', $tahun_sekarang);
-        $this->db->where('status', 1); // Anda bisa mengubah ini sesuai kondisi status yang dibutuhkan
+        $this->db->where('status', 1);
         $periode = $this->db->get()->row();
 
         if (!$periode) {
-            // Jika tidak ada data periode yang cocok, kembalikan error
             return [
                 'error' => true,
                 'message' => 'Periode untuk tahun ' . $tahun_sekarang . ' tidak ditemukan atau belum aktif.'
             ];
         }
 
-        // Data yang akan dimasukkan ke dalam tabel pengujian_skripsi
+        $penguasaan_materi = !empty($input['penguasaan_materi']) ? $input['penguasaan_materi'] : ' ';
+        $penguasaan_metode = !empty($input['penguasaan_metode']) ? $input['penguasaan_metode'] : ' ';
+        $kemampuan_argumentasi = !empty($input['kemampuan_argumentasi']) ? $input['kemampuan_argumentasi'] : ' ';
+
         $data = [
             'id_skripsi' => $input['id_skripsi'],
             'id_dosen' => $input['id_dosen'],
@@ -208,36 +237,57 @@ class PengujianSkripsi_model extends CI_Model
             'bahasa' => $input['bahasa'],
             'teknik_penulisan' => $input['teknik_penulisan'],
             'manfaat_akademis_praktis' => $input['manfaat_akademis_praktis'],
-            'penguasaan_materi' => $input['penguasaan_materi'],
-            'penguasaan_metode' => $input['penguasaan_metode'],
-            'kemampuan_argumentasi' => $input['kemampuan_argumentasi'],
-            'nilai_rata_rata' => $input['nilai_rata_rata'], // Menyimpan nilai rata-rata
-            'id_periode' => $periode->id, // Masukkan ID periode yang ditemukan
-            'status' => 1 // Mengatur status menjadi 1 untuk menandakan bahwa penilaian telah disimpan
+            'penguasaan_materi' => $penguasaan_materi,
+            'penguasaan_metode' => $penguasaan_metode,
+            'kemampuan_argumentasi' => $kemampuan_argumentasi,
+            'nilai_rata_rata' => $input['nilai_rata_rata'],
+            'jumlah' => $input['total_nilai'],
+            'id_periode' => $periode->id,
+            'status' => 1
         ];
 
-        // Validasi data sebelum disimpan
         $validate = $this->app->validate($data);
 
         if ($validate === true) {
-            // Insert data ke dalam tabel pengujian_skripsi
             $this->db->insert($this->table, $data);
 
-            // Menghasilkan hasil jika data berhasil ditambahkan
             $hasil = [
                 'error' => false,
                 'message' => 'Data berhasil ditambah',
-                'data_id' => $this->db->insert_id() // Mendapatkan ID dari data yang baru saja ditambahkan
+                'data_id' => $this->db->insert_id()
             ];
+
+            // Cek apakah sudah ada 3 dosen yang memberikan nilai
+            $pengujian_data = $this->cek_dosen_menilai($input['id_skripsi']);
+
+            // Kembalikan informasi ke controller jika 3 dosen sudah memberikan nilai
+            if (count($pengujian_data) == 3) {
+                // Beri tanda bahwa pengiriman email harus dilakukan
+                $hasil['send_email'] = true;
+            } else {
+                $hasil['send_email'] = false;
+            }
+
         } else {
-            // Mengembalikan hasil validasi jika terjadi kesalahan
             $hasil = $validate;
         }
-
-        // Mengembalikan hasil dari proses penyimpanan data
         return $hasil;
     }
 
+    public function details_skripsi($id)
+    {
+        return $this->db->get_where('skripsi_vl', ['id' => $id])->row_array();
+    }
 
+    // Fungsi untuk mengecek jumlah dosen yang sudah memberikan nilai
+    public function cek_dosen_menilai($id_sempro)
+    {
+        $this->db->select('*');
+        $this->db->from('pengujian_skripsi');
+        $this->db->where('id_skripsi', $id_sempro);
+        $this->db->where('status', 1);  // Hanya dosen yang sudah memberi nilai
+        $result = $this->db->get()->result_array();
 
+        return $result;
+    }
 }

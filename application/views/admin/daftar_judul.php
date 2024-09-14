@@ -15,6 +15,10 @@
                     <i class="fa fa-plus"></i>
                     Tambah
                 </button>
+                <button class="btn btn-success" data-toggle="modal" data-target="#importexcel">
+                    <i class="fas fa-book"></i>
+                    Import Excel
+                </button>
             </div>
         </div>
     </div>
@@ -34,6 +38,38 @@
                 </thead>
                 <tbody></tbody>
             </table>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="importexcel">
+    <div class="modal-dialog">
+        <div class="modal-content bg-gradient-primary">
+            <div class="modal-header">
+                <div class="modal-title text-white">Form Import Daftar Judul</div>
+            </div>
+            <form id="form-import-excel" enctype="multipart/form-data">
+                <div class="modal-body">
+                    <div class="jumbotron">
+                        <h1 class="display-4">Panduan !!</h1>
+                        <p class="lead">Sebelum melakukan import file excel untuk daftar judul, harap mendownload templatenya terlebih dahulu, dan isikan file daftar judulnya ke template yang telah di berikan</p>
+                        <hr class="my-4">
+                        <p>Template Daftar Judul</p>
+                        <a class="btn btn-primary btn-lg" href="<?= base_url('assets/format.xlsx') ?>" role="button">
+                            <i class="fas fa-print"></i>
+                            Download Template
+                        </a>
+                    </div>
+                    <div class="form-group">
+                        <label for="importexcel" class="text-white">Import Excel</label>
+                        <input type="file" name="importexcel" id="importexcel" class="form-control">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button class="btn btn-success">Import</button>
+                </div>
+            </form>
         </div>
     </div>
 </div>
@@ -124,7 +160,7 @@
                 </div>
                 <div class="modal-body">
                     <input type="hidden" class="id">
-                    <p>Anda yakin menghapus dosen <strong class="nama">Nama Mahasiswa</strong> ?</p>
+                    <p>Anda yakin menghapus judul dari <strong class="nama">Nama Mahasiswa</strong> ?</p>
                 </div>
                 <div class="modal-footer">
                     <button class="btn btn-default" typpe="button" data-dismiss="modal">Batal</button>
@@ -269,6 +305,61 @@
                 }
             })
         })
+
+        // Proses Import Excel menggunakan AJAX
+        $(document).on('submit', '#form-import-excel', function(e) {
+            e.preventDefault();
+
+            var formData = new FormData(this);
+            var button = $(this).find('button[type="submit"]');
+
+            // Ubah teks tombol menjadi "Loading" dan nonaktifkan tombol
+            button.text('Loading...');
+            button.prop('disabled', true);
+
+            // Buat layar buram dan tidak bisa diklik
+            $('body').css({
+                'pointer-events': 'none',
+                'opacity': '0.5'
+            });
+
+            $.ajax({
+                url: '<?= base_url("admin/importdaftar") ?>',
+                type: 'POST',
+                data: formData,
+                contentType: false,
+                processData: false,
+                success: function(response) {
+                    response = JSON.parse(response);
+
+                    $('body').css({
+                        'pointer-events': 'auto',
+                        'opacity': '1'
+                    });
+                    button.text('Import');
+                    button.prop('disabled', false);
+
+                    if (response.error == true) {
+                        notif(response.message, 'error', true);
+                    } else {
+                        notif(response.message, 'success');
+                        $('#form-import-excel')[0].reset();
+                        $('#importexcel').modal('hide');
+                        show();
+                    }
+                },
+                error: function() {
+                    $('body').css({
+                        'pointer-events': 'auto',
+                        'opacity': '1'
+                    });
+                    button.text('Import');
+                    button.prop('disabled', false);
+                    notif('Terjadi kesalahan saat import, silahkan coba lagi.', 'error', true);
+                }
+            });
+        });
+
     })
 </script>
 

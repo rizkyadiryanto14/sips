@@ -57,18 +57,15 @@ class Mahasiswa_model extends CI_Model
 
     public function create($input)
     {
-        // Ambil tahun sekarang
         $tahun_sekarang = date('Y');
 
-        // Cari ID periode berdasarkan tahun sekarang
         $this->db->select('id');
         $this->db->from('periode');
         $this->db->where('periode', $tahun_sekarang);
-        $this->db->where('status', 1); // Anda bisa mengubah ini sesuai kondisi status yang dibutuhkan
+        $this->db->where('status', 1);
         $periode = $this->db->get()->row();
 
         if (!$periode) {
-            // Jika tidak ada data periode yang cocok, kembalikan error
             return [
                 'error' => true,
                 'message' => 'Periode untuk tahun ' . $tahun_sekarang . ' tidak ditemukan atau belum aktif.'
@@ -181,12 +178,22 @@ class Mahasiswa_model extends CI_Model
                     if ($input['foto']) {
                         $foto = explode(';base64,', $input['foto'])[1];
                         $foto_nama = date('Ymdhis') . '.png';
-                        file_put_contents(FCPATH . 'cdn/img/mahasiswa/' . $foto_nama, base64_decode($foto));
-                        $data['foto'] = $foto_nama;
+                        $file_path = FCPATH . 'cdn/img/mahasiswa/' . $foto_nama;
 
-                        $foto = $this->db->get_where($this->table, $kondisi)->row_array()['foto'];
-                        if ($foto) {
-                            unlink(FCPATH . 'cdn/img/mahasiswa/' . $foto);
+                        // Coba simpan foto baru
+                        if (file_put_contents($file_path, base64_decode($foto)) !== false) {
+                            // Jika foto berhasil diupload, hapus foto lama
+                            $foto_lama = $this->db->get_where($this->table, $kondisi)->row_array()['foto'];
+                            if ($foto_lama && file_exists(FCPATH . 'cdn/img/mahasiswa/' . $foto_lama)) {
+                                unlink(FCPATH . 'cdn/img/mahasiswa/' . $foto_lama);
+                            }
+                            $data['foto'] = $foto_nama;
+                        } else {
+                            $hasil = [
+                                'error' => true,
+                                'message' => "Foto gagal diunggah. Silakan coba lagi."
+                            ];
+                            return $hasil;
                         }
                     }
 
@@ -261,15 +268,26 @@ class Mahasiswa_model extends CI_Model
                     if ($input['foto']) {
                         $foto = explode(';base64,', $input['foto'])[1];
                         $foto_nama = date('Ymdhis') . '.png';
-                        file_put_contents(FCPATH . 'cdn/img/mahasiswa/' . $foto_nama, base64_decode($foto));
-                        $data['foto'] = $foto_nama;
+                        $file_path = FCPATH . 'cdn/img/mahasiswa/' . $foto_nama;
 
-                        $foto = $this->db->get_where($this->table, $kondisi)->row_array()['foto'];
-                        if ($foto) {
-                            unlink(FCPATH . 'cdn/img/mahasiswa/' . $foto);
+                        // Coba simpan foto baru
+                        if (file_put_contents($file_path, base64_decode($foto)) !== false) {
+                            // Jika foto berhasil diupload, hapus foto lama
+                            $foto_lama = $this->db->get_where($this->table, $kondisi)->row_array()['foto'];
+                            if ($foto_lama && file_exists(FCPATH . 'cdn/img/mahasiswa/' . $foto_lama)) {
+                                unlink(FCPATH . 'cdn/img/mahasiswa/' . $foto_lama);
+                            }
+
+                            $data['foto'] = $foto_nama;
+                        } else {
+
+                            $hasil = [
+                                'error' => true,
+                                'message' => "Foto gagal diunggah. Silakan coba lagi."
+                            ];
+                            return $hasil;
                         }
                     }
-
                     if ($input['def_status'] != $input['status']) {
                         if ($input['def_status'] == 0) {
                             $isi_email = '
@@ -332,7 +350,7 @@ class Mahasiswa_model extends CI_Model
                 'data' => $mahasiswa
             ];
             $hasil['data']['proposal'] = $this->db->get_where('proposal_mahasiswa', ['proposal_mahasiswa.mahasiswa_id' => $hasil['data']['id']])->result_array();
-            
+
             $prodi = $this->db->get_where('prodi', ['prodi.id' => $hasil['data']['prodi_id']])->row_array();
             $prodi['fakultas'] = $this->db->get_where('fakultas', ['fakultas.id' => $prodi['fakultas_id']])->row_array();
             $hasil['data']['prodi'] = $prodi;
@@ -396,7 +414,8 @@ class Mahasiswa_model extends CI_Model
             if ($validation === true) {
                 if (password_verify($input['password'], $mahasiswa['password'])) {
                     $mahasiswasession = [
-                        'mahasiswa_id'  => $mahasiswa['id']
+                        'mahasiswa_id'  => $mahasiswa['id'],
+                        'nama_mahasiswa' => $mahasiswa['nama']
                     ];
                     $this->session->set_userdata($mahasiswasession);
                     $hasil = [

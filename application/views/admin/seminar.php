@@ -35,6 +35,7 @@
                         <th>File Proposal</th>
                         <th>SK TIM Pembimbing & Penguji</th>
                         <th>Bukti Konsultasi</th>
+                        <th>Waktu Daftar</th>
                         <th>Aksi</th>
                     </tr>
                 </thead>
@@ -68,6 +69,47 @@
 <link rel="stylesheet" href="<?= base_url() ?>cdn/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css">
 <script src="<?= base_url() ?>cdn/plugins/datatables/jquery.dataTables.min.js"></script>
 <script src="<?= base_url() ?>cdn/plugins/datatables-bs4/js/dataTables.bootstrap4.min.js"></script>
+    <script src="<?= base_url() ?>cdn/plugins/sweetalert2/sweetalert2.min.js"></script>
+    <script>
+        // Fungsi notif
+        async function notif(message, type, mixin) {
+            if (mixin) {
+                const Toast = Swal.mixin({
+                    position: 'top-end',
+                    toast: true,
+                    showConfirmButton: false,
+                    showCloseButton: true,
+                    timer: 3000
+                });
+                await Toast.fire({
+                    title: message,
+                    icon: type
+                });
+            } else {
+                await Swal.fire({
+                    title: type[0].toUpperCase() + type.slice(1),
+                    text: message,
+                    icon: type
+                }).then(s => {
+                    setTimeout(() => {
+                        document.body.style.paddingRight = '0';
+                    }, 400);
+                });
+            }
+        }
+
+        // Cek dan tampilkan notifikasi jika ada
+        <?php if ($this->session->flashdata('success')) { ?>
+        let successMessage = "<?= $this->session->flashdata('success'); ?>";
+        notif(successMessage, 'success', true);
+        <?php } ?>
+
+        <?php if ($this->session->flashdata('error')) { ?>
+        let errorMessage = "<?= $this->session->flashdata('error'); ?>";
+        notif(errorMessage, 'error', true);
+        <?php } ?>
+    </script>
+
 <script>
     $(document).ready(function() {
         getDataSelect()
@@ -113,7 +155,7 @@
                     {
                         data: null,
                         render: function(data) {
-                            return '1. ' + data.dosen_pembimbing_1_nama + '<br>2. ' + data.dosen_pembimbing_2_nama;
+                            return '1. ' + (data.dosen_pembimbing_1_nama || 'Belum ada data') + '<br>2. ' + (data.dosen_pembimbing_2_nama || 'Belum ada data');
                         }
                     },
                     {
@@ -128,7 +170,7 @@
                         render: function(data) {
                             // Format tanggal dan jam mulai - jam selesai
                             if (data.tanggal && data.jam_mulai && data.jam_selesai) {
-                                return data.tanggal + ', ' + data.jam_mulai + ' - ' + data.jam_selesai;
+                                return data.tanggal + ', ' + '<br>' + data.jam_mulai + ' - ' + data.jam_selesai;
                             } else {
                                 return 'Belum ada data';
                             }
@@ -164,6 +206,9 @@
                         render: function(data) {
                             return '<a href="' + base_url + 'cdn/vendor/bukti_konsultasi/' + data + '">' + data + '</a>';
                         }
+                    },
+                    {
+                        data: "created_at"
                     },
                     {
                         data: null,

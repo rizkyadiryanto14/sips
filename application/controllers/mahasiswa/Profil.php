@@ -1,6 +1,10 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
 
+/**
+ * @property $load
+ */
+
 class Profil extends MY_Controller {
 
 	public function index()

@@ -103,6 +103,16 @@
     </div>
 </div>
 
+
+<div id="loading-overlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:9999; text-align:center; color:white;">
+    <div style="position:absolute; top:50%; left:50%; transform:translate(-50%, -50%);">
+        <div class="spinner-border" role="status">
+            <span class="sr-only">Loading...</span>
+        </div>
+        <p>Memproses...</p>
+    </div>
+</div>
+
 <?php $this->app->endSection('content') ?>
 
 <?php $this->app->section() ?>
@@ -171,6 +181,10 @@
 
         $(document).on('submit', 'form#tambah', function(e) {
             e.preventDefault();
+
+            // Tampilkan overlay loading
+            $('#loading-overlay').show();
+
             call('api/jabatan/create', $(this).serialize()).done(function(req) {
                 if (req.error == true) {
                     notif(req.message, 'error', true);
@@ -180,7 +194,12 @@
                     $('div#tambah').modal('hide');
                     show();
                 }
-            })
+                $('#loading-overlay').hide();
+            }).fail(function() {
+                // Sembunyikan overlay loading jika terjadi error
+                $('#loading-overlay').hide();
+                alert('Terjadi kesalahan, silakan coba lagi.');
+            });
         })
 
         $(document).on('click', 'button.btn-edit', function() {
@@ -191,6 +210,9 @@
 
         $(document).on('submit', 'form#edit', function(e) {
             e.preventDefault();
+
+            $('#loading-overlay').show();
+
             const id = $('form#edit .id').val();
             call('api/jabatan/update/' + id, $(this).serialize()).done(function(req) {
                 if (req.error == true) {
@@ -201,7 +223,13 @@
                     $('div#edit').modal('hide');
                     show();
                 }
-            })
+                // Sembunyikan overlay loading setelah proses selesai
+                $('#loading-overlay').hide();
+            }).fail(function() {
+                // Sembunyikan overlay loading jika terjadi error
+                $('#loading-overlay').hide();
+                alert('Terjadi kesalahan, silakan coba lagi.');
+            });
         })
 
         $(document).on('click', 'button.btn-hapus', function() {
@@ -211,6 +239,10 @@
 
         $(document).on('submit', 'form#hapus', function(e) {
             e.preventDefault();
+
+            // Tampilkan overlay loading
+            $('#loading-overlay').show();
+
             const id = $('form#hapus .id').val();
             call('api/jabatan/destroy/' + id).done(function(req) {
                 if (req.error == true) {
@@ -220,7 +252,13 @@
                     $('div#hapus').modal('hide');
                     show();
                 }
-            })
+                // Sembunyikan overlay loading setelah proses selesai
+                $('#loading-overlay').hide();
+            }).fail(function() {
+                // Sembunyikan overlay loading jika terjadi error
+                $('#loading-overlay').hide();
+                alert('Terjadi kesalahan, silakan coba lagi.');
+            });
         })
 
     })

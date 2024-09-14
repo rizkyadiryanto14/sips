@@ -1,5 +1,33 @@
 <?php $this->app->extend('template/home') ?>
 
+    <style>
+        .loading-spinner {
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            border-left-color: #000;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+            margin-left: 10px;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+
+
+
 <?php $this->app->setVar('title', "Cek") ?>
 
 <?php $this->app->section() ?>
@@ -44,7 +72,9 @@
                 </div>
                 <div class="modal-footer">
                     <button class="btn btn-default" type="button" data-dismiss="modal">Batal</button>
-                    <button type="submit" class="btn btn-primary">Submit</button>
+                    <button type="submit" class="btn btn-primary" id="modal-submit-btn">Submit
+                        <span id="modal-spinner" class="loading-spinner hidden"></span>
+                    </button>
                 </div>
             </form>
         </div>
@@ -113,8 +143,12 @@
 
         $(document).on('submit', 'form#authentikasi', function(e) {
             e.preventDefault();
+            $('#modal-spinner').removeClass('hidden');
+
             const id = $('form#authentikasi .mahasiswa_id').val();
             call('api/mahasiswa/verifikasi/' + id, $(this).serialize()).done(function(res) {
+                $('#modal-spinner').addClass('hidden');
+
                 if (res.error == true) {
                     notif(res.message, 'error', true);
                 } else {
@@ -122,10 +156,14 @@
                     $('div#authentikasi').modal('hide');
                     notif(res.message, 'success').then(function() {
                         window.location = base_url + 'auth/cek/' + res.data.id + '/3';
-                    })
+                    });
                 }
-            })
+            }).fail(function() {
+                // Sembunyikan spinner jika terjadi kesalahan
+                $('#modal-spinner').addClass('hidden');
+            });
         });
+
 
     })
 </script>

@@ -160,15 +160,7 @@
             const id = $('form#hapus .id').val();
             const file = $('form#hapus .file').val();
             const file_kegiatan = $('form#hapus .file_kegiatan').val();
-            // call('api/hasil_kegiatan/hapus/' + id).done(function(res) {
-            //     if (res.error) {
-            //         notif(res.message, 'error', true);
-            //     } else {
-            //         $('div#hapus').modal('hide');
-            //         notif(res.message, 'success');
-            //         show();
-            //     }
-            // })
+
             $.ajax({
                 url: base_url + 'api/hasil_kegiatan/hapus/' + id,
                 type: 'post',

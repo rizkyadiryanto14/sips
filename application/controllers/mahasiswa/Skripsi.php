@@ -1,6 +1,10 @@
 <?php
 defined('BASEPATH') or exit('No direct script access allowed');
 
+/**
+ * @property $load
+ */
+
 class Skripsi extends MY_Controller
 {
 

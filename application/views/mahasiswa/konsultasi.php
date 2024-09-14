@@ -15,7 +15,6 @@
     </div>
     <div class="card-body">
         <div class="table-responsive">
-            <?= $this->session->userdata('mahasiswa_id') ?>
             <table class="table table-hover" id="data-konsultasi">
                 <thead>
                     <tr>
@@ -85,16 +84,18 @@
                 <div class="modal-title">Detail Konsultasi</div>
             </div>
             <div class="modal-body">
-                <table class="table">
-                    <tr>
-                        <td>Laporan Kaprodi</td>
-                        <th class="persetujuan_kaprodi"></th>
-                    </tr>
-                    <tr>
-                        <td>Laporan Pembimbing</td>
-                        <th class="persetujuan_pembimbing"></th>
-                    </tr>
-                </table>
+              <div class="table-responsive">
+                  <table class="table">
+                      <tr>
+                          <td>Laporan Kaprodi</td>
+                          <th class="persetujuan_kaprodi"></th>
+                      </tr>
+                      <tr>
+                          <td>Laporan Pembimbing</td>
+                          <th class="persetujuan_pembimbing"></th>
+                      </tr>
+                  </table>
+              </div>
             </div>
             <div class="modal-footer">
                 <button class="btn btn-default" type="button" data-dismiss="modal">Tutup</button>
@@ -121,6 +122,15 @@
         </div>
     </div>
 </div>
+
+    <div id="loading-overlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:9999; text-align:center; color:white;">
+        <div style="position:absolute; top:50%; left:50%; transform:translate(-50%, -50%);">
+            <div class="spinner-border" role="status">
+                <span class="sr-only">Loading...</span>
+            </div>
+            <p>Memproses...</p>
+        </div>
+    </div>
 <?php $this->app->endSection('content') ?>
 
 <?php $this->app->section() ?>
@@ -129,6 +139,7 @@
 <script src="<?= base_url() ?>cdn/plugins/datatables-bs4/js/dataTables.bootstrap4.min.js"></script>
 <script>
     $(document).ready(function() {
+        console.log('Mahasiswa ID:', '<?= $this->session->userdata('id') ?>');
 
         $.ajax({
             url: base_url + 'getData/proposal_mahasiswa',
@@ -156,7 +167,7 @@
                     "url": base_url + 'api/konsultasi',
                     "method": "POST",
                     "data": {
-                        mahasiswa_id: '<?= $this->session->userdata('id') ?>'
+                        mahasiswa_id: '<?= $this->session->userdata('id') ?>',
                     },
                     "dataSrc": "data"
                 },
@@ -215,6 +226,10 @@
 
         $(document).on('submit', 'form#tambah', function(e) {
             e.preventDefault();
+
+            // Tampilkan overlay loading
+            $('#loading-overlay').show();
+
             call('api/konsultasi/create', $(this).serialize()).done(function(res) {
                 if (res.error == true) {
                     notif(res.message, 'error', true);
@@ -224,7 +239,13 @@
                     $('div#tambah').modal('hide');
                     show();
                 }
-            })
+                // Sembunyikan overlay loading setelah proses selesai
+                $('#loading-overlay').hide();
+            }).fail(function() {
+                // Sembunyikan overlay loading jika terjadi error
+                $('#loading-overlay').hide();
+                alert('Terjadi kesalahan, silakan coba lagi.');
+            });
         })
 
         $(document).on('change', '[name=pilih-bukti]', function() {
@@ -248,6 +269,10 @@
 
         $(document).on('submit', 'form#hapus', function(e) {
             e.preventDefault();
+
+            // Tampilkan overlay loading
+            $('#loading-overlay').show();
+
             const id = $('form#hapus .id').val();
             call('api/konsultasi/destroy/'+id).done(function (req) {
                 if (req.error == true) {
@@ -257,7 +282,13 @@
                     show();
                     $('div#hapus').modal('hide');
                 }
-            })
+                // Tampilkan overlay loading
+                $('#loading-overlay').show();
+            }).fail(function() {
+                // Sembunyikan overlay loading jika terjadi error
+                $('#loading-overlay').hide();
+                alert('Terjadi kesalahan, silakan coba lagi.');
+            });
         })
 
     })

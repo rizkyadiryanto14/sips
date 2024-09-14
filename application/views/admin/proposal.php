@@ -19,12 +19,12 @@
             <div class="col">
                 <div class="card-title">Data Proposal</div>
             </div>
-            <div class="col text-right">
-                <button class="btn btn-primary" type="button" data-toggle="modal" data-target="#tambah">
-                    <i class="fa fa-plus"></i>
-                    Tambah
-                </button>
-            </div>
+<!--            <div class="col text-right">-->
+<!--                <button class="btn btn-primary" type="button" data-toggle="modal" data-target="#tambah">-->
+<!--                    <i class="fa fa-plus"></i>-->
+<!--                    Tambah-->
+<!--                </button>-->
+<!--            </div>-->
         </div>
         <div class="card-tools mt-2">
             <span class="badge badge-success"><i class="fa fa-check"></i> Disetujui</span>
@@ -47,6 +47,7 @@
                         <th>Transkip</th>
                         <th>Metopen</th>
                         <th>Mk.Wajib</th>
+                        <th>Waktu Daftar</th>
                         <th>Status</th>
                         <th>Aksi</th>
                     </tr>
@@ -221,8 +222,16 @@
             </form>
         </div>
     </div>
-
 </div>
+
+    <div id="loading-overlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:9999; text-align:center; color:white;">
+        <div style="position:absolute; top:50%; left:50%; transform:translate(-50%, -50%);">
+            <div class="spinner-border" role="status">
+                <span class="sr-only">Loading...</span>
+            </div>
+            <p>Memproses...</p>
+        </div>
+    </div>
 <?php $this->app->endSection('content') ?>
 
 <?php $this->app->section() ?>
@@ -282,7 +291,10 @@
                     {
                         data: null,
                         render: function(data) {
-                            return '1. ' + data.pembimbing.nama + ' <br>2. ' + data.pembimbing2.nama
+                            var pembimbing1 = data && data.pembimbing ? '1. ' + data.pembimbing.nama : '1. Data belum diperbaharui';
+                            var pembimbing2 = data && data.pembimbing2 ? '2. ' + data.pembimbing2.nama : '2. Data belum diperbaharui';
+
+                            return pembimbing1 + '<br>' + pembimbing2;
                         }
                     },
                     {
@@ -305,7 +317,7 @@
                     },
                     {
                         data: "lulus_metopen",
-                        render: function (data) {
+                        render: function(data) {
                             if (data == 1) {
                                 return '<span class="badge badge-success">Lulus</span>';
                             } else {
@@ -315,13 +327,16 @@
                     },
                     {
                         data: "lulus_mkwajib",
-                        render: function (data) {
+                        render: function(data) {
                             if (data == 1) {
                                 return '<span class="badge badge-success">Lulus</span>';
                             } else {
                                 return '<span class="badge badge-danger">Belum Lulus</span>';
                             }
                         }
+                    },
+                    {
+                      data: "created_at"
                     },
                     {
                         data: null,
@@ -462,10 +477,10 @@
 
             $('form#edit [name=lulus_metopen]').val($('form#edit [name=lulus_metopen]').prop('checked') ? 1 : 0);
             $('form#edit [name=lulus_mkwajib]').val($('form#edit [name=lulus_mkwajib]').prop('checked') ? 1 : 0);
-            console.log( $('form#edit [name=def_krs]').val($(this).data('krs')));
+            console.log($('form#edit [name=def_krs]').val($(this).data('krs')));
 
             let formData = $(this).serialize();
-            console.log('Form Data: ', formData);  // Untuk debugging
+            console.log('Form Data: ', formData); // Untuk debugging
 
             var id = $('form#edit .id').val();
             call('api/proposal_mahasiswa/update/' + id, $(this).serialize()).done(function(req) {
@@ -538,7 +553,7 @@
                 if ($("form#setujui input[name=deadline_skripsi]").val() == "") {
                     alert('Harap Isi Deadline Skripsi Terlebih Dahulu');
                     $(".btn-konfirmasi").attr('disabled', false).html('Konfirmasi');
-                    $('#loading-overlay').hide();  // Sembunyikan overlay jika gagal validasi
+                    $('#loading-overlay').hide(); // Sembunyikan overlay jika gagal validasi
                 } else {
                     action();
                 }
@@ -557,9 +572,9 @@
                         $('div#setujui').modal('hide');
                         show();
                     }
-                    $('#loading-overlay').hide();  // Sembunyikan overlay setelah proses selesai
+                    $('#loading-overlay').hide(); // Sembunyikan overlay setelah proses selesai
                 }).fail(function() {
-                    $('#loading-overlay').hide();  // Sembunyikan overlay jika terjadi error
+                    $('#loading-overlay').hide(); // Sembunyikan overlay jika terjadi error
                     alert('Terjadi kesalahan, silakan coba lagi.');
                     $(".btn-konfirmasi").attr('disabled', false).html('Konfirmasi');
                 });

@@ -78,3 +78,11 @@ $route['berita_acara/cetak_pdf/(:num)']  = 'dosen/Pengujian/cetak_pdf/$1';
 $route['berita_acara/cetak_pdf_skripsi/(:num)']  = 'dosen/Pengujian/cetak_pdf_skripsi/$1';
 
 $route['dosen/detail_signature/(:num)']  = 'Detail_signature/detail/$1';
+
+
+$route['admin/importdaftar']        = 'admin/Daftar_judul/import';
+
+$route['report/download_pdf']       = 'admin/Report/download_pdf';
+
+$route['dosen/pengujian_sempro']    = 'dosen/Pengujian/create_pengujian_sempro';
+$route['dosen/pengujian_skripsi']   = 'dosen/Pengujian/create_pengujian_skripsi';

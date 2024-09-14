@@ -6,8 +6,8 @@
     <div class="card">
         <div class="card-body">
             <div class="table-responsive">
-                <table>
-                    <thead>
+                <table class="table">
+                    <tbody>
                     <tr>
                         <td>Nama</td>
                         <td>: <?= $item->nama_mahasiswa ?></td>
@@ -20,7 +20,6 @@
                         <td>Judul Skripsi</td>
                         <td>: <?= $item->judul_skripsi ?></td>
                     </tr>
-                    <br>
                     <tr>
                         <td>Pembimbing I</td>
                         <td>: <?= $item->nama_pembimbing1 ?></td>
@@ -37,7 +36,7 @@
                         <td>Penguji II</td>
                         <td>: <?= $item->nama_penguji2 ?></td>
                     </tr>
-                    </thead>
+                    </tbody>
                 </table>
             </div>
 
@@ -46,10 +45,11 @@
                     <a href="<?= site_url('berita_acara/cetak_pdf_skripsi/' . $item->id_skripsi) ?>" class="btn btn-sm btn-success">Unduh Berita Acara</a>
                 </div>
             <?php } else { ?>
-                <form id="tambah" method="POST">
+                <form id="tambah-<?= $item->id_skripsi ?>" class="tambah-nilai-skripsi" method="POST">
                     <input type="hidden" name="id_skripsi" value="<?= $item->id_skripsi ?>">
                     <input type="hidden" name="id_dosen" id="id_dosen" value="<?= $this->session->userdata('id') ?>">
                     <input type="hidden" name="nilai_rata_rata" id="input_nilai_rata_rata">
+                    <input type="hidden" name="total_nilai" id="input_total_nilai">
                     <div class="table-responsive pt-3">
                         <table class="table table-bordered">
                             <thead>
@@ -126,40 +126,46 @@
                                 </td>
                                 <td class="text-center bobot-nilai"></td>
                             </tr>
-                            <tr>
-                                <td rowspan="4" class="text-center">C</td>
-                                <td>Ujian Lisan</td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                            </tr>
-                            <tr>
-                                <td>a. Penguasaan Materi</td>
-                                <td class="text-center">2</td>
-                                <td class="text-center">
-                                    <input type="text" name="penguasaan_materi" class="form-control-sm nilai" data-bobot="2" autocomplete="off">
-                                </td>
-                                <td class="text-center bobot-nilai"></td>
-                            </tr>
-                            <tr>
-                                <td>b. Penguasaan Metode</td>
-                                <td class="text-center">1</td>
-                                <td class="text-center">
-                                    <input type="text" name="penguasaan_metode" class="form-control-sm nilai" data-bobot="1" autocomplete="off">
-                                </td>
-                                <td class="text-center bobot-nilai"></td>
-                            </tr>
-                            <tr>
-                                <td>c. Kemampuan argumentasi</td>
-                                <td class="text-center">2</td>
-                                <td class="text-center">
-                                    <input type="text" name="kemampuan_argumentasi" class="form-control-sm nilai" data-bobot="2" autocomplete="off">
-                                </td>
-                                <td class="text-center bobot-nilai"></td>
-                            </tr>
+                            <?php if ($this->session->userdata('id') != $item->dosen_id && $this->session->userdata('id') != $item->dosen2_id) { ?>
+                                <tr>
+                                    <td rowspan="4" class="text-center">C</td>
+                                    <td>Ujian Lisan</td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td>a. Penguasaan Materi</td>
+                                    <td class="text-center">2</td>
+                                    <td class="text-center">
+                                        <input type="text" name="penguasaan_materi" class="form-control-sm nilai" data-bobot="2" autocomplete="off">
+                                    </td>
+                                    <td class="text-center bobot-nilai"></td>
+                                </tr>
+                                <tr>
+                                    <td>b. Penguasaan Metode</td>
+                                    <td class="text-center">1</td>
+                                    <td class="text-center">
+                                        <input type="text" name="penguasaan_metode" class="form-control-sm nilai" data-bobot="1" autocomplete="off">
+                                    </td>
+                                    <td class="text-center bobot-nilai"></td>
+                                </tr>
+                                <tr>
+                                    <td>c. Kemampuan argumentasi</td>
+                                    <td class="text-center">2</td>
+                                    <td class="text-center">
+                                        <input type="text" name="kemampuan_argumentasi" class="form-control-sm nilai" data-bobot="2" autocomplete="off">
+                                    </td>
+                                    <td class="text-center bobot-nilai"></td>
+                                </tr>
+                            <?php } ?>
                             <tr>
                                 <td colspan="2" class="text-center font-weight-bold">Jumlah</td>
-                                <td class="text-center font-weight-bold">15</td>
+                                <?php if ($this->session->userdata('id') != $item->dosen_id && $this->session->userdata('id') != $item->dosen2_id) { ?>
+                                    <td class="text-center font-weight-bold">15</td>
+                                <?php } else { ?>
+                                    <td class="text-center font-weight-bold">10</td>
+                                <?php } ?>
                                 <td id="total_nilai" class="text-center"></td>
                                 <td id="total_bobot_nilai" class="text-center"></td>
                             </tr>
@@ -191,7 +197,9 @@
         function calculateBobotNilai() {
             var totalNilai = 0;
             var totalBobotNilai = 0;
-            var totalBobot = 15; // Sesuaikan dengan total bobot yang ada
+
+            // Tentukan total bobot berdasarkan dosen penguji
+            var totalBobot = <?= $this->session->userdata('id') != $item->dosen_id && $this->session->userdata('id') != $item->dosen2_id ? 15 : 10; ?>;
 
             // Iterasi melalui setiap input nilai
             $('input.nilai').each(function() {
@@ -215,8 +223,9 @@
             $('#total_bobot_nilai').text(totalBobotNilai.toFixed(2));
             $('#nilai_rata_rata').text(nilaiRataRata.toFixed(2));
 
-            // Set nilai rata-rata ke input hidden untuk pengiriman ke API
+            // Set nilai rata-rata dan total nilai ke input hidden untuk pengiriman ke API
             $('#input_nilai_rata_rata').val(nilaiRataRata.toFixed(2));
+            $('#input_total_nilai').val(totalNilai.toFixed(2));
         }
 
         // Panggil fungsi ketika nilai input diubah
@@ -225,29 +234,37 @@
         });
 
         // Handle form submit
-        $(document).on('submit', 'form#tambah', function(e) {
+        $(document).on('submit', '.tambah-nilai-skripsi', function(e) {
             e.preventDefault();
+
+            // Tampilkan overlay loading
+            $('#loading-overlay').show();
 
             // Mengambil data dari form dan mengirimkan ke API
             var formData = $(this).serialize();
 
-            call('api/pengujian_skripsi/create', formData).done(function(req) {
-                if (req.error == true) {
-                    // Jika ada error, tampilkan notifikasi error
-                    notif(req.message, 'error', true);
-                } else {
-                    // Jika berhasil, tampilkan notifikasi sukses dengan callback
-                    notif(req.message, 'success', false).then(function() {
-                        // Bersihkan semua input di dalam form
-                        $('form#tambah')[0].reset();
+            $.ajax({
+                url: '<?= site_url('dosen/pengujian_skripsi') ?>',
+                type: 'POST',
+                data: formData,
+                dataType: 'json',
+                success: function(req) {
+                    if (req.error == true) {
+                        notif(req.message, 'error', true);
+                    } else {
+                        notif(req.message, 'success', false, true);
 
-                        // Refresh halaman setelah klik "OK"
-                        location.reload();
-                    });
+                        $('.tambah-nilai-skripsi')[0].reset();
+                    }
+                    $('#loading-overlay').hide();
+                },
+                error: function() {
+                    // Sembunyikan overlay loading jika terjadi error
+                    $('#loading-overlay').hide();
+                    alert('Terjadi kesalahan, silakan coba lagi.');
                 }
             });
         });
-
     });
 </script>
 

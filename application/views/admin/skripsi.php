@@ -19,18 +19,13 @@
             <div class="col">
                 <div class="card-title">Seminar Akhir / Skripsi</div>
             </div>
-            <!-- <div class="col text-right">
-                <button class="btn btn-primary" type="button" data-toggle="modal" data-target="#tambah">
-                    <i class="fa fa-plus"></i>
-                    Tambah
-                </button>
-            </div> -->
         </div>
         <div class="card-tools mt-2">
             <span class="badge badge-success"><i class="fa fa-check"></i> Disetujui</span>
             <span class="badge badge-danger ml-3"><i class="fa fa-times"></i> Belum/Tidak Disetujui</span>
         </div>
     </div>
+
     <div class="card-body">
         <div class="table-responsive">
             <table class="table table-hover" id="data-skripsi">
@@ -47,6 +42,7 @@
                         <th>File Skripsi</th>
                         <th>Surat Permohonan</th>
                         <th>Kartu Bimbingan</th>
+                        <th>Waktu Daftar</th>
                         <th>Aksi</th>
                     </tr>
                 </thead>
@@ -55,6 +51,7 @@
         </div>
     </div>
 </div>
+
 <div class="modal fade" id="edit">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -102,6 +99,7 @@
         </div>
     </div>
 </div>
+
 <div class="modal fade" id="hapus">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -121,6 +119,7 @@
         </div>
     </div>
 </div>
+
 <div class="modal fade" id="setujui">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -182,8 +181,8 @@
         notif(errorMessage, 'error', true);
         <?php } ?>
     </script>
-<?php $this->app->endSection('content') ?>
 
+<?php $this->app->endSection('content') ?>
 <?php $this->app->section() ?>
 <link rel="stylesheet" href="<?= base_url() ?>cdn/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css">
 <script src="<?= base_url() ?>cdn/plugins/datatables/jquery.dataTables.min.js"></script>
@@ -292,6 +291,9 @@
                         render: function(data) {
                             return '<a href="' + base_url + 'cdn/vendor/skripsi/bukti_konsultasi/' + data + '">' + data + '</a>';
                         }
+                    },
+                    {
+                        data: "created_at"
                     },
                     {
                         data: null,

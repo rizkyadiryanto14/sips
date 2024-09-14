@@ -99,7 +99,7 @@
             $('#data-skripsi').DataTable({
                 "deferRender": true,
                 "ajax": {
-                    "url": base_url + "api/skripsi/admin_index",
+                    "url": base_url + "api/skripsi",
                     "method": "POST",
                     "data": {
                         user_id: "<?= $this->session->userdata('id') ?>"
@@ -115,50 +115,42 @@
                     {
                         data: null,
                         render: function(data) {
-                            if (data.dosen_id == '<?= $this->session->userdata('id') ?>' || data.dosen_penguji_id == '<?= $this->session->userdata('id') ?>') {
-                            if (data.status == '1') {
-                                status = '\
-                            <button class="btn btn-sm btn-setuju btn-success" type="button" data-id="' + data.id_skripsi + '" data-judul_skripsi="' + data.judul_skripsi + '" data-status="' + data.status + '" data-toggle="modal" data-target="#setujui">\
-                                <i class="fa fa-check"></i>\
-                            </button>\
-                            ';
+                            const isDosenPembimbing = (data.dosen_id == '<?= $this->session->userdata('id') ?>' || data.dosen2_id == '<?= $this->session->userdata('id') ?>');
+
+                            const iconClass = (data.status == '1') ? 'fa-check' : 'fa-times';
+                            const btnClass = (data.status == '1') ? 'btn-success' : 'btn-danger';
+
+                            if (isDosenPembimbing) {
+                                return `
+                                <div class="text-center">
+                                    <button class="btn btn-sm btn-setuju ${btnClass}" type="button"
+                                        data-id="${data.id}"
+                                        data-judul_skripsi="${data.judul_skripsi}"
+                                        data-status="${data.status}"
+                                        data-toggle="modal" data-target="#setujui">
+                                        <i class="fas ${iconClass}"></i>
+                                    </button>
+                                </div>
+                            `;
                             } else {
-                                status = '\
-                            <button class="btn btn-sm btn-setuju btn-danger" type="button" data-id="' + data.id_skripsi + '" data-judul_skripsi="' + data.judul_skripsi + '" data-status="' + data.status + '" data-toggle="modal" data-target="#setujui">\
-                                <i class="fa fa-times"></i>\
-                            </button>\
-                            ';
-                            }
-                            return '\
-                            <div class="text-center">' + status + '</div>\
-                            ';
-                            }else {
-                                if (data.status == '1') {
-                                status = '\
-                            <button class="btn btn-sm btn-setuju btn-success" type="button>\
-                                <i class="fa fa-check"></i>\
-                            </button>\
-                            ';
-                            } else {
-                                status = '\
-                            <button class="btn btn-sm btn-setuju btn-danger" type="button">\
-                                <i class="fa fa-times"></i>\
-                            </button>\
-                            ';
-                            }
-                            return '\
-                            <div class="text-center">' + status + '</div>\
-                            ';
+                                return `
+                                <div class="text-center">
+                                    <button class="btn btn-sm btn-setuju ${btnClass}" type="button" disabled>
+                                        <i class="fas ${iconClass}"></i>
+                                    </button>
+                                </div>
+                            `;
                             }
                         }
                     },
+
                     {
                         data: "judul_skripsi"
                     },
                     {
                         data: null,
                         render: function(data) {
-                            return '1. ' + data.nama_pembimbing1 + '<br>2. ' + data.nama_pembimbing2;
+                            return '1. ' + (data.nama_pembimbing1 || 'Belum ada data') + '<br>2. ' + (data.nama_pembimbing2 || 'Belum ada data');
                         }
                     },
                     {
@@ -177,7 +169,6 @@
                     {
                         data: "tempat",
                         render: function(data) {
-                            // Menampilkan tempat, jika tidak ada data tampilkan 'Belum ada data'
                             return data || 'Belum ada data';
                         }
                     },
@@ -244,7 +235,6 @@
     $(document).on('submit', 'form#setujui', function(e) {
         e.preventDefault();
 
-        // Tampilkan overlay loading dan nonaktifkan tombol
         $('#loading-overlay').show();
         disableBtn();
 
@@ -253,7 +243,6 @@
         const url = 'api/skripsi/' + (status == '1' ? 'disagree' : 'agree') + '/' + id;
 
         call(url).done(function(req) {
-            // Sembunyikan overlay loading setelah proses selesai
             $('#loading-overlay').hide();
 
             if (req.error == true) {
@@ -264,7 +253,6 @@
                 show();
             }
         }).always(function() {
-            // Aktifkan kembali tombol setelah proses selesai
             $(".btn-act").attr('disabled', false).html('Submit');
         });
     });

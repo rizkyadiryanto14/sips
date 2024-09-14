@@ -184,7 +184,7 @@
         <tr>
             <td></td>
             <td><strong>Rata-Rata Nilai</strong></td>
-            <td><?= $showData['penguji1_rata_nilai'] ?></td>
+            <td><?= number_format($showData['penguji1_rata_nilai'], 2) ?></td>
         </tr>
     </table>
 </section>
@@ -288,7 +288,7 @@
         <tr>
             <td></td>
             <td><strong>Rata-Rata Nilai</strong></td>
-            <td><?= $showData['penguji2_rata_nilai'] ?></td>
+            <td><?= number_format($showData['penguji2_rata_nilai'], 2) ?></td>
         </tr>
     </table>
 </section>
@@ -392,7 +392,7 @@
         <tr>
             <td></td>
             <td><strong>Rata-Rata Nilai</strong></td>
-            <td><?= $showData['pembimbing_rata_nilai'] ?></td>
+            <td><?= number_format($showData['pembimbing_rata_nilai'], 2) ?></td>
         </tr>
     </table>
 </section>
@@ -487,18 +487,21 @@
         </tr>
         <tr>
             <td>Dinyatakan</td>
-            <td>: DITERIMA / TIDAK DITERIMA untuk meneruskan penelitian dengan proposal Skripsi tersebut diatas</td>
+            <?php if($showData['nama_predikat'] == 'A' || $showData['nama_predikat'] == 'A-' || $showData['nama_predikat'] == 'B+' || $showData['nama_predikat'] == 'B-' || $showData['nama_predikat'] == 'B' || $showData['nama_predikat'] == 'C+' ||$showData['nama_predikat'] == 'C') { ?>
+                <td>: DITERIMA untuk meneruskan penelitian dengan proposal Skripsi tersebut diatas</td>
+            <?php } else { ?>
+            <td>: TIDAK DITERIMA untuk meneruskan penelitian dengan proposal Skripsi tersebut diatas</td>
+            <?php } ?>
         </tr>
         <tr>
             <td>Dengan Nilai</td>
-            <td>: ..............</td>
+            <td>: <?= number_format($showData['total_rata_rata'], 2) ?> </td>
         </tr>
         <tr>
             <td>Dengan Predikat</td>
-            <td>: .............</td>
+            <td>: <?= $showData['nama_predikat'] ?></td>
         </tr>
     </table>
-
     <div class="page-break"></div>
 
     <!-- Header Baru untuk Berita Acara -->

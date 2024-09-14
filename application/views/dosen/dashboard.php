@@ -69,7 +69,7 @@
                         </div>
                         <div class="col-auto">
                             <div class="icon icon-shape bg-gradient-green text-white rounded-circle shadow">
-                                <i class="ni ni-money-coins"></i>
+                                <i class="fas fa-book"></i>
                             </div>
                         </div>
                     </div>

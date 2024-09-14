@@ -81,7 +81,7 @@
                             <h3 class="wow fadeInRight" data-wow-delay="0.2s"><?= $carousel_subtitle1; ?></h3>
                                 <h2 class="wow fadeInRight" data-wow-delay="0.4s"><?= $carousel_title1; ?></h2>
                                 <h4 class="wow fadeInRight" data-wow-delay="0.6s"><?= $carousel_description1; ?></h4>
-                                <a href="<?= $carousel_btn_href1; ?>" class="btn btn-lg btn-common btn-effect wow fadeInRight" data-wow-delay="0.9s"><?= $carousel_btn_text1; ?></a>
+                                <a href="<?= base_url($carousel_btn_href1) ?>" class="btn btn-lg btn-common btn-effect wow fadeInRight" data-wow-delay="0.9s"><?= $carousel_btn_text1; ?></a>
                         </div>
                     </div>
                     <div class="carousel-item">
@@ -91,7 +91,7 @@
                             <h3 class="wow fadeInRight" data-wow-delay="0.2s"><?= $carousel_subtitle2; ?></h3>
                                 <h2 class="wow fadeInRight" data-wow-delay="0.4s"><?= $carousel_title2; ?></h2>
                                 <h4 class="wow fadeInRight" data-wow-delay="0.6s"><?= $carousel_description2; ?></h4>
-                                <a href="<?= $carousel_btn_href2; ?>" class="btn btn-lg btn-common btn-effect wow fadeInRight" data-wow-delay="0.9s"><?= $carousel_btn_text2; ?></a>
+                                <a href="<?= base_url($carousel_btn_href2) ?>" class="btn btn-lg btn-common btn-effect wow fadeInRight" data-wow-delay="0.9s"><?= $carousel_btn_text2; ?></a>
                         </div>
                     </div>
                     <div class="carousel-item">
@@ -101,7 +101,7 @@
                             <h3 class="wow fadeInRight" data-wow-delay="0.2s"><?= $carousel_subtitle3; ?></h3>
                                 <h2 class="wow fadeInRight" data-wow-delay="0.4s"><?= $carousel_title3; ?></h2>
                                 <h4 class="wow fadeInRight" data-wow-delay="0.6s"><?= $carousel_description3; ?></h4>
-                                <a href="<?= $carousel_btn_href3; ?>" class="btn btn-lg btn-common btn-effect wow fadeInRight" data-wow-delay="0.9s"><?= $carousel_btn_text3; ?></a>
+                                <a href="<?= base_url($carousel_btn_href3) ?>" class="btn btn-lg btn-common btn-effect wow fadeInRight" data-wow-delay="0.9s"><?= $carousel_btn_text3; ?></a>
                         </div>
                     </div>
                 </div>

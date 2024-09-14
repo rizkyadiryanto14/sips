@@ -1,6 +1,13 @@
 <?php
 defined('BASEPATH') or exit('No direct script access allowed');
 
+/**
+ * @property $db
+ * @property $cache
+ * @property $fileupload
+ *
+ */
+
 class Seminar_model extends CI_Model
 {
 
@@ -8,7 +15,6 @@ class Seminar_model extends CI_Model
 
     public function index($input)
     {
-        // Ambil id_periode dari tabel periode dengan status = 1
         $periode_aktif = $this->db->select('id')
             ->from('periode')
             ->where('status', 1)
@@ -25,7 +31,6 @@ class Seminar_model extends CI_Model
 
         $id_periode = $periode_aktif['id'];
 
-        // Pilih kolom yang akan diambil dari tabel seminar dan proposal_mahasiswa_v
         $this->db->select('
         seminar.id AS id,
         seminar.proposal_mahasiswa_id AS proposal_mahasiswa_id,
@@ -33,6 +38,7 @@ class Seminar_model extends CI_Model
         seminar.jam_mulai AS jam_mulai,
         seminar.jam_selesai AS jam_selesai,
         seminar.tempat AS tempat,
+        seminar.created_at AS created_at,
         seminar.dosen_penguji_id AS dosen_penguji_1_id,
         dosen1.nama AS dosen_penguji_1_nama,
         seminar.dosen_penguji_id2 AS dosen_penguji_2_id,
@@ -51,158 +57,193 @@ class Seminar_model extends CI_Model
         dosen4.nama AS dosen_pembimbing_2_nama
     ');
 
-        // Join tabel seminar dengan tabel proposal_mahasiswa_v
         $this->db->from('seminar');
         $this->db->join('proposal_mahasiswa_v', 'seminar.proposal_mahasiswa_id = proposal_mahasiswa_v.id', 'left');
 
-        // Join tabel dosen untuk dosen penguji 1
         $this->db->join('dosen AS dosen1', 'seminar.dosen_penguji_id = dosen1.id', 'left');
 
-        // Join tabel dosen untuk dosen penguji 2
         $this->db->join('dosen AS dosen2', 'seminar.dosen_penguji_id2 = dosen2.id', 'left');
 
-        // Join tabel dosen untuk dosen pembimbing 1
         $this->db->join('dosen AS dosen3', 'proposal_mahasiswa_v.dosen_id = dosen3.id', 'left');
 
-        // Join tabel dosen untuk dosen pembimbing 2
         $this->db->join('dosen AS dosen4', 'proposal_mahasiswa_v.dosen2_id = dosen4.id', 'left');
 
-        // Filter data berdasarkan mahasiswa_id jika diberikan
         if (isset($input['mahasiswa_id'])) {
             $this->db->where('proposal_mahasiswa_v.mahasiswa_id', $input['mahasiswa_id']);
         }
 
-        // Filter data berdasarkan id_periode yang aktif
+        if (isset($input['dosen_id'])) {
+            $this->db->group_start()
+                ->where('proposal_mahasiswa_v.dosen_id', $input['dosen_id'])
+                ->or_where('proposal_mahasiswa_v.dosen2_id', $input['dosen_id'])
+                ->group_end();
+        }
+
         $this->db->where('proposal_mahasiswa_v.id_periode', $id_periode);
 
-        // Eksekusi query dan ambil hasilnya
         $seminar = $this->db->get()->result_array();
 
-        // Format hasil untuk output
         $hasil = [
             'error' => false,
             'message' => ($seminar) ? "Data berhasil ditemukan" : "Data tidak tersedia",
             'data' => $seminar,
         ];
 
+        // Format tanggal menggunakan helper tgl_indo
+        foreach ($hasil['data'] as $key => $item) {
+            $hasil['data'][$key]['created_at'] = tgl_indo($item['created_at']);
+            $hasil['data'][$key]['tanggal'] = tgl_indo($item['tanggal']);
+        }
+
         return $hasil;
     }
 
-
-
     public function create($input)
-	{
-        // Ambil tahun sekarang
+    {
+        $this->load->library('FileUpload');
+
+        $this->load->driver('cache', array('adapter' => 'file', 'backup' => 'file'));
+
         $tahun_sekarang = date('Y');
 
-        // Cari ID periode berdasarkan tahun sekarang
-        $this->db->select('id');
-        $this->db->from('periode');
-        $this->db->where('periode', $tahun_sekarang);
-        $this->db->where('status', 1); // Anda bisa mengubah ini sesuai kondisi status yang dibutuhkan
-        $periode = $this->db->get()->row();
+        $periode = $this->cache->get('periode_' . $tahun_sekarang);
 
         if (!$periode) {
-            // Jika tidak ada data periode yang cocok, kembalikan error
+            $this->db->select('id');
+            $this->db->from('periode');
+            $this->db->where('periode', $tahun_sekarang);
+            $this->db->where('status', 1);
+            $periode = $this->db->get()->row();
+
+            if ($periode) {
+                $this->cache->save('periode_' . $tahun_sekarang, $periode, 3600);
+            }
+        }
+
+        if (!$periode) {
             return [
                 'error' => true,
                 'message' => 'Periode untuk tahun ' . $tahun_sekarang . ' tidak ditemukan atau belum aktif.'
             ];
         }
 
-		$data = [
-			'proposal_mahasiswa_id' => $input['proposal_mahasiswa_id'],
-			'file_proposal' => $input['file_proposal'],
-			'sk_tim' => $input['sk_tim'],
-			'persetujuan' => $input['persetujuan'],
-			'bukti_konsultasi' => $input['bukti_konsultasi'],
-            'id_periode'    => $periode->id
-		];
+        $data = [
+            'proposal_mahasiswa_id' => $input['proposal_mahasiswa_id'],
+            'id_periode' => $periode->id,
+        ];
 
-		$validation = $this->app->validate($data);
+        $validation = $this->app->validate($data);
 
-		if ($validation === true) {
-			$file_nama = date('Ymdhis') . '.pdf';
+        if ($validation === true) {
+            $upload_result = $this->handle_file_upload($input, $data);
 
-			// upload base64 file_proposal
-			$file_proposal_file = explode(';base64,', $data['file_proposal'])[1];
-			file_put_contents(FCPATH . 'cdn/vendor/file_proposal/' . $file_nama, base64_decode($file_proposal_file));
-			$data['file_proposal'] = $file_nama;
+            if ($upload_result['error']) {
+                return $upload_result;
+            }
 
-			// upload sk_tim
-			$sk_tim_file = explode(';base64,', $data['sk_tim'])[1];
-			file_put_contents(FCPATH . 'cdn/vendor/sk_tim/' . $file_nama, base64_decode($sk_tim_file));
-			$data['sk_tim'] = $file_nama;
+            $this->db->insert($this->table, $upload_result['data']);
+            $data_id = $this->db->insert_id();
 
-			$bukti_konsultasi_file = explode(';base64,', $data['bukti_konsultasi'])[1];
-			file_put_contents(FCPATH . 'cdn/vendor/bukti_konsultasi/' . $file_nama, base64_decode($bukti_konsultasi_file));
-			$data['bukti_konsultasi'] = $file_nama;
+            $this->db->insert("hasil_seminar", [
+                'seminar_id' => $data_id,
+                'berita_acara' => "",
+                'masukan' => "",
+                'status' => '3'
+            ]);
 
-			$persetujuan_file = explode(';base64,', $data['persetujuan'])[1];
-			file_put_contents(FCPATH . 'cdn/vendor/persetujuan/' . $file_nama, base64_decode($persetujuan_file));
-			$data['persetujuan'] = $file_nama;
+            return [
+                'error' => false,
+                'message' => "Data berhasil ditambahkan",
+                'data_id' => $data_id
+            ];
+        } else {
+            return $validation;
+        }
+    }
 
-			$this->db->insert($this->table, $data);
-			$data_id = $this->db->insert_id();
-			$this->db->insert("hasil_seminar", [
-				'seminar_id' => $data_id,
-				'berita_acara' => "",
-				'masukan' => "",
-				'status' => '3'
-			]);
+    private function handle_file_upload($input, $data)
+    {
+        try {
+            if (!empty($input['file_proposal'])) {
+                $data['file_proposal'] = $this->fileupload->upload($input['file_proposal'], 'cdn/vendor/file_proposal/');
+            }
 
-			$hasil = [
-				'error' => false,
-				'message' => "data berhasil ditambahkan",
-				'data_id' => $data_id
-			];
-		} else {
-			$hasil = $validation;
-		}
+            if (!empty($input['sk_tim'])) {
+                $data['sk_tim'] = $this->fileupload->upload($input['sk_tim'], 'cdn/vendor/sk_tim/');
+            }
 
-		return $hasil;
-	}
+            if (!empty($input['bukti_konsultasi'])) {
+                $data['bukti_konsultasi'] = $this->fileupload->upload($input['bukti_konsultasi'], 'cdn/vendor/bukti_konsultasi/');
+            }
 
-	public function details($id)
-	{
-		$this->db->select('
-			seminar.id,
-			seminar.proposal_mahasiswa_id,
-			seminar.tanggal,
-			seminar.jam_mulai,
-			seminar.jam_selesai,
-			seminar.tempat,
-			seminar.persetujuan,
-			seminar.file_proposal,
-			seminar.sk_tim,
-			seminar.bukti_konsultasi,
-			proposal_mahasiswa.judul as proposal_mahasiswa_judul,
-			mahasiswa.id as mahasiswa_id,
-			mahasiswa.nama as mahasiswa_nama,
-			mahasiswa.email
-		');
+            if (!empty($input['persetujuan'])) {
+                $data['persetujuan'] = $this->fileupload->upload($input['persetujuan'], 'cdn/vendor/persetujuan/');
+            }
 
-		$this->db->from($this->table);
-		$this->db->join('proposal_mahasiswa', 'proposal_mahasiswa.id = seminar.proposal_mahasiswa_id', 'left');
-		$this->db->join('mahasiswa', 'mahasiswa.id = proposal_mahasiswa.mahasiswa_id', 'left');
-		$this->db->where('seminar.id', $id);
+            return [
+                'error' => false,
+                'data' => $data
+            ];
+        } catch (Exception $e) {
+            return [
+                'error' => true,
+                'message' => $e->getMessage()
+            ];
+        }
+    }
 
-		$seminar = $this->db->get()->row_array();
+    public function details($id)
+    {
+        $this->db->select('
+            seminar.id,
+            seminar.proposal_mahasiswa_id,
+            seminar.tanggal,
+            seminar.jam_mulai,
+            seminar.jam_selesai,
+            seminar.tempat,
+            seminar.persetujuan,
+            seminar.file_proposal,
+            seminar.sk_tim,
+            seminar.bukti_konsultasi,
+            proposal_mahasiswa.judul as proposal_mahasiswa_judul,
+            mahasiswa.id as mahasiswa_id,
+            mahasiswa.nama as mahasiswa_nama,
+            mahasiswa.email,
+            seminar.dosen_penguji_id, 
+            seminar.dosen_penguji_id2,
+            dosen_penguji_1.nama as dosen_penguji_1_nama, 
+            dosen_penguji_2.nama as dosen_penguji_2_nama,
+            dosen_pembimbing_1.nama as dosen_pembimbing_1_nama,
+            dosen_pembimbing_2.nama as dosen_pembimbing_2_nama
+        ');
 
-		$hasil = [
-			'error' => ($seminar) ? false : true,
-			'message' => ($seminar) ? "data berhasil ditemukan" : "data tidak tersedia",
-			'data' => $seminar
-		];
+        $this->db->from($this->table);
+        $this->db->join('proposal_mahasiswa', 'proposal_mahasiswa.id = seminar.proposal_mahasiswa_id', 'left');
+        $this->db->join('mahasiswa', 'mahasiswa.id = proposal_mahasiswa.mahasiswa_id', 'left');
+        $this->db->join('dosen as dosen_penguji_1', 'dosen_penguji_1.id = seminar.dosen_penguji_id', 'left');
+        $this->db->join('dosen as dosen_penguji_2', 'dosen_penguji_2.id = seminar.dosen_penguji_id2', 'left');
+        $this->db->join('dosen as dosen_pembimbing_1', 'dosen_pembimbing_1.id = proposal_mahasiswa.dosen_id', 'left');
+        $this->db->join('dosen as dosen_pembimbing_2', 'dosen_pembimbing_2.id = proposal_mahasiswa.dosen2_id', 'left');
 
-		if ($hasil['data']) {
-			$hasil['data']['hasil'] = $this->db->get_where('hasil_seminar', ['seminar_id' => $hasil['data']['id']])->row_array();
-		}
+        $this->db->where('seminar.id', $id);
 
-		return $hasil;
-	}
+        $seminar = $this->db->get()->row_array();
 
-	public function destroy($id)
+        $hasil = [
+            'error' => !$seminar,
+            'message' => ($seminar) ? "Data berhasil ditemukan" : "Data tidak tersedia",
+            'data' => $seminar
+        ];
+
+        if ($hasil['data']) {
+            $hasil['data']['hasil'] = $this->db->get_where('hasil_seminar', ['seminar_id' => $hasil['data']['id']])->row_array();
+        }
+
+        return $hasil;
+    }
+
+
+    public function destroy($id)
 	{
 		$kondisi = [
 			'id' => $id

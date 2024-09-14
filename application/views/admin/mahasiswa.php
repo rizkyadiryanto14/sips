@@ -59,7 +59,6 @@
     </div>
 </div>
 <?php $this->app->endSection('content') ?>
-
 <?php $this->app->section() ?>
 <link rel="stylesheet" type="text/css" href="<?= base_url() ?>cdn/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css">
 <script src="<?= base_url() ?>cdn/plugins/datatables/jquery.dataTables.min.js"></script>

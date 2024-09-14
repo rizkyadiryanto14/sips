@@ -109,6 +109,15 @@
     </div>
     <div class="card-footer"></div>
 </div>
+
+    <div id="loading-overlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:9999; text-align:center; color:white;">
+        <div style="position:absolute; top:50%; left:50%; transform:translate(-50%, -50%);">
+            <div class="spinner-border" role="status">
+                <span class="sr-only">Loading...</span>
+            </div>
+            <p>Memproses...</p>
+        </div>
+    </div>
 <?php $this->app->endSection('content') ?>
 
 <?php $this->app->section() ?>
@@ -171,6 +180,9 @@
 
         $(document).on('submit', 'form#edit', function(e) {
             e.preventDefault();
+            // Tampilkan overlay loading
+            $('#loading-overlay').show();
+
             call('api/mahasiswa/update/' + mahasiswa_id, $(this).serialize()).done(function(req) {
                 if (req.error == true) {
                     notif(req.message, 'error', true);
@@ -181,9 +193,14 @@
                     show();
                     $(".btn-act").attr('disabled', false).html('Submit')
                 }
-            })
+                // Tampilkan overlay loading
+                $('#loading-overlay').hide();
+            }).fail(function() {
+                // Sembunyikan overlay loading jika terjadi error
+                $('#loading-overlay').hide();
+                alert('Terjadi kesalahan, silakan coba lagi.');
+            });
         })
-
     })
 
     function loadingBtn() {

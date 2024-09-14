@@ -1,23 +1,23 @@
-<?php 
-defined('BASEPATH') OR exit('No direct script access allowed');
+<?php
+defined('BASEPATH') or exit('No direct script access allowed');
 
 class App_lib
 {
     protected $ci;
 
     protected $layout;
-    
+
     protected $section = [];
 
     public function __construct()
     {
-        $this->ci =& get_instance();
+        $this->ci = &get_instance();
     }
 
     public function url($key = null)
     {
         $url = explode('/', uri_string());
-        for ($i=0; $i < 9; $i++) { 
+        for ($i = 0; $i < 9; $i++) {
             $link[] = ($url[$i]) ? $url[$i] : "";
         }
         $this->url = $link;
@@ -67,7 +67,7 @@ class App_lib
         $this->section[$section] = ob_get_clean();
         ob_clean();
     }
-    
+
     public function init()
     {
         $data = $this->section;
@@ -88,7 +88,6 @@ class App_lib
             }
         }
     }
-
 }
 
 /* End of file App_lib.php */

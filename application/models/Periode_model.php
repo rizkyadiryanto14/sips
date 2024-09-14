@@ -19,7 +19,7 @@ class Periode_model extends CI_Model
     /**
      * @return array
      */
-    public function getById():array
+    public function getById(): array
     {
         $periode = $this->db->get_where($this->table, array('id' => $this->input->post('id')))->result();
 
@@ -54,38 +54,29 @@ class Periode_model extends CI_Model
 
     public function update($input, $id)
     {
-        // Persiapkan data untuk update
         $data = [
             'periode' => $input['periode'],
             'status' => $input['status'],
         ];
 
-        // Cek apakah data dengan ID yang diberikan ada di tabel
         $kondisi = ['periode.id' => $id];
         $cek = $this->db->get_where($this->table, $kondisi)->num_rows();
 
         if ($cek > 0) {
-            // Validasi data yang akan diupdate
             $validate = $this->app->validate($data);
 
             if ($validate === true) {
-                // Mulai transaksi
                 $this->db->trans_start();
 
-                // Jika status yang diinput adalah 1
                 if ($input['status'] == 1) {
-                    // Ubah semua status menjadi 0 terlebih dahulu
                     $this->db->update($this->table, ['status' => 0]);
                 }
 
-                // Update periode dengan ID yang dipilih
                 $this->db->where('id', $id);
                 $this->db->update($this->table, $data);
 
-                // Selesaikan transaksi
                 $this->db->trans_complete();
 
-                // Cek apakah transaksi berhasil
                 if ($this->db->trans_status() === FALSE) {
                     $hasil = [
                         'error' => true,
@@ -115,7 +106,7 @@ class Periode_model extends CI_Model
      * @param $id
      * @return array
      */
-    public function destroy($id):array
+    public function destroy($id): array
     {
         $kondisi = ['periode.id' => $id];
         $cek = $this->db->get_where($this->table, $kondisi);
@@ -153,7 +144,7 @@ class Periode_model extends CI_Model
      * @param $id
      * @return array
      */
-    public function details($id):array
+    public function details($id): array
     {
         $kondisi = [
             'id' => $id
@@ -170,10 +161,9 @@ class Periode_model extends CI_Model
 
     public function agree($id)
     {
-        // Nonaktifkan semua periode lain sebelum mengaktifkan yang dipilih
+
         $this->db->update($this->table, ['status' => "0"]);
 
-        // Set status periode yang dipilih menjadi 1
         $kondisi = ['periode.id' => $id];
         $cek = $this->db->get_where($this->table, $kondisi);
 
@@ -212,8 +202,6 @@ class Periode_model extends CI_Model
                 'message' => "Data tidak ditemukan"
             ];
         }
-
         return $hasil;
     }
-
 }

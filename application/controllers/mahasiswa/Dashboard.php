@@ -1,6 +1,12 @@
 <?php
 defined('BASEPATH') or exit('No direct script access allowed');
 
+/**
+ * @property $db
+ * @property $load
+ * @property $input
+ */
+
 class Dashboard extends MY_Controller
 {
 

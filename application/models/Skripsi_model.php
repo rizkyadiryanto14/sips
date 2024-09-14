@@ -21,6 +21,7 @@ class Skripsi_model extends CI_Model
             ->get()
             ->row_array();
 
+        // Cek apakah ada periode aktif
         if (empty($periode_aktif)) {
             return [
                 'error' => true,
@@ -29,24 +30,79 @@ class Skripsi_model extends CI_Model
             ];
         }
 
-        // Simpan id_periode dari periode aktif ke dalam kondisi
+        // Tambahkan kondisi untuk periode aktif
         $kondisi['skripsi_vl.id_periode'] = $periode_aktif['id'];
 
-        // Tambahkan kondisi untuk mahasiswa_id jika diberikan
+        // Filter berdasarkan mahasiswa_id jika ada
         if (!empty($input['mahasiswa_id'])) {
+            if (!is_numeric($input['mahasiswa_id'])) {
+                return [
+                    'error' => true,
+                    'message' => 'ID Mahasiswa tidak valid',
+                    'data' => []
+                ];
+            }
             $kondisi['skripsi_vl.mahasiswa_id'] = $input['mahasiswa_id'];
         }
 
-        // Terapkan kondisi untuk query
+        // Filter berdasarkan dosen_id dan dosen2_id
+        if (!empty($input['dosen_id'])) {
+            if (!is_numeric($input['dosen_id'])) {
+                return [
+                    'error' => true,
+                    'message' => 'ID Dosen tidak valid',
+                    'data' => []
+                ];
+            }
+
+            // Tambahkan kondisi untuk dosen_id dan dosen2_id
+            $this->db->group_start()
+                ->where('skripsi_vl.dosen_id', $input['dosen_id'])
+                ->or_where('skripsi_vl.dosen2_id', $input['dosen_id'])
+                ->group_end();
+        }
+
         $this->db->where($kondisi);
 
-        // Eksekusi query dan ambil hasilnya
-        $skripsi = $this->db->get('skripsi_vl')->result_array();
+        // Filter berdasarkan semester jika ada
+        if (!empty($input['semester'])) {
+            $this->db->where(function($query) use ($input) {
+                if ($input['semester'] == 'ganjil') {
+                    // Ganjil: September (09) sampai Februari (02)
+                    $query->group_start()
+                        ->where('MONTH(skripsi_vl.created_at) >=', 9)
+                        ->or_where('MONTH(skripsi_vl.created_at) <=', 2)
+                        ->group_end();
+                } elseif ($input['semester'] == 'genap') {
+                    // Genap: Maret (03) sampai Agustus (08)
+                    $query->where('MONTH(skripsi_vl.created_at) >=', 3)
+                        ->where('MONTH(skripsi_vl.created_at) <=', 8);
+                }
+            });
+        }
 
-        // Format hasil untuk output
+        // Jalankan query
+        $this->db->distinct();
+        $this->db->select('skripsi_vl.*');
+        $this->db->group_by('skripsi_vl.id');
+        $query = $this->db->get('skripsi_vl');
+
+        // Cek apakah query berhasil dieksekusi
+        if (!$query) {
+            return [
+                'error' => true,
+                'message' => 'Terjadi kesalahan dalam eksekusi query.',
+                'data' => []
+            ];
+        }
+
+        // Ambil hasil query
+        $skripsi = $query->result_array();
+
+        // Return hasil
         $hasil = [
             'error' => false,
-            'message' => ($skripsi) ? "data berhasil ditemukan" : "Data tidak tersedia",
+            'message' => ($skripsi) ? "Data berhasil ditemukan" : "Data tidak tersedia",
             'data' => $skripsi,
         ];
 
@@ -56,7 +112,6 @@ class Skripsi_model extends CI_Model
 
     public function admin_index($input)
     {
-        // Ambil id_periode dari tabel periode dengan status = 1
         $periode_aktif = $this->db->select('id')
             ->from('periode')
             ->where('status', 1)
@@ -71,8 +126,23 @@ class Skripsi_model extends CI_Model
             ];
         }
 
-        // Terapkan filter berdasarkan id_periode dari periode yang aktif
         $this->db->where('skripsi_vl.id_periode', $periode_aktif['id']);
+
+        if (!empty($input['semester'])) {
+            $this->db->where(function($query) use ($input) {
+                if ($input['semester'] == 'ganjil') {
+                    // Ganjil: September (09) sampai Februari (02)
+                    $query->group_start()
+                        ->where('MONTH(skripsi_vl.created_at) >=', 9)
+                        ->or_where('MONTH(skripsi_vl.created_at) <=', 2)
+                        ->group_end();
+                } elseif ($input['semester'] == 'genap') {
+                    // Genap: Maret (03) sampai Agustus (08)
+                    $query->where('MONTH(skripsi_vl.created_at) >=', 3)
+                        ->where('MONTH(skripsi_vl.created_at) <=', 8);
+                }
+            });
+        }
 
         // Eksekusi query dan ambil hasilnya
         $skripsi = $this->db->get('skripsi_vl')->result_array();
@@ -84,24 +154,29 @@ class Skripsi_model extends CI_Model
             'data' => $skripsi,
         ];
 
+        foreach ($hasil['data'] as $key => $item) {
+            // Format created_at dengan tgl_indo
+            $hasil['data'][$key]['created_at'] = tgl_indo($item['created_at']);
+            // Format jadwal_skripsi jika ada
+            $hasil['data'][$key]['jadwal_skripsi'] = tgl_indoFull($item['jadwal_skripsi']);
+        }
+
         return $hasil;
     }
 
-
     public function create($input)
     {
-        // Ambil tahun sekarang
+        $this->load->library('FileUpload');
+
         $tahun_sekarang = date('Y');
 
-        // Cari ID periode berdasarkan tahun sekarang
         $this->db->select('id');
         $this->db->from('periode');
         $this->db->where('periode', $tahun_sekarang);
-        $this->db->where('status', 1); // Anda bisa mengubah ini sesuai kondisi status yang dibutuhkan
+        $this->db->where('status', 1);
         $periode = $this->db->get()->row();
 
         if (!$periode) {
-            // Jika tidak ada data periode yang cocok, kembalikan error
             return [
                 'error' => true,
                 'message' => 'Periode untuk tahun ' . $tahun_sekarang . ' tidak ditemukan atau belum aktif.'
@@ -111,118 +186,161 @@ class Skripsi_model extends CI_Model
         $data = [
             'judul_skripsi' => $input['judul_skripsi'],
             'mahasiswa_id' => $input['mahasiswa_id'],
-            'persetujuan' => $input['persetujuan'],
-            'file_skripsi' => $input['file_skripsi'],
-            'sk_tim' => $input['sk_tim'],
-            'bukti_konsultasi' => $input['bukti_konsultasi'],
             'id_periode'    => $periode->id
         ];
 
         $validation = $this->app->validate($data);
-
-        if ($validation === true) {
-            $file_nama = date('Ymdhis') . '.pdf';
-
-            // upload base64 file_skripsi
-            $persetujuan_file = explode(';base64,', $data['persetujuan'])[1];
-            file_put_contents(FCPATH . 'cdn/vendor/skripsi/persetujuan/' . $file_nama, base64_decode($persetujuan_file));
-            $data['persetujuan'] = $file_nama;
-
-            // upload base64 file_skripsi
-            $file_skripsi_file = explode(';base64,', $data['file_skripsi'])[1];
-            file_put_contents(FCPATH . 'cdn/vendor/skripsi/file_skripsi/' . $file_nama, base64_decode($file_skripsi_file));
-            $data['file_skripsi'] = $file_nama;
-
-            // upload sk_tim
-            $sk_tim_file = explode(';base64,', $data['sk_tim'])[1];
-            file_put_contents(FCPATH . 'cdn/vendor/skripsi/sk_tim/' . $file_nama, base64_decode($sk_tim_file));
-            $data['sk_tim'] = $file_nama;
-
-            // upload base64 file_skripsi
-            $bukti_konsultasi_file = explode(';base64,', $data['bukti_konsultasi'])[1];
-            file_put_contents(FCPATH . 'cdn/vendor/skripsi/bukti_konsultasi/' . $file_nama, base64_decode($bukti_konsultasi_file));
-            $data['bukti_konsultasi'] = $file_nama;
-
-            if ($this->db->insert('skripsi', $data)) {
-                $data_id = $this->db->insert_id();
-
-                $hasil = [
-                    'error' => false,
-                    'message' => "data berhasil ditambahkan",
-                    'data_id' => $data_id
-                ];
-            }
-        } else {
-            $hasil = $validation;
+        if ($validation !== true) {
+            return $validation;
         }
 
-        return $hasil;
+        if (!empty($input['persetujuan'])) {
+            $file_persetujuan = $this->fileupload->upload($input['persetujuan'], 'cdn/vendor/skripsi/persetujuan/');
+            if (!$file_persetujuan) {
+                return ['error' => true, 'message' => 'Gagal mengupload file persetujuan'];
+            }
+            $data['persetujuan'] = $file_persetujuan;
+        }
+
+        if (!empty($input['file_skripsi'])) {
+            $file_skripsi = $this->fileupload->upload($input['file_skripsi'], 'cdn/vendor/skripsi/file_skripsi/');
+            if (!$file_skripsi) {
+                return ['error' => true, 'message' => 'Gagal mengupload file skripsi'];
+            }
+            $data['file_skripsi'] = $file_skripsi;
+        }
+
+        if (!empty($input['sk_tim'])) {
+            $file_sk_tim = $this->fileupload->upload($input['sk_tim'], 'cdn/vendor/skripsi/sk_tim/');
+            if (!$file_sk_tim) {
+                return ['error' => true, 'message' => 'Gagal mengupload file SK tim'];
+            }
+            $data['sk_tim'] = $file_sk_tim;
+        }
+
+        if (!empty($input['bukti_konsultasi'])) {
+            $file_bukti_konsultasi = $this->fileupload->upload($input['bukti_konsultasi'], 'cdn/vendor/skripsi/bukti_konsultasi/');
+            if (!$file_bukti_konsultasi) {
+                return ['error' => true, 'message' => 'Gagal mengupload bukti konsultasi'];
+            }
+            $data['bukti_konsultasi'] = $file_bukti_konsultasi;
+        }
+
+        if ($this->db->insert('skripsi', $data)) {
+            $data_id = $this->db->insert_id();
+            return [
+                'error' => false,
+                'message' => 'Data berhasil ditambahkan',
+                'data_id' => $data_id
+            ];
+        }
+        return ['error' => true, 'message' => 'Gagal menyimpan data ke database.'];
     }
+
 
     public function update($input, $id)
     {
-        $data = [
-            'mahasiswa_id' => $input['mahasiswa_id'],
-            'judul_skripsi' => $input['judul_skripsi'],
-        ];
+        $this->load->library('FileUpload');
 
-        $kondisi = ['skripsi.id' => $id];
-        $cek = $this->db->get_where($this->table, $kondisi)->num_rows();
+        $tahun_sekarang = date('Y');
 
-        if ($cek > 0) {
-            $validate = $this->app->validate($data);
-            if ($validate === true) {
+        $this->db->select('id');
+        $this->db->from('periode');
+        $this->db->where('periode', $tahun_sekarang);
+        $this->db->where('status', 1);
+        $periode = $this->db->get()->row();
 
-                if ($input['persetujuan'] != '') {
-                    unlink(FCPATH . 'cdn/vendor/skripsi/persetujuan/' . $input['def_persetujuan']);
-                    $file_nama = date('Ymdhis') . '.pdf';
-                    // upload base64 persetujuan
-                    $persetujuan_file = explode(';base64,', $input['persetujuan'])[1];
-                    file_put_contents(FCPATH . 'cdn/vendor/skripsi/persetujuan/' . $file_nama, base64_decode($persetujuan_file));
-                    $data['persetujuan'] = $file_nama;
-                }
-                if ($input['file_skripsi'] != '') {
-                    unlink(FCPATH . 'cdn/vendor/skripsi/file_skripsi/' . $input['def_file_skripsi']);
-                    $file_nama = date('Ymdhis') . '.pdf';
-                    // upload base64 file_skripsi 
-                    $file_skripsi_file = explode(';base64,', $input['file_skripsi'])[1];
-                    file_put_contents(FCPATH . 'cdn/vendor/skripsi/file_skripsi/' . $file_nama, base64_decode($file_skripsi_file));
-                    $data['file_skripsi'] = $file_nama;
-                }
-                if ($input['sk_tim'] != '') {
-                    unlink(FCPATH . 'cdn/vendor/skripsi/sk_tim/' . $input['def_sk_tim']);
-                    $file_nama = date('Ymdhis') . '.pdf';
-                    // upload base64 sk_tim
-                    $sk_tim_file = explode(';base64,', $input['sk_tim'])[1];
-                    file_put_contents(FCPATH . 'cdn/vendor/skripsi/sk_tim/' . $file_nama, base64_decode($sk_tim_file));
-                    $data['sk_tim'] = $file_nama;
-                }
-                if ($input['bukti_konsultasi'] != '') {
-                    unlink(FCPATH . 'cdn/vendor/skripsi/bukti_konsultasi/' . $input['def_bukti_konsultasi']);
-                    $file_nama = date('Ymdhis') . '.pdf';
-                    // upload base64 bukti_konsultasi
-                    $bukti_konsultasi_file = explode(';base64,', $input['bukti_konsultasi'])[1];
-                    file_put_contents(FCPATH . 'cdn/vendor/skripsi/bukti_konsultasi/' . $file_nama, base64_decode($bukti_konsultasi_file));
-                    $data['bukti_konsultasi'] = $file_nama;
-                }
-
-                $this->db->update($this->table, $data, $kondisi);
-                $hasil = [
-                    'error' => false,
-                    'message' => "data berhasil diedit",
-                ];
-            } else {
-                $hasil = $validate;
-            }
-        } else {
-            $hasil = [
+        if (!$periode) {
+            return [
                 'error' => true,
-                'message' => "data tidak ditemukan"
+                'message' => 'Periode untuk tahun ' . $tahun_sekarang . ' tidak ditemukan atau belum aktif.'
             ];
         }
 
-        return $hasil;
+        $kondisi = ['skripsi.id' => $id];
+        $cek = $this->db->get_where($this->table, $kondisi)->row();
+
+        if (!$cek) {
+            return [
+                'error' => true,
+                'message' => 'Data tidak ditemukan'
+            ];
+        }
+
+        $data = [
+            'mahasiswa_id' => $input['mahasiswa_id'],
+            'judul_skripsi' => $input['judul_skripsi'],
+            'id_periode' => $periode->id
+        ];
+
+        // Validasi input
+        $validation = $this->app->validate($data);
+        if ($validation !== true) {
+            return $validation;
+        }
+
+        if (!empty($input['persetujuan'])) {
+            if (!empty($cek->persetujuan)) {
+                unlink(FCPATH . 'cdn/vendor/skripsi/persetujuan/' . $cek->persetujuan);
+            }
+            $upload_persetujuan = $this->fileupload->upload($input['persetujuan'], 'cdn/vendor/skripsi/persetujuan/');
+            if (!$upload_persetujuan['status']) {
+                return ['error' => true, 'message' => $upload_persetujuan['error']];
+            }
+            $data['persetujuan'] = $upload_persetujuan['file_name'];
+        } else {
+            $data['persetujuan'] = $cek->persetujuan;
+        }
+
+        if (!empty($input['file_skripsi'])) {
+            if (!empty($cek->file_skripsi)) {
+                unlink(FCPATH . 'cdn/vendor/skripsi/file_skripsi/' . $cek->file_skripsi);
+            }
+            $upload_file_skripsi = $this->fileupload->upload($input['file_skripsi'], 'cdn/vendor/skripsi/file_skripsi/');
+            if (!$upload_file_skripsi['status']) {
+                return ['error' => true, 'message' => $upload_file_skripsi['error']];
+            }
+            $data['file_skripsi'] = $upload_file_skripsi['file_name'];
+        } else {
+            $data['file_skripsi'] = $cek->file_skripsi;
+        }
+
+        if (!empty($input['sk_tim'])) {
+            if (!empty($cek->sk_tim)) {
+                unlink(FCPATH . 'cdn/vendor/skripsi/sk_tim/' . $cek->sk_tim);
+            }
+            $upload_sk_tim = $this->fileupload->upload($input['sk_tim'], 'cdn/vendor/skripsi/sk_tim/');
+            if (!$upload_sk_tim['status']) {
+                return ['error' => true, 'message' => $upload_sk_tim['error']];
+            }
+            $data['sk_tim'] = $upload_sk_tim['file_name'];
+        } else {
+            $data['sk_tim'] = $cek->sk_tim;
+        }
+
+        if (!empty($input['bukti_konsultasi'])) {
+            if (!empty($cek->bukti_konsultasi)) {
+                unlink(FCPATH . 'cdn/vendor/skripsi/bukti_konsultasi/' . $cek->bukti_konsultasi);
+            }
+            $upload_bukti_konsultasi = $this->fileupload->upload($input['bukti_konsultasi'], 'cdn/vendor/skripsi/bukti_konsultasi/');
+            if (!$upload_bukti_konsultasi['status']) {
+                return ['error' => true, 'message' => $upload_bukti_konsultasi['error']];
+            }
+            $data['bukti_konsultasi'] = $upload_bukti_konsultasi['file_name'];
+        } else {
+            $data['bukti_konsultasi'] = $cek->bukti_konsultasi;
+        }
+
+        if ($this->db->update($this->table, $data, $kondisi)) {
+            return [
+                'error' => false,
+                'message' => 'Data berhasil diperbarui'
+            ];
+        }
+
+        return ['error' => true, 'message' => 'Gagal memperbarui data.'];
     }
+
 
     public function destroy($id)
     {
@@ -315,6 +433,11 @@ class Skripsi_model extends CI_Model
         }
 
         return $hasil;
+    }
+
+    public function details($id)
+    {
+        return $this->db->get_where('skripsi_vl', array('id' => $id))->row_array();
     }
 }
 

@@ -9,12 +9,83 @@
         height: 500px;
     }
 </style>
-<div class="card">
-    <div class="card-header">
-        <div class="card-title">Data Report</div>
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">
+                <div class="card-title">Data Report</div>
+            </div>
+            <div class="card-body">
+                <div id="chartdiv"></div>
+            </div>
+        </div>
     </div>
-    <div class="card-body">
-        <div id="chartdiv"></div>
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">
+
+                <!-- Form untuk filter semester -->
+                <form method="GET" action="">
+                    <div class="form-group row">
+                        <label for="semester" class="col-sm-2 col-form-label">Filter Semester</label>
+                        <div class="col-sm-4">
+                            <select class="form-control" name="semester" id="semester">
+                                <option value="">-- Pilih Semester --</option>
+                                <option value="ganjil" <?php echo ($this->input->get('semester') == 'ganjil') ? 'selected' : ''; ?>>Semester Ganjil</option>
+                                <option value="genap" <?php echo ($this->input->get('semester') == 'genap') ? 'selected' : ''; ?>>Semester Genap</option>
+                            </select>
+                        </div>
+                        <div class="col-sm-2">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-filter"></i> Terapkan Filter
+                            </button>
+                        </div>
+                        <div class="col-sm-2">
+                            <!-- Tombol unduh report -->
+                            <a href="<?= base_url('report/download_pdf') ?>" methods="post" id="download-pdf" class="btn btn-primary">
+                                <i class="fas fa-print"></i> Unduh
+                            </a>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-bordered">
+                        <thead>
+                        <tr>
+                            <th>Nama Dosen</th>
+                            <th>Jumlah Proposal</th>
+                            <th>Jumlah Seminar</th>
+                            <th>Jumlah Skripsi</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <?php foreach ($report as $row) : ?>
+                            <tr>
+                                <td><?php echo $row['nama_dosen']; ?></td>
+                                <td><?php echo $row['jumlah_proposal']; ?></td>
+                                <td><?php echo $row['jumlah_seminar']; ?></td>
+                                <td><?php echo $row['jumlah_skripsi']; ?></td>
+                            </tr>
+                        <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">
+                <div class="card-title">Grafik Report Dosen</div>
+                <button id="downloadChart" class="btn btn-primary">Unduh Grafik</button>
+            </div>
+            <div class="card-body">
+                <canvas id="bentoChart"></canvas> <!-- Canvas untuk grafik -->
+            </div>
+        </div>
     </div>
 </div>
 <?php $this->app->endSection('content') ?>
@@ -24,6 +95,7 @@
 <script src="https://cdn.amcharts.com/lib/4/charts.js"></script>
 <script src="https://cdn.amcharts.com/lib/4/themes/frozen.js"></script>
 <script src="https://cdn.amcharts.com/lib/4/themes/animated.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
     $(document).ready(function() {
 
@@ -112,6 +184,72 @@
 
 
     })
+
+    $(document).ready(function() {
+        const ctx = document.getElementById('bentoChart').getContext('2d');
+        const bentoChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: [
+                    <?php foreach ($report as $row) : ?> '<?php echo $row['nama_dosen']; ?>',
+                    <?php endforeach; ?>
+                ],
+                datasets: [{
+                    label: 'Jumlah Proposal',
+                    data: [
+                        <?php foreach ($report as $row) : ?>
+                        <?php echo $row['jumlah_proposal']; ?>,
+                        <?php endforeach; ?>
+                    ],
+                    backgroundColor: 'rgba(54, 162, 235, 0.6)',
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    borderWidth: 1
+                },
+                    {
+                        label: 'Jumlah Seminar',
+                        data: [
+                            <?php foreach ($report as $row) : ?>
+                            <?php echo $row['jumlah_seminar']; ?>,
+                            <?php endforeach; ?>
+                        ],
+                        backgroundColor: 'rgba(255, 206, 86, 0.6)',
+                        borderColor: 'rgba(255, 206, 86, 1)',
+                        borderWidth: 1
+                    },
+                    {
+                        label: 'Jumlah Skripsi',
+                        data: [
+                            <?php foreach ($report as $row) : ?>
+                            <?php echo $row['jumlah_skripsi']; ?>,
+                            <?php endforeach; ?>
+                        ],
+                        backgroundColor: 'rgba(75, 192, 192, 0.6)',
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        borderWidth: 1
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+
+        // Tambahkan fungsi untuk mengunduh grafik saat tombol diklik
+        document.getElementById('downloadChart').addEventListener('click', function() {
+            // Konversi grafik canvas ke URL data image
+            const imageLink = document.createElement('a');
+            imageLink.href = document.getElementById('bentoChart').toDataURL('image/png');
+            imageLink.download = 'grafik_report.png'; // Nama file yang akan diunduh
+            imageLink.click();
+        });
+    });
+
+
 </script>
 <?php $this->app->endSection('script') ?>
 

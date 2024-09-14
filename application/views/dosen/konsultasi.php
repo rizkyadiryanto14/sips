@@ -86,6 +86,15 @@
         </div>
     </div>
 </div>
+
+    <div id="loading-overlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:9999; text-align:center; color:white;">
+        <div style="position:absolute; top:50%; left:50%; transform:translate(-50%, -50%);">
+            <div class="spinner-border" role="status">
+                <span class="sr-only">Loading...</span>
+            </div>
+            <p>Memproses...</p>
+        </div>
+    </div>
 <?php $this->app->endSection('content') ?>
 
 <?php $this->app->section() ?>
@@ -94,7 +103,6 @@
 <script src="<?= base_url() ?>cdn/plugins/datatables-bs4/js/dataTables.bootstrap4.min.js"></script>
 <script>
     $(document).ready(function() {
-
         function show() {
             $('#data-konsultasi').DataTable().destroy();
             $('#data-konsultasi').DataTable({
@@ -266,6 +274,10 @@
 
         $(document).on('submit', 'form#setuju', function(e) {
             e.preventDefault();
+
+            // Tampilkan overlay loading
+            $('#loading-overlay').show();
+
             const id = $('form#setuju .id').val();
             const data = {
                 komentar: $('form#setuju [name=komentar]').val()
@@ -284,8 +296,17 @@
                         $('div#setuju').modal('hide');
                         show();
                     }
-                })
+                    // Tampilkan overlay loading
+                    $('#loading-overlay').show();
+                }).fail(function() {
+                    // Sembunyikan overlay loading jika terjadi error
+                    $('#loading-overlay').hide();
+                    alert('Terjadi kesalahan, silakan coba lagi.');
+                });
             } else {
+                // Tampilkan overlay loading
+                $('#loading-overlay').show();
+
                 call('api/konsultasi/disagree/' + id, data).done(function(res) {
                     if (res.error == true) {
                         notif(res.message, 'error', true);
@@ -294,10 +315,15 @@
                         $('div#setuju').modal('hide');
                         show();
                     }
-                })
+                    // Tampilkan overlay loading
+                    $('#loading-overlay').show();
+                }).fail(function() {
+                    // Sembunyikan overlay loading jika terjadi error
+                    $('#loading-overlay').hide();
+                    alert('Terjadi kesalahan, silakan coba lagi.');
+                });
             }
         })
-
     })
 </script>
 <?php $this->app->endSection('script') ?>

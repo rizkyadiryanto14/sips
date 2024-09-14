@@ -55,7 +55,7 @@
 					</div>
                    <div class="form-group">
                        <label for="jabatan">Jabatan</label>
-                       <select name="jabatan_id" class="form-control" id="jabatan">
+                       <select name="id_jabatan" class="form-control" id="jabatan">
                            <option value="">- Pilih Jabatan -</option>
                        </select>
                    </div>
@@ -304,7 +304,6 @@
             $('form#edit [name=fokus]').val($(this).data('fokus'));
             $('form#edit [name=tema_riset]').val($(this).data('tema_riset'));
             $('form#edit [name=id_jabatan]').val($(this).data('id_jabatan'));
-            $('form#edit [name=password]').val($(this).data('password'));
 		})
 
 		$(document).on('submit', 'form#edit', function(e) {

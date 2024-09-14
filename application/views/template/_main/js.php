@@ -35,7 +35,7 @@
         });
     }
 
-    async function notif(message, type, mixin) {
+    async function notif(message, type, mixin, reload = false) {
         if (mixin) {
             const Toast = Swal.mixin({
                 position: 'top-end',
@@ -43,11 +43,11 @@
                 showConfirmButton: false,
                 showCloseButton: true,
                 timer: 3000
-            })
+            });
             await Toast.fire({
                 title: message,
                 icon: type
-            })
+            });
         } else {
             await Swal.fire({
                 title: type[0].toUpperCase() + type.slice(1),
@@ -56,7 +56,12 @@
             }).then(s => {
                 setTimeout(() => {
                     document.body.style.paddingRight = '0';
-                }, 400)
+                }, 400);
+
+                // Jika parameter reload adalah true, lakukan refresh halaman setelah modal ditutup
+                if (reload) {
+                    location.reload();
+                }
             });
         }
     }

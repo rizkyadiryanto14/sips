@@ -64,18 +64,15 @@ class PengujianSempro_model extends CI_Model
 
     public function create($input)
     {
-        // Ambil tahun sekarang
         $tahun_sekarang = date('Y');
-
-        // Cari ID periode berdasarkan tahun sekarang
+        
         $this->db->select('id');
         $this->db->from('periode');
         $this->db->where('periode', $tahun_sekarang);
-        $this->db->where('status', 1); // Anda bisa mengubah ini sesuai kondisi status yang dibutuhkan
+        $this->db->where('status', 1);
         $periode = $this->db->get()->row();
 
         if (!$periode) {
-            // Jika tidak ada data periode yang cocok, kembalikan error
             return [
                 'error' => true,
                 'message' => 'Periode untuk tahun ' . $tahun_sekarang . ' tidak ditemukan atau belum aktif.'
@@ -83,31 +80,101 @@ class PengujianSempro_model extends CI_Model
         }
 
         $data = [
-            'id_sempro' => $input['id_sempro'],
-            'id_dosen'  => $input['id_dosen'],
-            'presentasi' => $input['presentasi'],
-            'alat_bantu' => $input['alat_bantu'],
-            'penampilan' => $input['penampilan'],
-            'penguasaan_materi' => $input['penguasaan_materi'],
-            'kelayakan_proposal' => $input['kelayakan_proposal'],
-            'status'        => 1,
-            'id_periode'    => $periode->id
+            'id_sempro'             => $input['id_sempro'],
+            'id_dosen'              => $input['id_dosen'],
+            'presentasi'            => $input['presentasi'],
+            'alat_bantu'            => $input['alat_bantu'],
+            'penampilan'            => $input['penampilan'],
+            'penguasaan_materi'     => $input['penguasaan_materi'],
+            'kelayakan_proposal'    => $input['kelayakan_proposal'],
+            'status'                => 1,
+            'id_periode'            => $periode->id
         ];
 
+        // Validasi data sebelum insert
         $validate = $this->app->validate($data);
 
         if ($validate === true) {
+            // Simpan data ke database
             $this->db->insert($this->table, $data);
             $hasil = [
                 'error' => false,
-                'message' => 'data berhasil ditambah',
+                'message' => 'Data berhasil ditambah',
                 'data_id' => $this->db->insert_id()
             ];
-        }else {
+
+            // Cek apakah sudah ada 3 dosen yang memberikan nilai
+            $pengujian_data = $this->cek_dosen_menilai($input['id_sempro']);
+
+            // Kembalikan informasi ke controller jika 3 dosen sudah memberikan nilai
+            if (count($pengujian_data) == 3) {
+                // Beri tanda bahwa pengiriman email harus dilakukan
+                $hasil['send_email'] = true;
+            } else {
+                $hasil['send_email'] = false;
+            }
+
+        } else {
+            // Jika validasi gagal
             $hasil = $validate;
         }
+
         return $hasil;
     }
+
+    // Fungsi untuk mengambil detail sempro
+    public function details_sempro($id)
+    {
+        $this->db->select('
+            seminar.id,
+            seminar.proposal_mahasiswa_id,
+            seminar.tanggal,
+            seminar.jam_mulai,
+            seminar.jam_selesai,
+            seminar.tempat,
+            seminar.persetujuan,
+            seminar.file_proposal,
+            seminar.sk_tim,
+            seminar.bukti_konsultasi,
+            proposal_mahasiswa.judul as proposal_mahasiswa_judul,
+            mahasiswa.id as mahasiswa_id,
+            mahasiswa.nama as mahasiswa_nama,
+            mahasiswa.email
+        ');
+
+        $this->db->from('seminar');  // Tabel seminar
+        $this->db->join('proposal_mahasiswa', 'proposal_mahasiswa.id = seminar.proposal_mahasiswa_id', 'left');
+        $this->db->join('mahasiswa', 'mahasiswa.id = proposal_mahasiswa.mahasiswa_id', 'left');
+        $this->db->where('seminar.id', $id);
+
+        $seminar = $this->db->get()->row_array();
+
+        $hasil = [
+            'error' => !$seminar,
+            'message' => ($seminar) ? "Data berhasil ditemukan" : "Data tidak tersedia",
+            'data' => $seminar
+        ];
+
+        if ($hasil['data']) {
+            // Jika ada hasil seminar, tambahkan ke data
+            $hasil['data']['hasil'] = $this->db->get_where('hasil_seminar', ['seminar_id' => $hasil['data']['id']])->row_array();
+        }
+
+        return $hasil;
+    }
+
+    // Fungsi untuk mengecek jumlah dosen yang sudah memberikan nilai
+    public function cek_dosen_menilai($id_sempro)
+    {
+        $this->db->select('*');
+        $this->db->from('pengujian_sempro');
+        $this->db->where('id_sempro', $id_sempro);
+        $this->db->where('status', 1);  // Hanya dosen yang sudah memberi nilai
+        $result = $this->db->get()->result_array();
+
+        return $result;
+    }
+
 
     public function get_berita_acara($id_sempro)
     {
@@ -146,28 +213,9 @@ class PengujianSempro_model extends CI_Model
         seminar_view.tanggal, 
         seminar_view.jam_mulai,
         seminar_view.jam_selesai, 
-        seminar_view.tempat,
-       
-        (
-            (penguji1.presentasi + penguji1.alat_bantu + penguji1.penampilan + penguji1.penguasaan_materi + penguji1.kelayakan_proposal) / 5
-        ) AS penguji1_rata_nilai,
-        (
-            (penguji2.presentasi + penguji2.alat_bantu + penguji2.penampilan + penguji2.penguasaan_materi + penguji2.kelayakan_proposal) / 5
-        ) AS penguji2_rata_nilai,
-        (
-            (pembimbing.presentasi + pembimbing.alat_bantu + pembimbing.penampilan + pembimbing.penguasaan_materi + pembimbing.kelayakan_proposal) / 5
-        ) AS pembimbing_rata_nilai,
-        
-        (
-            penguji1.presentasi + penguji1.alat_bantu + penguji1.penampilan + penguji1.penguasaan_materi + penguji1.kelayakan_proposal
-        ) AS penguji1_jumlah_rata_nilai,
-        (
-            penguji2.presentasi + penguji2.alat_bantu + penguji2.penampilan + penguji2.penguasaan_materi + penguji2.kelayakan_proposal
-        ) AS penguji2_jumlah_rata_nilai,
-        (
-            pembimbing.presentasi + pembimbing.alat_bantu + pembimbing.penampilan + pembimbing.penguasaan_materi + pembimbing.kelayakan_proposal
-        ) AS pembimbing_jumlah_rata_nilai
+        seminar_view.tempat
     ');
+
         $this->db->from('pengujian_sempro');
         $this->db->join('seminar_view', 'pengujian_sempro.id_sempro = seminar_view.id', 'left');
         $this->db->join('mahasiswa', 'seminar_view.mahasiswa_id = mahasiswa.id', 'left');
@@ -179,12 +227,39 @@ class PengujianSempro_model extends CI_Model
         $this->db->join('pengujian_sempro as penguji1', 'penguji1.id_sempro = seminar_view.id AND penguji1.id_dosen = seminar_view.dosen_penguji_1', 'left');
         $this->db->join('pengujian_sempro as penguji2', 'penguji2.id_sempro = seminar_view.id AND penguji2.id_dosen = seminar_view.dosen_penguji_2', 'left');
         $this->db->join('pengujian_sempro as pembimbing', 'pembimbing.id_sempro = seminar_view.id AND pembimbing.id_dosen = seminar_view.dosen_pembimbing_1', 'left');
+
         $this->db->where('pengujian_sempro.id_sempro', $id_sempro);
 
-        return $this->db->get()->row_array();
+        $result = $this->db->get()->row_array();
+
+        if ($result) {
+
+            $result['penguji1_jumlah_rata_nilai'] = $result['penguji1_presentasi'] + $result['penguji1_alat_bantu'] + $result['penguji1_penampilan'] + $result['penguji1_penguasaan_materi'] + $result['penguji1_kelayakan_proposal'];
+
+            $result['penguji1_rata_nilai'] = $result['penguji1_jumlah_rata_nilai'] / 5;
+
+            $result['penguji2_jumlah_rata_nilai'] = $result['penguji2_presentasi'] + $result['penguji2_alat_bantu'] + $result['penguji2_penampilan'] + $result['penguji2_penguasaan_materi'] + $result['penguji2_kelayakan_proposal'];
+
+            $result['penguji2_rata_nilai'] = $result['penguji2_jumlah_rata_nilai'] / 5;
+
+            $result['pembimbing_jumlah_rata_nilai'] = $result['pembimbing_presentasi'] + $result['pembimbing_alat_bantu'] + $result['pembimbing_penampilan'] + $result['pembimbing_penguasaan_materi'] + $result['pembimbing_kelayakan_proposal'];
+
+            $result['pembimbing_rata_nilai'] = $result['pembimbing_jumlah_rata_nilai'] / 5;
+
+            $result['total_rata_rata'] = ($result['penguji1_rata_nilai'] + $result['penguji2_rata_nilai'] + $result['pembimbing_rata_nilai']) / 3;
+
+            $this->db->select('nama_predikat, keterangan');
+            $this->db->from('predikat_penilaian');
+            $this->db->where('nilai_minimum <=', $result['total_rata_rata']);
+            $this->db->where('nilai_maximum >=', $result['total_rata_rata']);
+            $predikat = $this->db->get()->row_array();
+
+            if ($predikat) {
+                $result['nama_predikat'] = $predikat['nama_predikat'];
+                $result['keterangan'] = $predikat['keterangan'];
+            }
+        }
+        return $result;
     }
-
-
-
 
 }

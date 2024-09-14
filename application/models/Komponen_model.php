@@ -139,7 +139,7 @@ class Komponen_model extends CI_Model
         $komponen = $this->db->get_where($this->table, $kondisi)->row_array();
 
         return [
-            'error' => ($komponen) ? false : true,
+            'error' => !$komponen,
             'message' => ($komponen) ? "data berhasil ditemukan" : "data tidak ditemukan",
             'data' => $komponen
         ];

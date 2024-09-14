@@ -19,7 +19,7 @@ class Auth extends MY_Controller {
         }
         $this->session->set_userdata([
             'id' => $id,
-            'level' => $level
+            'level' => $level,
         ]);
         $this->app->auth($level);
     }

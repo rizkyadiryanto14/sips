@@ -4,12 +4,18 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
 class FileUpload
 {
+    private $max_file_size = 4 * 1024 * 1024;
+    private $chunk_size = 1024 * 1024;
+
     public function upload($base64_file, $path): string
     {
-        // Decode the base64 file
-        $file_data = explode(';base64,', $base64_file);
+        if (strpos($base64_file, ';base64,') === false) {
+            throw new Exception('Invalid base64 format.');
+        }
 
-        // Get the file extension from MIME type
+        $file_data = explode(';base64,', $base64_file);
+        $base64_content = $file_data[1];
+
         $mime_type = explode(':', $file_data[0])[1];
         $extension = $this->get_extension_from_mime($mime_type);
 
@@ -17,13 +23,43 @@ class FileUpload
             throw new Exception('Unsupported file type.');
         }
 
-        // Generate a unique file name with the correct extension
-        $file_name = date('Ymdhis') . '.' . $extension;
+        $file_size = (int)(strlen($base64_content) * 0.75);
+        if ($file_size > $this->max_file_size) {
+            throw new Exception('File size exceeds the maximum limit of 4MB.');
+        }
 
-        // Save the decoded file data to the specified path
-        file_put_contents(FCPATH . $path . $file_name, base64_decode($file_data[1]));
+        $file_name = date('Ymdhis') . '_' . uniqid() . '.' . $extension;
 
-        // Return the file name for saving to the database
+        $full_path = FCPATH . $path . $file_name;
+
+        $file_handle = fopen($full_path, 'wb');
+        if (!$file_handle) {
+            log_message('error', 'Failed to open file for writing: ' . $full_path);
+            throw new Exception('Failed to open file for writing: ' . $full_path);
+        }
+
+        // Decode dan tulis file base64 dalam chunks
+        $decoded_file = base64_decode($base64_content, true);
+        if ($decoded_file === false) {
+            log_message('error', 'Failed to decode base64 file.');
+            throw new Exception('Failed to decode base64 file.');
+        }
+
+        $offset = 0;
+        while ($offset < strlen($decoded_file)) {
+            $chunk = substr($decoded_file, $offset, $this->chunk_size);
+            $bytes_written = fwrite($file_handle, $chunk);
+
+            if ($bytes_written === false) {
+                log_message('error', 'Failed to write chunk to file: ' . $full_path);
+                throw new Exception('Failed to write chunk to file: ' . $full_path);
+            }
+
+            $offset += $bytes_written;
+        }
+
+        fclose($file_handle);
+
         return $file_name;
     }
 
@@ -32,18 +68,9 @@ class FileUpload
         $mime_map = [
             'image/jpeg' => 'jpg',
             'image/png' => 'png',
-            'image/gif' => 'gif',
             'application/pdf' => 'pdf',
-            'application/msword' => 'doc',
-            'application/vnd.openxmlformats-officedocument.wordprocessingml.document' => 'docx',
-            'application/vnd.ms-excel' => 'xls',
-            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' => 'xlsx',
-            'application/vnd.ms-powerpoint' => 'ppt',
-            'application/vnd.openxmlformats-officedocument.presentationml.presentation' => 'pptx',
-            // Tambahkan MIME type lainnya sesuai kebutuhan
         ];
 
         return $mime_map[$mime_type] ?? null;
     }
 }
-

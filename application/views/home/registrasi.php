@@ -103,6 +103,10 @@
         </form>
     </div>
 </div>
+
+    <div id="loading-overlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:9999; text-align:center; color:#fff; font-size:20px; line-height:100vh;">
+        Loading...
+    </div>
 <?php $this->app->endSection('content') ?>
 
 <?php $this->app->section() ?>
@@ -121,7 +125,7 @@
         $("#nim").keyup(function() {
             if ($(this).val().length <= 11) {
                 var inp = $(this).val();
-                if (/^[0-9]+$/.test(inp)) {  // Memastikan hanya angka yang dimasukkan
+                if (/^[0-9]+$/.test(inp)) {
                     $(".btn-act").attr('disabled', false);
                 } else {
                     notif('Mohon masukkan hanya angka', 'error', true);

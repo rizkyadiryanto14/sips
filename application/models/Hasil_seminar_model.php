@@ -73,6 +73,11 @@ class Hasil_seminar_model extends CI_Model
 
 		return $hasil;
 	}
+
+    public function get($id)
+    {
+        return $this->db->get_where($this->table, ['seminar_id' => $id])->row_array();
+    }
 }
 
 /* End of file Hasil_seminar_model.php */

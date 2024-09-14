@@ -82,22 +82,22 @@
                 <span class="nav-link-text">Bimbingan</span>
               </a>
             </li>
-              <li class="nav-item dropdown">
-                  <a class="nav-link dropdown-toggle" href="#" id="pengujianDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                      <i class="ni ni-check-bold text-blue"></i>
-                      <span class="nav-link-text">Pengujian</span>
-                  </a>
-                  <div class="dropdown-menu" aria-labelledby="pengujianDropdown">
-                      <a class="dropdown-item" href="<?= base_url() ?>dosen/pengujian/pengujian_sempro">
-                          <i class="nav-item fa fa-book text-yellow"></i>
-                          Sempro
-                      </a>
-                      <a class="dropdown-item" href="<?= base_url() ?>dosen/pengujian/pengujian_skripsi">
-                          <i class="nav-item fas fa-bookmark text-info"></i>
-                          Skripsi
-                      </a>
-                  </div>
-              </li>
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" href="#" id="pengujianDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <i class="ni ni-check-bold text-blue"></i>
+                <span class="nav-link-text">Pengujian</span>
+              </a>
+              <div class="dropdown-menu" aria-labelledby="pengujianDropdown">
+                <a class="dropdown-item" href="<?= base_url() ?>dosen/pengujian/pengujian_sempro">
+                  <i class="nav-item fa fa-book text-yellow"></i>
+                  Sempro
+                </a>
+                <a class="dropdown-item" href="<?= base_url() ?>dosen/pengujian/pengujian_skripsi">
+                  <i class="nav-item fas fa-bookmark text-info"></i>
+                  Skripsi
+                </a>
+              </div>
+            </li>
             <li class="nav-item">
               <a class="nav-link" href="<?= base_url() ?>dosen/penelitian">
                 <i class="ni ni-bulb-61 text-purple"></i>
@@ -224,9 +224,9 @@
       <footer class="footer pt-0">
         <div class="row align-items-center justify-content-lg-between">
           <div class="col-lg-6">
-              <div class="copyright text-center  text-lg-left  text-muted">
-                  &copy; <?= date('Y') ?> <a href="https://www.linkedin.com/in/rizky-adi-ryanto" class="font-weight-bold ml-1" target="_blank">Rizky-Dev</a>
-              </div>
+            <div class="copyright text-center  text-lg-left  text-muted">
+              &copy; <?= date('Y') ?> <a href="https://www.linkedin.com/in/rizky-adi-ryanto" class="font-weight-bold ml-1" target="_blank">Rizky-Dev</a>
+            </div>
           </div>
         </div>
       </footer>
@@ -246,7 +246,7 @@
   </script>
 
   <div id="loading-overlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:9999; text-align:center; color:#fff; font-size:20px; line-height:100vh;">
-      Loading...
+    Loading...
   </div>
 </body>
 

@@ -33,10 +33,10 @@
                         <th>Dosen Penguji</th>
                         <th>Jadwal Skripsi</th>
                         <th>Tempat</th>
-                        <th>Persetujuan</th>
+                        <th>Syrat Skripsi</th>
                         <th>File Skripsi</th>
-                        <th>SK Tim</th>
-                        <th>Bukti Konsultasi</th>
+                        <th>Surat Permohonan</th>
+                        <th>Kartu Bimbingan</th>
                         <th>Aksi</th>
                     </tr>
                 </thead>
@@ -63,7 +63,7 @@
                         </select>
                     </div>
                     <div class="form-group">
-                        <label>Persetujuan</label>
+                        <label>Syarat Skripsi</label>
                         <input type="file" class="form-control" name="pilih-persetujuan" accept="application/pdf">
                         <input type="hidden" name="persetujuan">
                         <input type="hidden" name="def_persetujuan">
@@ -75,13 +75,13 @@
                         <input type="hidden" name="def_file_skripsi">
                     </div>
                     <div class="form-group">
-                        <label>SK Tim</label>
+                        <label>Surat Permohonan</label>
                         <input type="file" class="form-control" name="pilih-sk_tim" accept="application/pdf">
                         <input type="hidden" name="sk_tim">
                         <input type="hidden" name="def_sk_tim">
                     </div>
                     <div class="form-group">
-                        <label>Bukti Konsultasi</label>
+                        <label>Kartu Bimbingan</label>
                         <input type="file" class="form-control" name="pilih-bukti_konsultasi" accept="application/pdf">
                         <input type="hidden" name="bukti_konsultasi">
                         <input type="hidden" name="def_bukti_konsultasi">
@@ -159,6 +159,16 @@
         </div>
     </div>
 </div>
+
+    <div id="loading-overlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:9999; text-align:center; color:white;">
+        <div style="position:absolute; top:50%; left:50%; transform:translate(-50%, -50%);">
+            <div class="spinner-border" role="status">
+                <span class="sr-only">Loading...</span>
+            </div>
+            <p>Memproses...</p>
+        </div>
+    </div>
+
 <?php $this->app->endSection('content') ?>
 
 <?php $this->app->section() ?>
@@ -297,6 +307,13 @@
 
         $(document).on('submit', 'form#tambah', function(e) {
             e.preventDefault();
+
+            // Tampilkan overlay loading
+            $('#loading-overlay').show();
+
+            // Serialize form data including file inputs
+            var formData = new FormData(this);
+
             call('api/skripsi/create', $(this).serialize()).done(function(res) {
                 if (res.error == true) {
                     notif(res.message, 'error', true);
@@ -306,7 +323,13 @@
                     $('div#tambah').modal('hide');
                     show();
                 }
-            })
+                // Sembunyikan overlay loading setelah proses selesai
+                $('#loading-overlay').hide();
+            }).fail(function() {
+                // Sembunyikan overlay loading jika terjadi error
+                $('#loading-overlay').hide();
+                alert('Terjadi kesalahan, silakan coba lagi.');
+            });
         })
 
         $(document).on('change', 'form#tambah [name=pilih-file_skripsi]', function() {
@@ -363,6 +386,10 @@
 
         $(document).on('submit', 'form#hapus', function(e) {
             e.preventDefault();
+
+            // Tampilkan overlay loading
+            $('#loading-overlay').show();
+
             const id = $('form#hapus .id').val();
             call('api/skripsi/destroy/' + id).done(function(res) {
                 if (res.error == true) {
@@ -372,7 +399,13 @@
                     $('div#hapus').modal('hide');
                     show();
                 }
-            })
+                // Sembunyikan overlay loading setelah proses selesai
+                $('#loading-overlay').hide();
+            }).fail(function() {
+                // Sembunyikan overlay loading jika terjadi error
+                $('#loading-overlay').hide();
+                alert('Terjadi kesalahan, silakan coba lagi.');
+            });
         })
 
     })
@@ -392,6 +425,8 @@
 
     $(document).on('submit', 'form#edit', function(e) {
         e.preventDefault();
+        // Tampilkan overlay loading
+        $('#loading-overlay').show();
         var id = $('form#edit .id').val();
         call('api/skripsi/update/' + id, $(this).serialize()).done(function(req) {
             if (req.error == true) {
@@ -402,7 +437,13 @@
                 $('div#edit').modal('hide');
                 show();
             }
-        })
+            // Sembunyikan overlay loading setelah proses selesai
+            $('#loading-overlay').hide();
+        }).fail(function() {
+            // Sembunyikan overlay loading jika terjadi error
+            $('#loading-overlay').hide();
+            alert('Terjadi kesalahan, silakan coba lagi.');
+        });
     })
 </script>
 <?php $this->app->endSection('script') ?>

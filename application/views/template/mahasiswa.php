@@ -129,7 +129,7 @@ foreach ($dataUser as $du) {
                     <img alt="Image placeholder" src="<?= base_url() ?>cdn/img/mahasiswa/default.png">
                   </span>
                   <div class="media-body  ml-2  d-none d-lg-block">
-                    <span class="mb-0 text-sm  font-weight-bold">Mahasiswa</span>
+                    <span class="mb-0 text-sm  font-weight-bold"><?= $this->session->userdata('nama_mahasiswa') ?></span>
                   </div>
                 </div>
               </a>
@@ -193,7 +193,7 @@ foreach ($dataUser as $du) {
         <div class="row align-items-center justify-content-lg-between">
           <div class="col-lg-6">
             <div class="copyright text-center  text-lg-left  text-muted">
-              &copy; <?= date('Y') ?>> <a href="https://github.com/rizkyadiryanto14" class="font-weight-bold ml-1" target="_blank">Rizky-Dev</a>
+              &copy; <?= date('Y') ?> <a href="https://github.com/rizkyadiryanto14" class="font-weight-bold ml-1" target="_blank">Rizky-Dev</a>
             </div>
           </div>
       </footer>

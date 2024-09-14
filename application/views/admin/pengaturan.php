@@ -1,7 +1,5 @@
 <?php $this->app->extend('template/admin') ?>
-
 <?php $this->app->setVar('title', 'Pengaturan') ?>
-
 <?php $this->app->section() ?>
 <form id="edit">
 	<div class="row">
@@ -86,7 +84,7 @@
         <div class="card">
             <div class="card-header">
                 <div class="text-left">
-                  <div class="head-title pb-2">Setingan</div>
+                  <div class="head-title pb-2">Setingan Komponen <small class="badge badge-danger">Belum Aktif</small></div>
                 </div>
                 <button class="btn btn-primary" data-toggle="modal" type="button" data-target="#tambah">Tambah</button>
             </div>
@@ -110,7 +108,7 @@
         <div class="card">
             <div class="card-header">
                 <div class="text-left">
-                    <div class="head-title pb-2">Setingan Bobot</div>
+                    <div class="head-title pb-2">Setingan Bobot <small class="badge badge-danger">Belum Aktif</small></div>
                 </div>
                 <button class="btn btn-primary" data-toggle="modal" type="button" data-target="#tambahbobot">Tambah</button>
             </div>
@@ -131,6 +129,134 @@
         </div>
     </div>
 </div>
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <div class="text-left">
+                    <div class="head-title pb-2">Setingan Kuota Bimbingan Dosen</div>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover" id="data-bimbingan">
+                        <thead>
+                        <tr>
+                            <th>No</th>
+                            <th>Nilai</th>
+                            <th>Action</th>
+                        </tr>
+                        </thead>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <div class="text-left">
+                    <div class="head-title pb-2">Setingan Dosen Pembimbing</div>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover" id="data-dospem">
+                        <thead>
+                        <tr>
+                            <th>No</th>
+                            <th>Nilai</th>
+                            <th>Action</th>
+                        </tr>
+                        </thead>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">
+                <div class="text-left">
+                    <div class="head-title pb-2">Setingan Predikat Penilaian</div>
+                    <button class="btn btn-primary" data-toggle="modal" data-target="#tambahpredikat">Tambah Predikat</button>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover" id="data-predikat">
+                        <thead>
+                        <tr>
+                            <th>No</th>
+                            <th>Minimum Nilai</th>
+                            <th>Maximum Nilai</th>
+                            <th>Predikat Penilaian</th>
+                            <th>Keterangan</th>
+                            <th>Action</th>
+                        </tr>
+                        </thead>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+    <div class="modal fade" id="tambahpredikat">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form id="tambahpredikat">
+                    <div class="modal-header">
+                        <div class="modal-title">Form Tambah Predikat Penilaian</div>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label for="nama_predikat">Nama Predikat</label>
+                            <input type="text" name="nama_predikat" id="nama_predikat" class="form-control" autocomplete="off" placeholder="contoh A">
+                        </div>
+                        <div class="form-group">
+                            <label for="nilai_minimum">Nilai Minimum</label>
+                            <input type="number" name="nilai_minimum" id="nilai_minimum" class="form-control" autocomplete="off">
+                        </div>
+                        <div class="form-group">
+                            <label for="nilai_maximum">Nilai Maximum</label>
+                            <input type="number" name="nilai_maximum" id="nilai_maximum" class="form-control" autocomplete="off">
+                        </div>
+                        <div class="form-group">
+                            <label for="keterangan">Keterangan</label>
+                            <input type="text" name="keterangan" id="keterangan" class="form-control" autocomplete="off" placeholder="contoh predikat ini untuk nilai">
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button class="btn btn-primary" type="submit">Simpan</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="hapuspredikat">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div class="modal-title">Form Hapus Predikat</div>
+                </div>
+                <form id="hapuspredikat">
+                    <div class="modal-body">
+                        <input type="hidden" class="id">
+                        <p>Anda yakin menghapus predikat <strong class="nama_predikat">Nama Predikat</strong> ?</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button class="btn btn-danger" type="submit">Hapus</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 
     <div class="modal fade" id="tambah">
         <div class="modal-dialog">
@@ -205,7 +331,6 @@
         </div>
     </div>
 
-
     <div class="modal fade" id="editkomponen">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -251,7 +376,6 @@
         </div>
     </div>
 
-
     <div class="modal fade" id="hapusbobot">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -272,7 +396,65 @@
         </div>
     </div>
 
+    <div class="modal fade" id="editdospem">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form id="editdospem" method="post">
+                <div class="modal-header">
+                    <div class="modal-title">
+                        Update jumlah dosen pembimbing
+                    </div>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <input type="hidden" class="id">
+                        <label for="nilai">Nilai</label>
+                        <input type="text" name="nilai" id="nilai" class="form-control">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-default" type="button" data-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-primary">Simpan</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 
+    <div class="modal fade" id="editbimbingan">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form id="editbimbingan" method="post">
+                    <div class="modal-header">
+                        <div class="modal-title">
+                            Update Kuota Dosen Pembimbing
+                        </div>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <input type="hidden" class="id">
+                            <label for="nilai">Nilai</label>
+                            <input type="text" name="nilai" id="nilai" class="form-control">
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-default" type="button" data-dismiss="modal">Batal</button>
+                        <button type="submit" class="btn btn-primary">Simpan</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+
+    <div id="loading-overlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:9999; text-align:center; color:white;">
+        <div style="position:absolute; top:50%; left:50%; transform:translate(-50%, -50%);">
+            <div class="spinner-border" role="status">
+                <span class="sr-only">Loading...</span>
+            </div>
+            <p>Memproses...</p>
+        </div>
+    </div>
 <?php $this->app->endSection('content') ?>
 
 <?php $this->app->section() ?>
@@ -422,6 +604,7 @@
 
         $(document).on('submit', 'form#tambahbobot', function(e) {
             e.preventDefault();
+            $('#loading-overlay').show();
             call('api/bobot_penilaian/create', $(this).serialize()).done(function(req) {
                 if (req.error == true) {
                     notif(req.message, 'error', true);
@@ -431,7 +614,12 @@
                     $('div#tambahbobot').modal('hide');
                     showBobot();
                 }
-            })
+                $('#loading-overlay').hide();
+            }).fail(function() {
+                // Sembunyikan overlay loading jika terjadi error
+                $('#loading-overlay').hide();
+                alert('Terjadi kesalahan, silakan coba lagi.');
+            });
         })
 
 
@@ -477,6 +665,7 @@
 
         $(document).on('submit', 'form#editkomponen', function(e) {
             e.preventDefault();
+            $('#loading-overlay').show();
             const id = $('form#editkomponen .id').val();
             call('api/komponen/update/'+ id, $(this).serialize()).done(function(req) {
                 if (req.error == true) {
@@ -487,7 +676,13 @@
                     $('div#editkomponen').modal('hide');
                     showkomponen();
                 }
-            })
+                $('#loading-overlay').hide();
+
+            }).fail(function() {
+                // Sembunyikan overlay loading jika terjadi error
+                $('#loading-overlay').hide();
+                alert('Terjadi kesalahan, silakan coba lagi.');
+            });
         })
 
         // end untuk section edit komponen
@@ -543,6 +738,7 @@
 
         $(document).on('submit', 'form#hapus', function(e) {
             e.preventDefault();
+            $('#loading-overlay').show();
             const id = $('form#hapus .id').val();
             call('api/komponen/destroy/'+ id).done(function(req) {
                 if (req.error == true) {
@@ -552,7 +748,12 @@
                     $('div#hapus').modal('hide');
                     showkomponen();
                 }
-            })
+                $('#loading-overlay').hide();
+            }).fail(function() {
+                // Sembunyikan overlay loading jika terjadi error
+                $('#loading-overlay').hide();
+                alert('Terjadi kesalahan, silakan coba lagi.');
+            });
         })
 
 
@@ -575,6 +776,245 @@
             })
         })
 
+    })
+
+    $(document).ready(function (){
+        function showDospem() {
+            $('#data-dospem').DataTable().destroy();
+            $('#data-dospem').DataTable({
+                "deferRender": true,
+                "ajax": {
+                    "url": base_url + "api/kuota_dospem",
+                    "method": "POST",
+                    "dataSrc": "data"
+                },
+                "columns": [{
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        return meta.row + meta.settings._iDisplayStart + 1;
+                    }
+                },
+                    {
+                        data: "nilai"
+                    },
+                    {
+                        data: null,
+                        render: function(data) {
+                            return `
+							<div class="">
+								<button
+									class="btn btn-editdospem btn-info btn-sm"
+									type="button"
+									data-toggle="modal"
+									data-target="#editdospem"
+									data-id="` + data.id + `"
+									data-nilai="` + data.nilai + `"
+								>
+									<i class="fa fa-pen"></i>
+								</button>
+							</div>
+							`;
+                        }
+                    },
+                ]
+            })
+        }
+
+        $(document).on('click', 'button.btn-editdospem', function() {
+            $('form#editdospem .id').val($(this).data('id'));
+            $('form#editdospem [name=nilai]').val($(this).data('nilai'));
+        })
+
+        $(document).on('submit', 'form#editdospem', function(e) {
+            e.preventDefault();
+            const id = $('form#editdospem .id').val();
+            call('api/kuota_dospem/update/' + id, $(this).serialize()).done(function(req) {
+                if (req.error == true) {
+                    notif(req.message, 'error', true);
+                } else {
+                    notif(req.message, 'success');
+                    $('form#editdospem [name]').val('');
+                    $('div#editdospem').modal('hide');
+                    showDospem();
+                }
+            })
+        })
+        showDospem();
+    })
+
+    $(document).ready(function (){
+        function showSettingPredikat() {
+            $('#data-predikat').DataTable().destroy();
+            $('#data-predikat').DataTable({
+                "deferRender": true,
+                "ajax": {
+                    "url": base_url + "api/predikat_penilaian",
+                    "method": "POST",
+                    "dataSrc": "data"
+                },
+                "columns": [{
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        return meta.row + meta.settings._iDisplayStart + 1;
+                    }
+                },
+                    {
+                      data:"nilai_minimum"
+                    },
+                    {
+                      data:"nilai_maximum"
+                    },
+                    {
+                        data: "nama_predikat"
+                    },
+                    {
+                      data: "keterangan"
+                    },
+                    {
+                        data: null,
+                        render: function(data) {
+                            return `
+							<div class="">
+								<button
+									class="btn btn-hapuspredikat btn-danger btn-sm"
+									type="button"
+									data-toggle="modal"
+									data-target="#hapuspredikat"
+									data-id="` + data.id + `"
+									data-nama_predikat="` + data.nama_predikat + `"
+								>
+									<i class="fa fa-trash"></i>
+								</button>
+							</div>
+							`;
+                        }
+                    },
+                ]
+            })
+        }
+
+        $(document).on('submit', 'form#tambahpredikat', function(e) {
+            e.preventDefault();
+
+            $('#loading-overlay').show();
+
+            call('api/predikat_penilaian/create', $(this).serialize()).done(function(req) {
+                if (req.error == true) {
+                    notif(req.message, 'error', true);
+                } else {
+                    notif(req.message, 'success');
+                    $('form#tambahpredikat [name]').val('');
+                    $('div#tambahpredikat').modal('hide');
+                    showSettingPredikat();
+                }
+                // Sembunyikan overlay loading setelah proses selesai
+                $('#loading-overlay').hide();
+            }).fail(function() {
+                // Sembunyikan overlay loading jika terjadi error
+                $('#loading-overlay').hide();
+                alert('Terjadi kesalahan, silakan coba lagi.');
+            });
+        })
+        showSettingPredikat();
+
+        $(document).on('click', 'button.btn-hapuspredikat', function() {
+            $('form#hapuspredikat .id').val($(this).data('id'));
+            $('form#hapuspredikat .nama_predikat').html($(this).data('nama_predikat'));
+        })
+
+        $(document).on('submit', 'form#hapuspredikat', function(e) {
+            e.preventDefault();
+            $('#loading-overlay').show();
+            const id = $('form#hapuspredikat .id').val();
+            call('api/predikat_penilaian/destroy/'+ id).done(function(req) {
+                if (req.error == true) {
+                    notif(req.message, 'error', true);
+                } else {
+                    notif(req.message, 'success');
+                    $('div#hapuspredikat').modal('hide');
+                    showSettingPredikat();
+                }
+                // Sembunyikan overlay loading setelah proses selesai
+                $('#loading-overlay').hide();
+            }).fail(function() {
+                // Sembunyikan overlay loading jika terjadi error
+                $('#loading-overlay').hide();
+                alert('Terjadi kesalahan, silakan coba lagi.');
+            });
+        })
+    })
+
+    $(document).ready(function (){
+        function showBimbingan() {
+            $('#data-bimbingan').DataTable().destroy();
+            $('#data-bimbingan').DataTable({
+                "deferRender": true,
+                "ajax": {
+                    "url": base_url + "api/kuota_bimbingan",
+                    "method": "POST",
+                    "dataSrc": "data"
+                },
+                "columns": [{
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        return meta.row + meta.settings._iDisplayStart + 1;
+                    }
+                },
+                    {
+                        data: "nilai"
+                    },
+                    {
+                        data: null,
+                        render: function(data) {
+                            return `
+							<div class="">
+								<button
+									class="btn btn-editbimbingan btn-info btn-sm"
+									type="button"
+									data-toggle="modal"
+									data-target="#editbimbingan"
+									data-id="` + data.id + `"
+									data-nilai="` + data.nilai + `"
+								>
+									<i class="fa fa-pen"></i>
+								</button>
+							</div>
+							`;
+                        }
+                    },
+                ]
+            })
+        }
+
+        $(document).on('click', 'button.btn-editbimbingan', function() {
+            $('form#editbimbingan .id').val($(this).data('id'));
+            $('form#editbimbingan [name=nilai]').val($(this).data('nilai'));
+        })
+
+        $(document).on('submit', 'form#editbimbingan', function(e) {
+            e.preventDefault();
+
+            $('#loading-overlay').show();
+
+            const id = $('form#editbimbingan .id').val();
+            call('api/kuota_bimbingan/update/' + id, $(this).serialize()).done(function(req) {
+                if (req.error == true) {
+                    notif(req.message, 'error', true);
+                } else {
+                    notif(req.message, 'success');
+                    $('form#editbimbingan [name]').val('');
+                    $('div#editbimbingan').modal('hide');
+                    showBimbingan();
+                }
+                // Sembunyikan overlay loading setelah proses selesai
+                $('#loading-overlay').hide();
+            }).fail(function() {
+                // Sembunyikan overlay loading jika terjadi error
+                $('#loading-overlay').hide();
+                alert('Terjadi kesalahan, silakan coba lagi.');
+            });
+        })
+        showBimbingan();
     })
 </script>
 <?php $this->app->endSection('script') ?>

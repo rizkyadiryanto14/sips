@@ -61,14 +61,11 @@ class Dosen_model extends CI_Model
 
         include_once APPPATH . 'third_party/phpqrcode/qrlib.php';
 
-        // URL yang akan diembed ke dalam QR code
         $qr_url = base_url('dosen/detail_signature/' . $id);
 
-        // Nama file QR code
         $file_name = 'dosen_' . $id . '.png';
         $file_path = FCPATH . 'cdn/vendor/qrcodes/' . $file_name;
 
-        // Parameter untuk QR code
         $qr_params = [
             'data' => $qr_url,
             'level' => 'H',
@@ -79,11 +76,9 @@ class Dosen_model extends CI_Model
         // Generate QR code
         QRcode::png($qr_params['data'], $qr_params['savename'], $qr_params['level'], $qr_params['size']);
 
-        // Update tabel dosen dengan nama file QR code
         $this->db->where('id', $id);
         $this->db->update($this->table, ['qr_code' => $file_name]);
 
-        // Mengembalikan nama file QR code
         return $file_name;
     }
 
@@ -105,18 +100,15 @@ class Dosen_model extends CI_Model
 
     public function create($input)
     {
-        // Ambil tahun sekarang
         $tahun_sekarang = date('Y');
 
-        // Cari ID periode berdasarkan tahun sekarang
         $this->db->select('id');
         $this->db->from('periode');
         $this->db->where('periode', $tahun_sekarang);
-        $this->db->where('status', 1); // Anda bisa mengubah ini sesuai kondisi status yang dibutuhkan
+        $this->db->where('status', 1);
         $periode = $this->db->get()->row();
 
         if (!$periode) {
-            // Jika tidak ada data periode yang cocok, kembalikan error
             return [
                 'error' => true,
                 'message' => 'Periode untuk tahun ' . $tahun_sekarang . ' tidak ditemukan atau belum aktif.'
@@ -162,6 +154,8 @@ class Dosen_model extends CI_Model
 
     public function update($input, $id)
     {
+        $existingData = $this->db->get_where($this->table, ['dosen.id' => $id])->row();
+
         $data = [
             'nip' => $input['nip'],
             'nama' => $input['nama'],
@@ -169,10 +163,15 @@ class Dosen_model extends CI_Model
             'email' => $input['email'],
             'fokus' => $input['fokus'],
             'id_jabatan'    => $input['id_jabatan'],
-            'no_japung'=> $input['no_japung'],
+            'no_japung' => $input['no_japung'],
             'tema_riset' => $input['tema_riset'],
-            'password'  => PASSWORD_HASH($input['password'], PASSWORD_DEFAULT)
         ];
+
+        if (!empty($input['password'])) {
+            $data['password'] = PASSWORD_HASH($input['password'], PASSWORD_DEFAULT);
+        } else {
+            $data['password'] = $existingData->password; // Password lama
+        }
 
         $kondisi = ['dosen.id' => $id];
         $cek = $this->db->get_where($this->table, $kondisi)->num_rows();
@@ -206,6 +205,7 @@ class Dosen_model extends CI_Model
 
         return $hasil;
     }
+
 
     /**
      * @param $id
@@ -245,7 +245,7 @@ class Dosen_model extends CI_Model
         $dosen = $this->db->get_where($this->table, $kondisi)->row_array();
 
         return [
-            'error' => ($dosen) ? false : true,
+            'error' => !$dosen,
             'message' => ($dosen) ? "data berhasil ditemukan" : "data tidak ditemukan",
             'data' => $dosen
         ];

@@ -8,6 +8,7 @@ defined('BASEPATH') or exit('No direct script access allowed');
  * @property $app
  * @property $fileupload
  * @property $emailm
+ * @property $session
  */
 
 class Proposal_mahasiswa_model extends CI_Model
@@ -29,7 +30,7 @@ class Proposal_mahasiswa_model extends CI_Model
         $kondisi = [];
 
         // Ambil id_periode dari tabel periode dengan status = 1
-        $periode_aktif = $this->db->select('id')
+        $periode_aktif = $this->db->select('id, periode')
             ->from('periode')
             ->where('status', 1)
             ->get()
@@ -48,7 +49,7 @@ class Proposal_mahasiswa_model extends CI_Model
 
         // Ambil dosen_id dan dosen2_id dari input atau session userdata
         $dosen_id = !empty($input['dosen_id']) ? $input['dosen_id'] : $this->session->userdata('dosen_id');
-        $dosen2_id = !empty($input['dosen2_id']) ? $input['dosen2_id'] : $this->session->userdata('dosen2_id');
+        $dosen2_id = !empty($input['dosen2_id']) ? $this->session->userdata('dosen2_id') : null;
 
         if (!empty($dosen_id) || !empty($dosen2_id)) {
             $this->db->group_start();
@@ -69,29 +70,41 @@ class Proposal_mahasiswa_model extends CI_Model
             $kondisi['mahasiswa_id'] = $input['mahasiswa_id'];
         }
 
-        $this->db->select("*");
+
+        $this->db->distinct();
+        $this->db->select("proposal_mahasiswa.*");
         $this->db->where($kondisi);
-        $proposal_mahasiswa = $this->db->get($this->table)->result_array();
+        $query = $this->db->get($this->table);
+
+        if ($query === false) {
+            return [
+                'error' => true,
+                'message' => 'Terjadi kesalahan dalam query.',
+                'data' => []
+            ];
+        }
+
+        $proposal_mahasiswa = $query->result_array();
 
         $hasil['error'] = false;
-        $hasil['message'] = ($proposal_mahasiswa) ? "data berhasil ditemukan" : "data tidak tersedia";
+        $hasil['message'] = ($proposal_mahasiswa) ? "Data berhasil ditemukan" : "Data tidak tersedia";
         $hasil['data'] = $proposal_mahasiswa;
 
         foreach ($proposal_mahasiswa as $key => $item) {
             $hasil['data'][$key]['mahasiswa'] = $this->db->get_where('mahasiswa_v', ['mahasiswa_v.id' => $item['mahasiswa_id']])->row_array();
             $hasil['data'][$key]['pembimbing'] = $this->db->get_where('dosen', ['dosen.id' => $item['dosen_id']])->row_array();
             $hasil['data'][$key]['pembimbing2'] = $this->db->get_where('dosen', ['dosen.id' => $item['dosen2_id']])->row_array();
+            $hasil['data'][$key]['created_at'] = tgl_indo($item['created_at']);
         }
-
         return $hasil;
     }
-
-
-
 
     public function create($input)
     {
         $this->load->library('FileUpload');
+
+        // Mulai transaksi
+        $this->db->trans_start();
 
         // Ambil tahun sekarang
         $tahun_sekarang = date('Y');
@@ -100,114 +113,244 @@ class Proposal_mahasiswa_model extends CI_Model
         $this->db->select('id');
         $this->db->from('periode');
         $this->db->where('periode', $tahun_sekarang);
-        $this->db->where('status', 1); // Anda bisa mengubah ini sesuai kondisi status yang dibutuhkan
+        $this->db->where('status', 1);
         $periode = $this->db->get()->row();
 
         if (!$periode) {
-            // Jika tidak ada data periode yang cocok, kembalikan error
+            $this->db->trans_rollback();
             return [
                 'error' => true,
                 'message' => 'Periode untuk tahun ' . $tahun_sekarang . ' tidak ditemukan atau belum aktif.'
             ];
         }
 
-        $data = [
-            'mahasiswa_id' => $input['mahasiswa_id'],
-            'judul' => $input['judul'],
-            'dosen_id' => $input['dosen_id'],
-            'dosen2_id' => $input['dosen2_id'],
-            'krs' => $input['krs'],
-            'transkip' => $input['transkip'],
-            'outline' => $input['outline'],
-            'lulus_metopen' => $input['lulus_metopen'],
-            'lulus_mkwajib' => $input['lulus_mkwajib'],
-            'id_periode' => $periode->id,
-        ];
+        // Ambil kuota maksimal bimbingan
+        $this->db->select('nilai');
+        $this->db->from('kuota_bimbingan');
+        $kuota = $this->db->get()->row();
+
+        // Hitung jumlah mahasiswa yang sudah dibimbing oleh dosen pertama (dosen_id)
+        $this->db->select('COUNT(*) as jumlah_mahasiswa');
+        $this->db->from('bimbingan_dosen_v');
+        $this->db->where('id', $input['dosen_id']);
+        $jumlah_mahasiswa_dosen1 = $this->db->get()->row()->jumlah_mahasiswa;
+
+        if ($jumlah_mahasiswa_dosen1 >= $kuota->nilai) {
+            $this->db->trans_rollback();
+            return [
+                'error' => true,
+                'message' => 'Kuota dosen pembimbing pertama telah penuh.'
+            ];
+        }
+
+        // Cek kuota dospem untuk menentukan apakah dosen2_id diperlukan
+        $this->db->select('nilai');
+        $this->db->from('kuota_dospem');
+        $kuota_dospem = $this->db->get()->row();
+
+        // Jika kuota dospem 1, dosen2 tidak diperlukan
+        if ($kuota_dospem->nilai == 1) {
+            $data = [
+                'mahasiswa_id' => $input['mahasiswa_id'],
+                'judul' => htmlspecialchars($input['judul'], ENT_QUOTES, 'UTF-8'),
+                'dosen_id' => (int)$input['dosen_id'],
+                'lulus_metopen' => (int)$input['lulus_metopen'],
+                'lulus_mkwajib' => (int)$input['lulus_mkwajib'],
+                'id_periode' => $periode->id,
+            ];
+        } else {
+            if (empty($input['dosen2_id'])) {
+                $this->db->trans_rollback();
+                return [
+                    'error' => true,
+                    'message' => 'Dosen Pembimbing 2 harus diisi.'
+                ];
+            }
+
+            // Hitung jumlah mahasiswa yang sudah dibimbing oleh dosen kedua (dosen2_id)
+            $this->db->select('COUNT(*) as jumlah_mahasiswa');
+            $this->db->from('bimbingan_dosen_v');
+            $this->db->where('id', $input['dosen2_id']);
+            $jumlah_mahasiswa_dosen2 = $this->db->get()->row()->jumlah_mahasiswa;
+
+            if ($jumlah_mahasiswa_dosen2 >= $kuota->nilai) {
+                $this->db->trans_rollback();
+                return [
+                    'error' => true,
+                    'message' => 'Kuota dosen pembimbing kedua telah penuh.'
+                ];
+            }
+
+            $data = [
+                'mahasiswa_id' => (int)$input['mahasiswa_id'],
+                'judul' => htmlspecialchars($input['judul'], ENT_QUOTES, 'UTF-8'),
+                'dosen_id' => (int)$input['dosen_id'],
+                'dosen2_id' => (int)$input['dosen2_id'],
+                'lulus_metopen' => (int)$input['lulus_metopen'],
+                'lulus_mkwajib' => (int)$input['lulus_mkwajib'],
+                'id_periode' => $periode->id,
+            ];
+        }
 
         $validate = $this->app->validate($data);
 
         if ($validate === true) {
-            // Upload files using FileUpload library
-            $data['krs'] = $this->fileupload->upload($input['krs'], 'cdn/vendor/krs/');
-            $data['transkip'] = $this->fileupload->upload($input['transkip'], 'cdn/vendor/transkip/');
-            $data['outline'] = $this->fileupload->upload($input['outline'], 'cdn/vendor/outline/');
+            // File upload handling
+            try {
+                if (!empty($input['krs'])) {
+                    $data['krs'] = $this->fileupload->upload($input['krs'], 'cdn/vendor/krs/');
+                }
+
+                if (!empty($input['transkip'])) {
+                    $data['transkip'] = $this->fileupload->upload($input['transkip'], 'cdn/vendor/transkip/');
+                }
+
+                if (!empty($input['outline'])) {
+                    $data['outline'] = $this->fileupload->upload($input['outline'], 'cdn/vendor/outline/');
+                }
+            } catch (Exception $e) {
+                $this->db->trans_rollback();
+                return [
+                    'error' => true,
+                    'message' => $e->getMessage()
+                ];
+            }
 
             // Insert data into database
             $this->db->insert($this->table, $data);
             $data_id = $this->db->insert_id();
-            $hasil = [
+
+            // Commit transaksi jika tidak ada masalah
+            $this->db->trans_complete();
+
+            if ($this->db->trans_status() === FALSE) {
+                return [
+                    'error' => true,
+                    'message' => 'Terjadi kesalahan saat menyimpan data.'
+                ];
+            }
+
+            return [
                 'error' => false,
-                'message' => "data berhasil ditambah",
+                'message' => "Data berhasil ditambah, Harap Cek Email Secara Berkala",
                 'data_id' => $data_id
             ];
         } else {
-            $hasil = $validate;
+            $this->db->trans_rollback();
+            return $validate;
         }
-        return $hasil;
     }
 
     public function update($input, $id)
     {
         $this->load->library('FileUpload');
-        $data = [
-            'mahasiswa_id' => $input['mahasiswa_id'],
-            'judul' => $input['judul'],
-            'dosen_id' => $input['dosen_id'],
-            'dosen2_id' => $input['dosen2_id'],
-            'lulus_metopen' => $input['lulus_metopen'],
-            'lulus_mkwajib' => $input['lulus_mkwajib'],
 
-        ];
+        // Mulai transaksi
+        $this->db->trans_start();
+
+        // Ambil tahun sekarang
+        $tahun_sekarang = date('Y');
+
+        // Cari ID periode berdasarkan tahun sekarang
+        $this->db->select('id');
+        $this->db->from('periode');
+        $this->db->where('periode', $tahun_sekarang);
+        $this->db->where('status', 1);
+        $periode = $this->db->get()->row();
+
+        if (!$periode) {
+            $this->db->trans_rollback();
+            return [
+                'error' => true,
+                'message' => 'Periode untuk tahun ' . $tahun_sekarang . ' tidak ditemukan atau belum aktif.'
+            ];
+        }
+
+        // Ambil data yang sudah ada
         $kondisi = ['proposal_mahasiswa.id' => $id];
         $cek = $this->db->get_where($this->table, $kondisi)->row();
 
-        if ($cek) {
-            $validate = $this->app->validate($data);
+        if (!$cek) {
+            $this->db->trans_rollback();
+            return [
+                'error' => true,
+                'message' => 'Data tidak ditemukan'
+            ];
+        }
 
-            if ($validate === true) {
-                // File handling
+        $data = [
+            'mahasiswa_id' => (int)$input['mahasiswa_id'],
+            'judul' => htmlspecialchars($input['judul'], ENT_QUOTES, 'UTF-8'),
+            'dosen_id' => (int)$input['dosen_id'],
+            'id_periode' => $periode->id,
+        ];
+
+        if (isset($input['dosen2_id'])) {
+            $data['dosen2_id'] = (int)$input['dosen2_id'];
+        }
+
+        $validate = $this->app->validate($data);
+
+        if ($validate === true) {
+            // File upload handling
+            try {
                 if (!empty($input['krs'])) {
                     if (!empty($cek->krs)) {
-                        unlink(FCPATH . 'cdn/vendor/krs/' . $cek->krs); // Hapus file lama
+                        unlink(FCPATH . 'cdn/vendor/krs/' . $cek->krs);
                     }
                     $data['krs'] = $this->fileupload->upload($input['krs'], 'cdn/vendor/krs/');
+                } else {
+                    $data['krs'] = $cek->krs;
                 }
 
                 if (!empty($input['transkip'])) {
                     if (!empty($cek->transkip)) {
-                        unlink(FCPATH . 'cdn/vendor/transkip/' . $cek->transkip); // Hapus file lama
+                        unlink(FCPATH . 'cdn/vendor/transkip/' . $cek->transkip);
                     }
                     $data['transkip'] = $this->fileupload->upload($input['transkip'], 'cdn/vendor/transkip/');
+                } else {
+                    $data['transkip'] = $cek->transkip;
                 }
 
                 if (!empty($input['outline'])) {
                     if (!empty($cek->outline)) {
-                        unlink(FCPATH . 'cdn/vendor/outline/' . $cek->outline); // Hapus file lama
+                        unlink(FCPATH . 'cdn/vendor/outline/' . $cek->outline);
                     }
                     $data['outline'] = $this->fileupload->upload($input['outline'], 'cdn/vendor/outline/');
+                } else {
+                    $data['outline'] = $cek->outline;
                 }
-
-                // Update data
-                $this->db->update($this->table, $data, $kondisi);
-                $hasil = [
-                    'error' => false,
-                    'message' => "Data berhasil diedit"
+            } catch (Exception $e) {
+                $this->db->trans_rollback();
+                return [
+                    'error' => true,
+                    'message' => $e->getMessage()
                 ];
-            } else {
-                $hasil = $validate;
             }
-        } else {
-            $hasil = [
-                'error' => true,
-                'message' => "Data tidak ditemukan"
+
+            // Update data
+            $this->db->update($this->table, $data, $kondisi);
+
+            // Commit transaksi
+            $this->db->trans_complete();
+
+            if ($this->db->trans_status() === FALSE) {
+                $this->db->trans_rollback();
+                return [
+                    'error' => true,
+                    'message' => 'Terjadi kesalahan saat mengupdate data.'
+                ];
+            }
+
+            return [
+                'error' => false,
+                'message' => "Data berhasil diperbarui, Harap Cek Email Secara Berkala"
             ];
+        } else {
+            $this->db->trans_rollback();
+            return $validate;
         }
-
-        return $hasil;
     }
-
-
-
 
     /**
      * @param $id
@@ -216,18 +359,42 @@ class Proposal_mahasiswa_model extends CI_Model
     public function destroy($id): array
     {
         $kondisi = ['proposal_mahasiswa.id' => $id];
-        $cek = $this->db->get_where($this->table, $kondisi)->num_rows();
+        $cek = $this->db->get_where($this->table, $kondisi)->row();
 
-        if ($cek > 0) {
+        if ($cek) {
+            // Cek dan hapus file terkait jika ada
+            if (!empty($cek->krs)) {
+                $krs_file_path = FCPATH . 'cdn/vendor/krs/' . $cek->krs;
+                if (file_exists($krs_file_path)) {
+                    unlink($krs_file_path); // Hapus file KRS
+                }
+            }
+
+            if (!empty($cek->transkip)) {
+                $transkip_file_path = FCPATH . 'cdn/vendor/transkip/' . $cek->transkip;
+                if (file_exists($transkip_file_path)) {
+                    unlink($transkip_file_path); // Hapus file Transkip
+                }
+            }
+
+            if (!empty($cek->outline)) {
+                $outline_file_path = FCPATH . 'cdn/vendor/outline/' . $cek->outline;
+                if (file_exists($outline_file_path)) {
+                    unlink($outline_file_path); // Hapus file Outline
+                }
+            }
+
+            // Hapus data dari database
             $this->db->delete($this->table, $kondisi);
+
             $hasil = [
                 'error' => false,
-                'message' => "data berhasil dihapus"
+                'message' => "Data berhasil dihapus dan file terkait berhasil dihapus"
             ];
         } else {
             $hasil = [
                 'error' => true,
-                'message' => "data tidak ditemukan"
+                'message' => "Data tidak ditemukan"
             ];
         }
 
@@ -310,6 +477,11 @@ class Proposal_mahasiswa_model extends CI_Model
         }
 
         return $hasil;
+    }
+
+    public function kuota_dospem()
+    {
+        return $this->db->get('kuota_dospem')->row_array();
     }
 }
 

@@ -1,5 +1,10 @@
 <?php
 
+/**
+ * @property $Dosen_model
+ * @property $load
+ */
+
 class Detail_signature extends CI_Controller
 {
     public function __construct()

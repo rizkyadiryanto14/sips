@@ -129,9 +129,16 @@
             text-align: center;
         }
 
-        .footer-signature img {
+        .footer-signature {
+            text-align: center;
             margin-top: 50px;
-            align-items: center;
+        }
+
+        .footer-signature img {
+            margin-top: 30px;
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
         }
 
         .footer-signature p {
@@ -164,7 +171,7 @@
     <table class="content-table">
         <tr>
             <td>Hari, Tanggal</td>
-            <td>: <?= $showData['jadwal_skripsi']; ?></td>
+            <td>: <?= tgl_indo($showData['jadwal_skripsi']) ?></td>
         </tr>
         <tr>
             <td>Pukul</td>
@@ -207,10 +214,20 @@
         </tr>
         <tr>
             <td>Judul Skripsi</td>
-            <td>: <?= $showData['tempat_skripsi'] ?></td>
+            <td>: <?= $showData['judul_skripsi'] ?></td>
         </tr>
     </table>
-    <p>Dinyatakan : LULUS/TIDAK LULUS dengan Nilai :</p>
+    <p style="text-align: center;">
+        Dinyatakan :
+        <?php if($showData['nama_predikat'] == 'A' || $showData['nama_predikat'] == 'A-' || $showData['nama_predikat'] == 'B+' || $showData['nama_predikat'] == 'B-' || $showData['nama_predikat'] == 'B' || $showData['nama_predikat'] == 'C+' || $showData['nama_predikat'] == 'C') { ?>
+            <strong>LULUS</strong>
+        <?php } else { ?>
+            <strong>TIDAK LULUS</strong>
+        <?php } ?>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        dengan Nilai : <?= $showData['total_rata_rata'] ?>
+    </p>
+
 </div>
 
 <div class="catatan">
@@ -225,11 +242,13 @@
         <td>
             <p>Menyetujui Tim Penguji,</p>
             <p><strong>Pembimbing Utama</strong></p>
+            <img src="<?= base_url('cdn/vendor/qrcodes/' . $showData['barcode_penguji1']); ?>" width="20%" alt="">
             <p class="signature-name">(<?= $showData['nama_penguji1'] ?>)</p>
             <p>NIDN. <?= $showData['nip_penguji1'] ?></p>
         </td>
         <td>
             <p><strong>Sekretaris</strong></p>
+            <img src="<?= base_url('cdn/vendor/qrcodes/' . $showData['barcode_penguji2']); ?>" width="20%" alt="">
             <p class="signature-name">(<?= $showData['nama_penguji2'] ?>)</p>
             <p>NIDN. <?= $showData['nip_penguji2'] ?></p>
         </td>
@@ -237,8 +256,9 @@
     <tr>
         <td>
             <p><strong>Ketua Penguji</strong></p>
+            <img src="<?= base_url('cdn/vendor/qrcodes/' . $showData['barcode_pembimbing1']); ?>" width="20%" alt="">
             <p class="signature-name">(<?= $showData['nama_pembimbing1'] ?>)</p>
-            <p>NIDN. <?= $showData['nip_pembimbing1'] ?>></p>
+            <p>NIDN. <?= $showData['nip_pembimbing1'] ?></p>
         </td>
         <td>
             <p><strong>Mengetahui,</strong></p>
@@ -298,25 +318,27 @@
     <tr>
         <td>1</td>
         <td><?= $showData['nama_penguji1'] ?></td>
-        <td></td>
+        <td><?= $showData['penguji1_nilai_rata_rata'] ?></td>
         <td></td>
     </tr>
     <tr>
         <td>2</td>
         <td><?= $showData['nama_penguji2'] ?></td>
-        <td></td>
+        <td><?= $showData['penguji2_nilai_rata_rata']?></td>
         <td></td>
     </tr>
     <tr>
         <td></td>
         <td>Jumlah Nilai Ujian</td>
-        <td></td>
+        <td>
+            <?php echo $showData['penguji1_nilai_rata_rata'] + $showData['penguji2_nilai_rata_rata'] ?>
+        </td>
         <td></td>
     </tr>
     <tr>
         <td></td>
         <td>Jumlah Nilai rata-rata Ujian</td>
-        <td></td>
+        <td><?php echo ($showData['penguji1_nilai_rata_rata'] + $showData['penguji2_nilai_rata_rata']) / 2 ?></td>
         <td></td>
     </tr>
 </table>
@@ -343,25 +365,32 @@
     <tr>
         <td></td>
         <td>Jumlah Nilai rata-rata Ujian</td>
-        <td></td>
+        <td><?= $showData['pembimbing1_nilai_rata_rata'] ?></td>
         <td></td>
     </tr>
 </table>
 
 <div class="footer-text">
-    <p>Nilai rata-rata ujian Skripsi = _____ + _____ = _____</p>
+    <p>Nilai rata-rata ujian Skripsi = <?php echo ($showData['penguji1_nilai_rata_rata'] + $showData['penguji2_nilai_rata_rata']) / 2 ?> +  <?= $showData['pembimbing1_nilai_rata_rata']  ?> : 2 = <?php echo (($showData['penguji1_nilai_rata_rata'] + $showData['penguji2_nilai_rata_rata']) / 2 + $showData['pembimbing1_nilai_rata_rata']) / 2 ?></p>
     <p>Berdasarkan batas nilai Kelulusan, maka mahasiswa tersebut dinyatakan:</p>
-    <p><strong>LULUS/TIDAK LULUS</strong></p>
+    <p>
+        <?php if($showData['nama_predikat'] == 'A' || $showData['nama_predikat'] == 'A-' || $showData['nama_predikat'] == 'B+' || $showData['nama_predikat'] == 'B-' || $showData['nama_predikat'] == 'B' || $showData['nama_predikat'] == 'C+' || $showData['nama_predikat'] == 'C') { ?>
+            <strong>LULUS</strong>
+        <?php } else { ?>
+            <strong>TIDAK LULUS</strong>
+        <?php } ?>
+    </p>
 </div>
 
 <div class="footer-text">
-    <p>Sumbawa, __________</p>
+    <p>Sumbawa, <?= tgl_indo($showData['jadwal_skripsi']) ?></p>
     <p>Ketua Sidang</p>
 </div>
 
 <div class="footer-signature">
-    <p class="signature-name">(Nora Dery Sofya, M.M.Inov)</p>
-    <p>NIDN. 0816069501</p>
+    <img src="<?= base_url('cdn/vendor/qrcodes/' . $showData['barcode_penguji1']); ?>" width="20%" alt="">
+    <p class="signature-name">(<?= $showData['nama_penguji1'] ?>)</p>
+    <p>NIDN. <?= $showData['nip_penguji1'] ?></p>
 </div>
 
 <div class="page-break"></div>
@@ -419,42 +448,42 @@
         <td>a. Pokok permasalahan</td>
         <td>1</td>
         <td><?= $showData['penguji1_pokok_permasalahan'] ?></td>
-        <td></td>
+        <td><?= $showData['penguji1_pokok_permasalahan'] * 1 ?></td>
     </tr>
     <tr>
         <td>2</td>
         <td>b. Kerangka Pemikiran</td>
         <td>2</td>
         <td><?= $showData['penguji1_kerangka_pemikiran'] ?></td>
-        <td></td>
+        <td><?= $showData['penguji1_kerangka_pemikiran'] * 2 ?></td>
     </tr>
     <tr>
         <td>3</td>
         <td>c. Metode penelitian</td>
         <td>2</td>
         <td><?= $showData['penguji1_metode_penelitian'] ?></td>
-        <td></td>
+        <td><?= $showData['penguji1_metode_penelitian'] * 2 ?></td>
     </tr>
     <tr>
         <td>4</td>
         <td>d. Hasil Penelitian</td>
         <td>2</td>
         <td><?= $showData['penguji1_hasil_penelitian'] ?></td>
-        <td></td>
+        <td><?= $showData['penguji1_hasil_penelitian'] * 2 ?></td>
     </tr>
     <tr>
         <td>5</td>
         <td>e. Bahasa</td>
         <td>2</td>
         <td><?= $showData['penguji1_bahasa'] ?></td>
-        <td></td>
+        <td><?= $showData['penguji1_bahasa'] * 2 ?></td>
     </tr>
     <tr>
         <td>6</td>
         <td>f. Teknik penulisan</td>
         <td>1</td>
         <td><?= $showData['penguji1_teknik_penulisan'] ?></td>
-        <td></td>
+        <td><?= $showData['penguji1_teknik_penulisan'] * 1 ?></td>
     </tr>
     <tr>
         <td colspan="5" style="text-align: center;"><strong>B. Manfaat akademis dan praktis</strong></td>
@@ -464,7 +493,7 @@
         <td>Ujian Lisan</td>
         <td>2</td>
         <td><?= $showData['penguji1_manfaat_akademis_praktis'] ?></td>
-        <td></td>
+        <td><?= $showData['penguji1_manfaat_akademis_praktis'] * 2 ?></td>
     </tr>
     <tr>
         <td colspan="5" style="text-align: center;"><strong>C. Ujian Lisan</strong></td>
@@ -474,38 +503,39 @@
         <td>a. Penguasaan Materi</td>
         <td>2</td>
         <td><?= $showData['penguji1_penguasaan_materi'] ?></td>
-        <td></td>
+        <td><?= $showData['penguji1_penguasaan_materi'] * 2 ?></td>
     </tr>
     <tr>
         <td>2</td>
         <td>b. Penguasaan Metode</td>
         <td>2</td>
         <td><?= $showData['penguji1_penguasaan_metode'] ?></td>
-        <td></td>
+        <td><?= $showData['penguji1_penguasaan_metode'] * 2 ?></td>
     </tr>
     <tr>
         <td>3</td>
         <td>c. Kemampuan argumentasi</td>
         <td>2</td>
         <td><?= $showData['penguji1_kemampuan_argumentasi'] ?></td>
-        <td></td>
+        <td><?= $showData['penguji1_kemampuan_argumentasi'] * 2 ?></td>
     </tr>
     <tr>
         <td colspan="4"><strong>Jumlah</strong></td>
-        <td></td>
+        <td><?= $showData['penguji1_jumlah'] ?></td>
     </tr>
 </table>
 
 <div class="footer-text">
-    <p>Nilai rata-rata dari dosen penguji = _____</p>
+    <p>Nilai rata-rata dari dosen penguji = <?= $showData['penguji1_nilai_rata_rata'] ?></p>
 </div>
 
 <div class="footer-text">
-    <p>Sumbawa, __________</p>
+    <p>Sumbawa,  <?= tgl_indo($showData['jadwal_skripsi']) ?></p>
     <p>Ketua Sidang</p>
 </div>
 
 <div class="footer-signature">
+    <img src="<?= base_url('cdn/vendor/qrcodes/' . $showData['barcode_penguji1']); ?>" width="20%" alt="">
     <p class="signature-name">(<?= $showData['nama_penguji1'] ?>)</p>
     <p>NIDN. <?= $showData['nip_penguji1'] ?></p>
 </div>
@@ -564,43 +594,43 @@
         <td>1</td>
         <td>a. Pokok permasalahan</td>
         <td>1</td>
-        <td></td>
-        <td></td>
+        <td><?= $showData['penguji2_pokok_permasalahan'] ?></td>
+        <td><?= $showData['penguji2_pokok_permasalahan'] * 1 ?></td>
     </tr>
     <tr>
         <td>2</td>
         <td>b. Kerangka Pemikiran</td>
         <td>2</td>
-        <td></td>
-        <td></td>
+        <td><?= $showData['penguji2_kerangka_pemikiran'] ?></td>
+        <td><?= $showData['penguji2_kerangka_pemikiran'] * 2 ?></td>
     </tr>
     <tr>
         <td>3</td>
         <td>c. Metode penelitian</td>
         <td>2</td>
-        <td></td>
-        <td></td>
+        <td><?= $showData['penguji2_metode_penelitian'] ?></td>
+        <td><?= $showData['penguji2_metode_penelitian'] * 2 ?></td>
     </tr>
     <tr>
         <td>4</td>
         <td>d. Hasil Penelitian</td>
         <td>2</td>
-        <td></td>
-        <td></td>
+        <td><?= $showData['penguji2_hasil_penelitian'] ?></td>
+        <td><?= $showData['penguji2_hasil_penelitian'] * 2 ?></td>
     </tr>
     <tr>
         <td>5</td>
         <td>e. Bahasa</td>
         <td>2</td>
-        <td></td>
-        <td></td>
+        <td><?= $showData['penguji2_bahasa'] ?></td>
+        <td><?= $showData['penguji2_bahasa'] * 2 ?></td>
     </tr>
     <tr>
         <td>6</td>
         <td>f. Teknik penulisan</td>
         <td>1</td>
-        <td></td>
-        <td></td>
+        <td><?= $showData['penguji2_teknik_penulisan'] ?></td>
+        <td><?= $showData['penguji2_teknik_penulisan'] * 1 ?></td>
     </tr>
     <tr>
         <td colspan="5" style="text-align: center;"><strong>B. Manfaat akademis dan praktis</strong></td>
@@ -609,8 +639,8 @@
         <td>1</td>
         <td>Ujian Lisan</td>
         <td>2</td>
-        <td></td>
-        <td></td>
+        <td><?= $showData['penguji2_manfaat_akademis_praktis'] ?></td>
+        <td><?= $showData['penguji2_manfaat_akademis_praktis'] * 2 ?></td>
     </tr>
     <tr>
         <td colspan="5" style="text-align: center;"><strong>C. Ujian Lisan</strong></td>
@@ -619,39 +649,40 @@
         <td>1</td>
         <td>a. Penguasaan Materi</td>
         <td>2</td>
-        <td></td>
-        <td></td>
+        <td><?= $showData['penguji2_penguasaan_materi'] ?></td>
+        <td><?= $showData['penguji2_penguasaan_materi'] * 2 ?></td>
     </tr>
     <tr>
         <td>2</td>
         <td>b. Penguasaan Metode</td>
         <td>2</td>
-        <td></td>
-        <td></td>
+        <td><?= $showData['penguji2_penguasaan_metode'] ?></td>
+        <td><?= $showData['penguji2_penguasaan_metode'] * 2 ?></td>
     </tr>
     <tr>
         <td>3</td>
         <td>c. Kemampuan argumentasi</td>
         <td>2</td>
-        <td></td>
-        <td></td>
+        <td><?= $showData['penguji2_kemampuan_argumentasi'] ?></td>
+        <td><?= $showData['penguji2_kemampuan_argumentasi'] * 2 ?></td>
     </tr>
     <tr>
         <td colspan="4"><strong>Jumlah</strong></td>
-        <td></td>
+        <td><?= $showData['penguji2_jumlah'] ?></td>
     </tr>
 </table>
 
 <div class="footer-text">
-    <p>Nilai rata-rata dari dosen penguji = _____</p>
+    <p>Nilai rata-rata dari dosen penguji = <?= $showData['penguji2_nilai_rata_rata'] ?></p>
 </div>
 
 <div class="footer-text">
-    <p>Sumbawa, __________</p>
+    <p>Sumbawa,  <?= tgl_indo($showData['jadwal_skripsi']) ?></p>
     <p>Sekretaris Sidang</p>
 </div>
 
 <div class="footer-signature">
+    <img src="<?= base_url('cdn/vendor/qrcodes/' . $showData['barcode_penguji2']); ?>" width="20%" alt="">
     <p class="signature-name">(<?= $showData['nama_penguji2'] ?>)</p>
     <p>NIDN.<?= $showData['nip_penguji2'] ?></p>
 </div>
@@ -712,42 +743,42 @@
         <td>a. Pokok permasalahan</td>
         <td>1</td>
         <td><?= $showData['pembimbing1_pokok_permasalahan'] ?></td>
-        <td></td>
+        <td><?= $showData['pembimbing1_pokok_permasalahan'] * 1 ?></td>
     </tr>
     <tr>
         <td>2</td>
         <td>b. Kerangka Pemikiran</td>
         <td>2</td>
         <td><?= $showData['pembimbing1_kerangka_pemikiran'] ?></td>
-        <td></td>
+        <td><?= $showData['pembimbing1_kerangka_pemikiran'] * 2 ?></td>
     </tr>
     <tr>
         <td>3</td>
         <td>c. Metode penelitian</td>
         <td>2</td>
         <td><?= $showData['pembimbing1_metode_penelitian'] ?></td>
-        <td></td>
+        <td><?= $showData['pembimbing1_metode_penelitian'] * 2 ?></td>
     </tr>
     <tr>
         <td>4</td>
         <td>d. Hasil Penelitian</td>
         <td>2</td>
         <td><?= $showData['pembimbing1_hasil_penelitian'] ?></td>
-        <td></td>
+        <td><?= $showData['pembimbing1_hasil_penelitian'] * 2 ?></td>
     </tr>
     <tr>
         <td>5</td>
         <td>e. Bahasa</td>
         <td>2</td>
         <td><?= $showData['pembimbing1_bahasa'] ?></td>
-        <td></td>
+        <td><?= $showData['pembimbing1_bahasa'] * 2 ?></td>
     </tr>
     <tr>
         <td>6</td>
         <td>f. Teknik penulisan</td>
         <td>1</td>
         <td><?= $showData['pembimbing1_teknik_penulisan'] ?></td>
-        <td></td>
+        <td><?= $showData['pembimbing1_teknik_penulisan'] * 1 ?></td>
     </tr>
     <tr>
         <td colspan="5" style="text-align: center;"><strong>B. Manfaat akademis dan praktis</strong></td>
@@ -757,7 +788,7 @@
         <td>Ujian Lisan</td>
         <td>2</td>
         <td><?= $showData['pembimbing1_manfaat_akademis_praktis'] ?></td>
-        <td></td>
+        <td><?= $showData['pembimbing1_manfaat_akademis_praktis'] * 2 ?></td>
     </tr>
     <tr>
         <td colspan="5" style="text-align: center;"><strong>C. Ujian Lisan</strong></td>
@@ -767,41 +798,42 @@
         <td>a. Penguasaan Materi</td>
         <td>2</td>
         <td><?= $showData['pembimbing1_penguasaan_materi'] ?></td>
-        <td></td>
+        <td><?= $showData['pembimbing1_penguasaan_materi'] * 2 ?></td>
     </tr>
     <tr>
         <td>2</td>
         <td>b. Penguasaan Metode</td>
         <td>2</td>
         <td><?= $showData['pembimbing1_penguasaan_metode'] ?></td>
-        <td></td>
+        <td><?= $showData['pembimbing1_penguasaan_metode'] * 2 ?></td>
     </tr>
     <tr>
         <td>3</td>
         <td>c. Kemampuan argumentasi</td>
         <td>2</td>
         <td><?= $showData['pembimbing1_kemampuan_argumentasi'] ?></td>
-        <td></td>
+        <td><?= $showData['pembimbing1_kemampuan_argumentasi'] * 2 ?></td>
     </tr>
     <tr>
         <td colspan="4"><strong>Jumlah</strong></td>
-        <td></td>
+        <td><?= $showData['pembimbing1_jumlah'] ?></td>
     </tr>
 </table>
 
 <div class="footer-text">
-    <p>Nilai rata-rata dari dosen penguji = _____</p>
+    <p>Nilai rata-rata dari dosen pembimbing = <?= $showData['pembimbing1_nilai_rata_rata'] ?></p>
 </div>
 
 <div class="footer-text">
-    <p>Sumbawa, __________</p>
+    <p>Sumbawa, <?= tgl_indo($showData['jadwal_skripsi']) ?></p>
     <p><strong>Pembimbing Utama</strong></p>
 </div>
 
 <div class="footer-signature">
-    <img src="<?= base_url('cdn/vendor/qrcodes/' . $showData['barcode_pembimbing1']); ?>" width="20%" alt="" style="align-items: center">
+    <img src="<?= base_url('cdn/vendor/qrcodes/' . $showData['barcode_pembimbing1']); ?>" width="20%" alt="">
     <p class="signature-name">(<?= $showData['nama_pembimbing1'] ?>)</p>
     <p>NIDN.<?= $showData['nip_pembimbing1']  ?></p>
 </div>
+
 </body>
 </html>

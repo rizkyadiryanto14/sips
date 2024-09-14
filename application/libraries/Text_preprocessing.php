@@ -15,20 +15,14 @@ class Text_preprocessing {
         // Tokenisasi
         $tokens = explode(' ', $text);
 
-        // Stopwords sederhana (Anda bisa memperluas daftar ini)
         $stopwords = ['pada', 'dan', 'yang', 'di', 'ke', 'dari', 'berbasis'];
 
-        // Hapus stopwords
         $tokens = array_diff($tokens, $stopwords);
 
-        // Stemming (Contoh sederhana, biasanya menggunakan library khusus)
-        // Misal, ubah "implementasi" menjadi "implement"
-        // Catatan: Anda bisa menggunakan library seperti Sastrawi untuk stemming di bahasa Indonesia
 
         return $tokens;
     }
 
-    // Fungsi untuk menghitung kemiripan menggunakan TF-IDF
     public function calculate_tfidf_similarity($input_tokens, $doc_tokens) {
         $all_tokens = array_unique(array_merge($input_tokens, $doc_tokens));
         $input_vector = $this->tfidf_vectorize($input_tokens, $all_tokens);
@@ -37,24 +31,21 @@ class Text_preprocessing {
         return $this->cosine_similarity($input_vector, $doc_vector);
     }
 
-    // Membuat vektor TF-IDF
     private function tfidf_vectorize($tokens, $all_tokens) {
         $vector = [];
         foreach ($all_tokens as $token) {
             $tf = $this->term_frequency($token, $tokens);
-            $idf = 1; // IDF sederhana untuk dokumen tunggal
+            $idf = 1;
             $vector[] = $tf * $idf;
         }
         return $vector;
     }
 
-    // Menghitung term frequency (TF)
     private function term_frequency($term, $tokens) {
         $count = array_count_values($tokens);
         return isset($count[$term]) ? $count[$term] / count($tokens) : 0;
     }
 
-    // Menghitung cosine similarity
     private function cosine_similarity($vec1, $vec2) {
         $dot_product = 0;
         $vec1_magnitude = 0;

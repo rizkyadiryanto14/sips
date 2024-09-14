@@ -31,9 +31,10 @@ class Konsultasi_model extends CI_Model
         mahasiswa.nama as mahasiswa_nama,
         mahasiswa.prodi_id as mahasiswa_prodi_id,
         prodi.dosen_id as prodi_kaprodi_id,
-        dosen.nama
+        dosen.nama as dosen_nama
     ');
 
+        // Mengambil data dari tabel konsultasi dengan join ke proposal_mahasiswa, mahasiswa, prodi, dan dosen
         $this->db->from($this->table);
         $this->db->join('proposal_mahasiswa', 'proposal_mahasiswa.id = konsultasi.proposal_mahasiswa_id', 'left');
         $this->db->join('mahasiswa', 'mahasiswa.id = proposal_mahasiswa.mahasiswa_id', 'left');
@@ -44,8 +45,13 @@ class Konsultasi_model extends CI_Model
         $dosen_id = $this->session->userdata('id');
         $level = $this->session->userdata('level');
 
-        // Jika level bukan admin (level != 1), filter berdasarkan dosen_id atau dosen2_id
-        if ($level != 1) {
+        // Jika level mahasiswa (level == 3), filter berdasarkan mahasiswa_id
+        if ($level == 3) {
+            $mahasiswa_id = $this->session->userdata('id'); // Ambil mahasiswa_id dari session
+            $this->db->where('proposal_mahasiswa.mahasiswa_id', $mahasiswa_id); // Hanya tampilkan data milik mahasiswa tersebut
+        }
+        // Jika level dosen (level == 2), filter berdasarkan dosen_id
+        else if ($level == 2) {
             $this->db->group_start();
             $this->db->where('proposal_mahasiswa.dosen_id', $dosen_id);  // Pembimbing 1
             $this->db->or_where('proposal_mahasiswa.dosen2_id', $dosen_id);  // Pembimbing 2
@@ -53,13 +59,13 @@ class Konsultasi_model extends CI_Model
             $this->db->group_end();
         }
 
-        // Kondisi tambahan berdasarkan mahasiswa_id jika diberikan
-        if (!empty($input['mahasiswa_id'])) {
-            $this->db->where('proposal_mahasiswa.mahasiswa_id', $input['mahasiswa_id']);
-        }
-
+        // Ambil data
         $konsultasi = $this->db->get()->result_array();
 
+        // Logging query SQL untuk debugging
+        log_message('debug', 'Query SQL: ' . $this->db->last_query());
+
+        // Kembalikan hasil
         $hasil['error'] = false;
         $hasil['message'] = ($konsultasi) ? "data berhasil ditemukan" : "data tidak tersedia";
         $hasil['data'] = $konsultasi;
@@ -67,21 +73,17 @@ class Konsultasi_model extends CI_Model
         return $hasil;
     }
 
-
     public function create($input)
     {
-        // Ambil tahun sekarang
         $tahun_sekarang = date('Y');
 
-        // Cari ID periode berdasarkan tahun sekarang
         $this->db->select('id');
         $this->db->from('periode');
         $this->db->where('periode', $tahun_sekarang);
-        $this->db->where('status', 1); // Anda bisa mengubah ini sesuai kondisi status yang dibutuhkan
+        $this->db->where('status', 1);
         $periode = $this->db->get()->row();
 
         if (!$periode) {
-            // Jika tidak ada data periode yang cocok, kembalikan error
             return [
                 'error' => true,
                 'message' => 'Periode untuk tahun ' . $tahun_sekarang . ' tidak ditemukan atau belum aktif.'
@@ -93,32 +95,40 @@ class Konsultasi_model extends CI_Model
             'tanggal' => $input['tanggal'],
             'jam' => $input['jam'],
             'isi' => $input['isi'],
-            'bukti' => $input['bukti'],
             'id_periode'    => $periode->id
         ];
 
         $validate = $this->app->validate($data);
 
-                $bukti = explode(';base64,', $input['bukti'])[1];
-                $bukti_type = '.doc';
-                if ($input['bukti_file']) {
-                    $bukti_type = explode('.', $input['bukti_file']);
-                    $bukti_type = '.' . $bukti_type[count($bukti_type) - 1];
-                }
-                $bukti_nama = date('Ymdhis') . $bukti_type;
+        if ($validate === true) {
+            $this->load->library('FileUpload');
 
-                file_put_contents(FCPATH . 'cdn/vendor/bukti/' . $bukti_nama, base64_decode($bukti));
-                $data['bukti'] = $bukti_nama;
+            try {
+                if (!empty($input['bukti'])) {
+                    $uploaded_file_name = $this->fileupload->upload($input['bukti'], 'cdn/vendor/bukti/');
+                    $data['bukti'] = $uploaded_file_name;
+                }
 
                 $this->db->insert($this->table, $data);
+
                 $hasil = [
                     'error' => false,
-                    'message' => "data berhasil ditambah",
+                    'message' => 'Data berhasil ditambah',
                     'data_id' => $this->db->insert_id()
                 ];
-           
+            } catch (Exception $e) {
+                $hasil = [
+                    'error' => true,
+                    'message' => 'Gagal mengunggah bukti: ' . $e->getMessage()
+                ];
+            }
+        } else {
+            $hasil = $validate;
+        }
+
         return $hasil;
     }
+
 
     public function update($input, $id)
     {
@@ -287,14 +297,6 @@ class Konsultasi_model extends CI_Model
             ];
             goto output;
         }
-
-        // if (empty($input['komentar'])) {
-        //     $hasil = [
-        //         'error' => true,
-        //         'message' => "parameter 'komentar' harus diset"
-        //     ];
-        //     goto output;
-        // }
 
         if ($input['pembimbing_id']) {
             $data = [

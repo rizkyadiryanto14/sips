@@ -45,7 +45,7 @@
 <div class="modal fade" id="tambah">
     <div class="modal-dialog">
         <div class="modal-content">
-            <form id="tambah" action="javascript:;">
+            <form id="tambah">
                 <div class="modal-header">
                     <div class="modal-title">Tambah Proposal</div>
                 </div>
@@ -61,12 +61,14 @@
                             <option value="">- Pilih Dosen -</option>
                         </select>
                     </div>
+                    <?php if ($kuota_dospem['nilai'] != 1) { ?>
                     <div class="form-group">
                         <label>Dosen Pembimbing 2</label>
                         <select name="dosen2_id" class="form-control">
                             <option value="">- Pilih Dosen -</option>
                         </select>
                     </div>
+                    <?php }  ?>
                     <div class="form-group">
                         <label for="krs">File KRS</label>
                         <input type="file" class="form-control" name="pilih-krs" accept="application/pdf">
@@ -119,12 +121,14 @@
                             <option value="">- Pilih Dosen -</option>
                         </select>
                     </div>
+                    <?php if ($kuota_dospem['nilai'] != 1) { ?>
                     <div class="form-group">
                         <label>Dosen Pembimbing 2</label>
                         <select name="dosen2_id" class="form-control">
                             <option value="">- Pilih Dosen -</option>
                         </select>
                     </div>
+                    <?php } ?>
                     <div class="form-group">
                         <label for="krs">File KRS</label>
                         <input type="file" class="form-control" name="pilih-krs" accept="application/pdf">
@@ -158,10 +162,6 @@
                 </div>
             </form>
         </div>
-    </div>
-
-    <div id="loading-overlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:9999; text-align:center; color:#fff; font-size:20px; line-height:100vh;">
-        Loading...
     </div>
 </div>
 <div class="modal fade" id="hapus">
@@ -231,12 +231,25 @@
         </div>
     </div>
 </div>
+
+
+    <div id="loading-overlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:9999; text-align:center; color:white;">
+        <div style="position:absolute; top:50%; left:50%; transform:translate(-50%, -50%);">
+            <div class="spinner-border" role="status">
+                <span class="sr-only">Loading...</span>
+            </div>
+            <p>Memproses...</p>
+        </div>
+    </div>
+
+
 <?php $this->app->endSection('content') ?>
 
 <?php $this->app->section() ?>
-<link rel="stylesheet" href="<?= base_url() ?>cdn/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css">
-<script src="<?= base_url() ?>cdn/plugins/datatables/jquery.dataTables.min.js"></script>
-<script src="<?= base_url() ?>cdn/plugins/datatables-bs4/js/dataTables.bootstrap4.min.js"></script>
+    <link rel="stylesheet" href="<?= base_url() ?>cdn/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css">
+
+    <script src="<?= base_url() ?>cdn/plugins/datatables/jquery.dataTables.min.js"></script>
+    <script src="<?= base_url() ?>cdn/plugins/datatables-bs4/js/dataTables.bootstrap4.min.js"></script>
 <script>
     $(document).ready(function() {
 
@@ -264,7 +277,10 @@
                     {
                         data: null,
                         render: function(data) {
-                            return '1. ' + data.pembimbing.nama + ' <br>2. ' + data.pembimbing2.nama
+                            var pembimbing1 = data && data.pembimbing ? '1. ' + data.pembimbing.nama : '1. Data belum diperbaharui';
+                            var pembimbing2 = data && data.pembimbing2 ? '2. ' + data.pembimbing2.nama : '2. Data belum diperbaharui';
+
+                            return pembimbing1 + '<br>' + pembimbing2;
                         }
                     },
                     {
@@ -355,11 +371,15 @@
             $('[name=dosen_id]').html(dosen);
             $('[name=dosen2_id]').html(dosen);
         })
+
         $(document).on('submit', 'form#tambah', function(e) {
             e.preventDefault();
 
             // Tampilkan overlay loading
             $('#loading-overlay').show();
+
+            // Serialize form data including file inputs
+            var formData = new FormData(this);
 
             call('api/proposal_mahasiswa/create', $(this).serialize()).done(function(req) {
                 if (req.error == true) {
@@ -470,6 +490,10 @@
 
         $(document).on('submit', 'form#hapus', function(e) {
             e.preventDefault();
+
+            // Tampilkan overlay loading
+            $('#loading-overlay').show();
+
             var id = $('form#hapus .id').val();
             call('api/proposal_mahasiswa/destroy/' + id).done(function(req) {
                 if (req.error == true) {
@@ -480,7 +504,13 @@
                     $('div#hapus').modal('hide');
                     show();
                 }
-            })
+                // Sembunyikan overlay loading setelah proses selesai
+                $('#loading-overlay').hide();
+            }).fail(function() {
+                // Sembunyikan overlay loading jika terjadi error
+                $('#loading-overlay').hide();
+                alert('Terjadi kesalahan, silakan coba lagi.');
+            });
         })
 
         $(document).on('click', 'button.buat-konsultasi', function() {
