@@ -152,7 +152,6 @@ class Konsultasi_model extends CI_Model
                 'message' => "data tidak ditemukan"
             ];
         }
-
         return $hasil;
     }
 

@@ -37,11 +37,9 @@ class Dosen_model extends CI_Model
             'signature' => $post['ttd']
         ];
 
-        // Update tanda tangan
         $this->db->where('id', $post['id']);
         $this->db->update($table, $params);
 
-        // Generate QR code setelah tanda tangan diperbarui
         $this->generate_qr_code_for_signature($post['id']);
     }
 
@@ -81,7 +79,6 @@ class Dosen_model extends CI_Model
 
         return $file_name;
     }
-
 
 
     /**

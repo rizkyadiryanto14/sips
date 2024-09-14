@@ -15,7 +15,6 @@ class Mahasiswa_model extends CI_Model
 
     public function get($input)
     {
-        // Mendapatkan periode yang aktif
         $this->db->select('id');
         $this->db->from('periode');
         $this->db->where('status', 1);
@@ -29,7 +28,6 @@ class Mahasiswa_model extends CI_Model
         }
 
         $this->db->select("*");
-        // Tambahkan filter untuk hanya mengambil data mahasiswa di periode aktif
         $this->db->where('id_periode', $periode_aktif['id']);
         $mahasiswa = $this->db->get($this->table)->result_array();
 

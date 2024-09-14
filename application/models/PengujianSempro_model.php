@@ -142,7 +142,7 @@ class PengujianSempro_model extends CI_Model
             mahasiswa.email
         ');
 
-        $this->db->from('seminar');  // Tabel seminar
+        $this->db->from('seminar');
         $this->db->join('proposal_mahasiswa', 'proposal_mahasiswa.id = seminar.proposal_mahasiswa_id', 'left');
         $this->db->join('mahasiswa', 'mahasiswa.id = proposal_mahasiswa.mahasiswa_id', 'left');
         $this->db->where('seminar.id', $id);
@@ -156,20 +156,18 @@ class PengujianSempro_model extends CI_Model
         ];
 
         if ($hasil['data']) {
-            // Jika ada hasil seminar, tambahkan ke data
             $hasil['data']['hasil'] = $this->db->get_where('hasil_seminar', ['seminar_id' => $hasil['data']['id']])->row_array();
         }
 
         return $hasil;
     }
 
-    // Fungsi untuk mengecek jumlah dosen yang sudah memberikan nilai
     public function cek_dosen_menilai($id_sempro)
     {
         $this->db->select('*');
         $this->db->from('pengujian_sempro');
         $this->db->where('id_sempro', $id_sempro);
-        $this->db->where('status', 1);  // Hanya dosen yang sudah memberi nilai
+        $this->db->where('status', 1);
         $result = $this->db->get()->result_array();
 
         return $result;

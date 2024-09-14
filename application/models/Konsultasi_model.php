@@ -3,6 +3,8 @@ defined('BASEPATH') or exit('No direct script access allowed');
 
 /**
  * @property $db
+ * @property $session
+ * @property $fileupload
  */
 
 class Konsultasi_model extends CI_Model
@@ -34,38 +36,29 @@ class Konsultasi_model extends CI_Model
         dosen.nama as dosen_nama
     ');
 
-        // Mengambil data dari tabel konsultasi dengan join ke proposal_mahasiswa, mahasiswa, prodi, dan dosen
         $this->db->from($this->table);
         $this->db->join('proposal_mahasiswa', 'proposal_mahasiswa.id = konsultasi.proposal_mahasiswa_id', 'left');
         $this->db->join('mahasiswa', 'mahasiswa.id = proposal_mahasiswa.mahasiswa_id', 'left');
         $this->db->join('prodi', 'prodi.id = mahasiswa.prodi_id', 'left');
         $this->db->join('dosen', 'dosen.id = proposal_mahasiswa.dosen_id', 'left');
 
-        // Ambil dosen_id dan level dari session
         $dosen_id = $this->session->userdata('id');
         $level = $this->session->userdata('level');
 
-        // Jika level mahasiswa (level == 3), filter berdasarkan mahasiswa_id
         if ($level == 3) {
-            $mahasiswa_id = $this->session->userdata('id'); // Ambil mahasiswa_id dari session
-            $this->db->where('proposal_mahasiswa.mahasiswa_id', $mahasiswa_id); // Hanya tampilkan data milik mahasiswa tersebut
+            $mahasiswa_id = $this->session->userdata('id');
+            $this->db->where('proposal_mahasiswa.mahasiswa_id', $mahasiswa_id);
         }
-        // Jika level dosen (level == 2), filter berdasarkan dosen_id
         else if ($level == 2) {
             $this->db->group_start();
-            $this->db->where('proposal_mahasiswa.dosen_id', $dosen_id);  // Pembimbing 1
-            $this->db->or_where('proposal_mahasiswa.dosen2_id', $dosen_id);  // Pembimbing 2
-            $this->db->or_where('prodi.dosen_id', $dosen_id);  // Kaprodi
+            $this->db->where('proposal_mahasiswa.dosen_id', $dosen_id);
+            $this->db->or_where('proposal_mahasiswa.dosen2_id', $dosen_id);
+            $this->db->or_where('prodi.dosen_id', $dosen_id);
             $this->db->group_end();
         }
 
-        // Ambil data
         $konsultasi = $this->db->get()->result_array();
 
-        // Logging query SQL untuk debugging
-        log_message('debug', 'Query SQL: ' . $this->db->last_query());
-
-        // Kembalikan hasil
         $hasil['error'] = false;
         $hasil['message'] = ($konsultasi) ? "data berhasil ditemukan" : "data tidak tersedia";
         $hasil['data'] = $konsultasi;

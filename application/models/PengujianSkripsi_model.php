@@ -180,7 +180,6 @@ class PengujianSkripsi_model extends CI_Model
 
         $result = $this->db->get()->row_array();
 
-        // Perhitungan nilai
         if ($result) {
 
             $penguji1_rata_nilai = $result['penguji1_nilai_rata_rata'];
@@ -189,7 +188,6 @@ class PengujianSkripsi_model extends CI_Model
             $pembimbing2_rata_nilai = $result['pembimbing2_nilai_rata_rata'];
             $result['total_rata_rata'] = (($penguji1_rata_nilai + $penguji2_rata_nilai) / 2 + $pembimbing1_rata_nilai) / 2;
 
-            // Cari predikat
             $this->db->select('nama_predikat, keterangan');
             $this->db->from('predikat_penilaian');
             $this->db->where('nilai_minimum <=', $result['total_rata_rata']);
@@ -207,7 +205,6 @@ class PengujianSkripsi_model extends CI_Model
 
     public function create($input)
     {
-        // Ambil tahun sekarang
         $tahun_sekarang = date('Y');
 
         $this->db->select('id');
@@ -257,12 +254,9 @@ class PengujianSkripsi_model extends CI_Model
                 'data_id' => $this->db->insert_id()
             ];
 
-            // Cek apakah sudah ada 3 dosen yang memberikan nilai
             $pengujian_data = $this->cek_dosen_menilai($input['id_skripsi']);
 
-            // Kembalikan informasi ke controller jika 3 dosen sudah memberikan nilai
             if (count($pengujian_data) == 3) {
-                // Beri tanda bahwa pengiriman email harus dilakukan
                 $hasil['send_email'] = true;
             } else {
                 $hasil['send_email'] = false;
@@ -279,13 +273,12 @@ class PengujianSkripsi_model extends CI_Model
         return $this->db->get_where('skripsi_vl', ['id' => $id])->row_array();
     }
 
-    // Fungsi untuk mengecek jumlah dosen yang sudah memberikan nilai
     public function cek_dosen_menilai($id_sempro)
     {
         $this->db->select('*');
         $this->db->from('pengujian_skripsi');
         $this->db->where('id_skripsi', $id_sempro);
-        $this->db->where('status', 1);  // Hanya dosen yang sudah memberi nilai
+        $this->db->where('status', 1);
         $result = $this->db->get()->result_array();
 
         return $result;

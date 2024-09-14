@@ -14,14 +14,12 @@ class Skripsi_model extends CI_Model
     {
         $kondisi = [];
 
-        // Ambil id_periode dari tabel periode dengan status = 1
         $periode_aktif = $this->db->select('id')
             ->from('periode')
             ->where('status', 1)
             ->get()
             ->row_array();
 
-        // Cek apakah ada periode aktif
         if (empty($periode_aktif)) {
             return [
                 'error' => true,
@@ -30,10 +28,8 @@ class Skripsi_model extends CI_Model
             ];
         }
 
-        // Tambahkan kondisi untuk periode aktif
         $kondisi['skripsi_vl.id_periode'] = $periode_aktif['id'];
 
-        // Filter berdasarkan mahasiswa_id jika ada
         if (!empty($input['mahasiswa_id'])) {
             if (!is_numeric($input['mahasiswa_id'])) {
                 return [
@@ -45,7 +41,6 @@ class Skripsi_model extends CI_Model
             $kondisi['skripsi_vl.mahasiswa_id'] = $input['mahasiswa_id'];
         }
 
-        // Filter berdasarkan dosen_id dan dosen2_id
         if (!empty($input['dosen_id'])) {
             if (!is_numeric($input['dosen_id'])) {
                 return [
@@ -55,7 +50,6 @@ class Skripsi_model extends CI_Model
                 ];
             }
 
-            // Tambahkan kondisi untuk dosen_id dan dosen2_id
             $this->db->group_start()
                 ->where('skripsi_vl.dosen_id', $input['dosen_id'])
                 ->or_where('skripsi_vl.dosen2_id', $input['dosen_id'])
@@ -64,30 +58,25 @@ class Skripsi_model extends CI_Model
 
         $this->db->where($kondisi);
 
-        // Filter berdasarkan semester jika ada
         if (!empty($input['semester'])) {
             $this->db->where(function($query) use ($input) {
                 if ($input['semester'] == 'ganjil') {
-                    // Ganjil: September (09) sampai Februari (02)
                     $query->group_start()
                         ->where('MONTH(skripsi_vl.created_at) >=', 9)
                         ->or_where('MONTH(skripsi_vl.created_at) <=', 2)
                         ->group_end();
                 } elseif ($input['semester'] == 'genap') {
-                    // Genap: Maret (03) sampai Agustus (08)
                     $query->where('MONTH(skripsi_vl.created_at) >=', 3)
                         ->where('MONTH(skripsi_vl.created_at) <=', 8);
                 }
             });
         }
 
-        // Jalankan query
         $this->db->distinct();
         $this->db->select('skripsi_vl.*');
         $this->db->group_by('skripsi_vl.id');
         $query = $this->db->get('skripsi_vl');
 
-        // Cek apakah query berhasil dieksekusi
         if (!$query) {
             return [
                 'error' => true,
@@ -96,10 +85,8 @@ class Skripsi_model extends CI_Model
             ];
         }
 
-        // Ambil hasil query
         $skripsi = $query->result_array();
 
-        // Return hasil
         $hasil = [
             'error' => false,
             'message' => ($skripsi) ? "Data berhasil ditemukan" : "Data tidak tersedia",
@@ -144,10 +131,8 @@ class Skripsi_model extends CI_Model
             });
         }
 
-        // Eksekusi query dan ambil hasilnya
         $skripsi = $this->db->get('skripsi_vl')->result_array();
 
-        // Format hasil untuk output
         $hasil = [
             'error' => false,
             'message' => ($skripsi) ? "Data berhasil ditemukan" : "Data tidak tersedia",
@@ -155,9 +140,7 @@ class Skripsi_model extends CI_Model
         ];
 
         foreach ($hasil['data'] as $key => $item) {
-            // Format created_at dengan tgl_indo
             $hasil['data'][$key]['created_at'] = tgl_indo($item['created_at']);
-            // Format jadwal_skripsi jika ada
             $hasil['data'][$key]['jadwal_skripsi'] = tgl_indoFull($item['jadwal_skripsi']);
         }
 

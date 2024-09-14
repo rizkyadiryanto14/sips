@@ -89,7 +89,6 @@ class Seminar_model extends CI_Model
             'data' => $seminar,
         ];
 
-        // Format tanggal menggunakan helper tgl_indo
         foreach ($hasil['data'] as $key => $item) {
             $hasil['data'][$key]['created_at'] = tgl_indo($item['created_at']);
             $hasil['data'][$key]['tanggal'] = tgl_indo($item['tanggal']);

@@ -25,11 +25,11 @@ class Proposal_mahasiswa_model extends CI_Model
      * @param $input
      * @return array
      */
+
     public function get($input): array
     {
         $kondisi = [];
 
-        // Ambil id_periode dari tabel periode dengan status = 1
         $periode_aktif = $this->db->select('id, periode')
             ->from('periode')
             ->where('status', 1)
@@ -47,7 +47,6 @@ class Proposal_mahasiswa_model extends CI_Model
         $id_periode = $periode_aktif['id'];
         $kondisi['id_periode'] = $id_periode;
 
-        // Ambil dosen_id dan dosen2_id dari input atau session userdata
         $dosen_id = !empty($input['dosen_id']) ? $input['dosen_id'] : $this->session->userdata('dosen_id');
         $dosen2_id = !empty($input['dosen2_id']) ? $this->session->userdata('dosen2_id') : null;
 
@@ -103,13 +102,10 @@ class Proposal_mahasiswa_model extends CI_Model
     {
         $this->load->library('FileUpload');
 
-        // Mulai transaksi
         $this->db->trans_start();
 
-        // Ambil tahun sekarang
         $tahun_sekarang = date('Y');
 
-        // Cari ID periode berdasarkan tahun sekarang
         $this->db->select('id');
         $this->db->from('periode');
         $this->db->where('periode', $tahun_sekarang);
@@ -124,12 +120,10 @@ class Proposal_mahasiswa_model extends CI_Model
             ];
         }
 
-        // Ambil kuota maksimal bimbingan
         $this->db->select('nilai');
         $this->db->from('kuota_bimbingan');
         $kuota = $this->db->get()->row();
 
-        // Hitung jumlah mahasiswa yang sudah dibimbing oleh dosen pertama (dosen_id)
         $this->db->select('COUNT(*) as jumlah_mahasiswa');
         $this->db->from('bimbingan_dosen_v');
         $this->db->where('id', $input['dosen_id']);
@@ -143,12 +137,10 @@ class Proposal_mahasiswa_model extends CI_Model
             ];
         }
 
-        // Cek kuota dospem untuk menentukan apakah dosen2_id diperlukan
         $this->db->select('nilai');
         $this->db->from('kuota_dospem');
         $kuota_dospem = $this->db->get()->row();
 
-        // Jika kuota dospem 1, dosen2 tidak diperlukan
         if ($kuota_dospem->nilai == 1) {
             $data = [
                 'mahasiswa_id' => $input['mahasiswa_id'],
@@ -167,7 +159,6 @@ class Proposal_mahasiswa_model extends CI_Model
                 ];
             }
 
-            // Hitung jumlah mahasiswa yang sudah dibimbing oleh dosen kedua (dosen2_id)
             $this->db->select('COUNT(*) as jumlah_mahasiswa');
             $this->db->from('bimbingan_dosen_v');
             $this->db->where('id', $input['dosen2_id']);
@@ -195,7 +186,6 @@ class Proposal_mahasiswa_model extends CI_Model
         $validate = $this->app->validate($data);
 
         if ($validate === true) {
-            // File upload handling
             try {
                 if (!empty($input['krs'])) {
                     $data['krs'] = $this->fileupload->upload($input['krs'], 'cdn/vendor/krs/');
@@ -216,11 +206,9 @@ class Proposal_mahasiswa_model extends CI_Model
                 ];
             }
 
-            // Insert data into database
             $this->db->insert($this->table, $data);
             $data_id = $this->db->insert_id();
 
-            // Commit transaksi jika tidak ada masalah
             $this->db->trans_complete();
 
             if ($this->db->trans_status() === FALSE) {
@@ -245,13 +233,10 @@ class Proposal_mahasiswa_model extends CI_Model
     {
         $this->load->library('FileUpload');
 
-        // Mulai transaksi
         $this->db->trans_start();
 
-        // Ambil tahun sekarang
         $tahun_sekarang = date('Y');
 
-        // Cari ID periode berdasarkan tahun sekarang
         $this->db->select('id');
         $this->db->from('periode');
         $this->db->where('periode', $tahun_sekarang);
@@ -266,7 +251,6 @@ class Proposal_mahasiswa_model extends CI_Model
             ];
         }
 
-        // Ambil data yang sudah ada
         $kondisi = ['proposal_mahasiswa.id' => $id];
         $cek = $this->db->get_where($this->table, $kondisi)->row();
 
@@ -292,7 +276,6 @@ class Proposal_mahasiswa_model extends CI_Model
         $validate = $this->app->validate($data);
 
         if ($validate === true) {
-            // File upload handling
             try {
                 if (!empty($input['krs'])) {
                     if (!empty($cek->krs)) {
@@ -328,10 +311,8 @@ class Proposal_mahasiswa_model extends CI_Model
                 ];
             }
 
-            // Update data
             $this->db->update($this->table, $data, $kondisi);
 
-            // Commit transaksi
             $this->db->trans_complete();
 
             if ($this->db->trans_status() === FALSE) {
@@ -362,29 +343,27 @@ class Proposal_mahasiswa_model extends CI_Model
         $cek = $this->db->get_where($this->table, $kondisi)->row();
 
         if ($cek) {
-            // Cek dan hapus file terkait jika ada
             if (!empty($cek->krs)) {
                 $krs_file_path = FCPATH . 'cdn/vendor/krs/' . $cek->krs;
                 if (file_exists($krs_file_path)) {
-                    unlink($krs_file_path); // Hapus file KRS
+                    unlink($krs_file_path);
                 }
             }
 
             if (!empty($cek->transkip)) {
                 $transkip_file_path = FCPATH . 'cdn/vendor/transkip/' . $cek->transkip;
                 if (file_exists($transkip_file_path)) {
-                    unlink($transkip_file_path); // Hapus file Transkip
+                    unlink($transkip_file_path);
                 }
             }
 
             if (!empty($cek->outline)) {
                 $outline_file_path = FCPATH . 'cdn/vendor/outline/' . $cek->outline;
                 if (file_exists($outline_file_path)) {
-                    unlink($outline_file_path); // Hapus file Outline
+                    unlink($outline_file_path);
                 }
             }
 
-            // Hapus data dari database
             $this->db->delete($this->table, $kondisi);
 
             $hasil = [

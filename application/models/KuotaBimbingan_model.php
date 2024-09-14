@@ -121,7 +121,7 @@ class KuotaBimbingan_model extends CI_Model
         $jabatan = $this->db->get_where($this->table, $kondisi)->row_array();
 
         return [
-            'error' => ($jabatan) ? false : true,
+            'error' => !$jabatan,
             'message' => ($jabatan) ? "data berhasil ditemukan" : "data tidak ditemukan",
             'data' => $jabatan
         ];
